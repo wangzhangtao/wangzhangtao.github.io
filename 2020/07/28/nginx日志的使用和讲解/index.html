@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>nginx日志的使用和讲解 | 蚂蚁博客</title><meta name="description" content="参考文章 Nginx日志分析和参数详解  nginx日志记录格式log_format用来设置日志的记录格式： log_format name format name表示格式名称，format表示等义的格式。 nginx日志默认配置log_format  main  &amp;apos;$remote_addr - $remote_user [$time_local] &quot;$request&amp;qu"><meta name="keywords" content="nginx,log"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="nginx日志的使用和讲解"><meta name="twitter:description" content="参考文章 Nginx日志分析和参数详解  nginx日志记录格式log_format用来设置日志的记录格式： log_format name format name表示格式名称，format表示等义的格式。 nginx日志默认配置log_format  main  &amp;apos;$remote_addr - $remote_user [$time_local] &quot;$request&amp;qu"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="nginx日志的使用和讲解"><meta property="og:url" content="http://wang.ikongjian.com/2020/07/28/nginx%E6%97%A5%E5%BF%97%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E8%AE%B2%E8%A7%A3/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="参考文章 Nginx日志分析和参数详解  nginx日志记录格式log_format用来设置日志的记录格式： log_format name format name表示格式名称，format表示等义的格式。 nginx日志默认配置log_format  main  &amp;apos;$remote_addr - $remote_user [$time_local] &quot;$request&amp;qu"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-07-28T02:00:00.000Z"><meta property="article:modified_time" content="2020-07-31T07:04:10.455Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/07/28/nginx%E6%97%A5%E5%BF%97%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E8%AE%B2%E8%A7%A3/"><link rel="prev" title="pod的使用" href="http://wang.ikongjian.com/2020/07/28/pod%E7%9A%84%E4%BD%BF%E7%94%A8/"><link rel="next" title="nginx的详细用法" href="http://wang.ikongjian.com/2020/07/27/nginx%E7%9A%84%E8%AF%A6%E7%BB%86%E7%94%A8%E6%B3%95/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx日志记录格式"><span class="toc-number">1.</span> <span class="toc-text">nginx日志记录格式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#nginx日志默认配置"><span class="toc-number">1.1.</span> <span class="toc-text">nginx日志默认配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nginx日志优化配置"><span class="toc-number">1.2.</span> <span class="toc-text">nginx日志优化配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx日志参数详解"><span class="toc-number">2.</span> <span class="toc-text">nginx日志参数详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#其他的字段"><span class="toc-number">2.1.</span> <span class="toc-text">其他的字段</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Web服务流量名词介绍"><span class="toc-number">3.</span> <span class="toc-text">Web服务流量名词介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#网站并发连接数"><span class="toc-number">3.1.</span> <span class="toc-text">网站并发连接数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IP"><span class="toc-number">3.2.</span> <span class="toc-text">IP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PV"><span class="toc-number">3.3.</span> <span class="toc-text">PV</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UV"><span class="toc-number">3.4.</span> <span class="toc-text">UV</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IP，PV，UV的区别在哪？"><span class="toc-number">3.5.</span> <span class="toc-text">IP，PV，UV的区别在哪？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx日志常用分析命令示范"><span class="toc-number">4.</span> <span class="toc-text">Nginx日志常用分析命令示范</span></a></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">nginx日志的使用和讲解</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-07-28 10:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-07-28</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-07-31 15:04:10"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-07-31</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/nginx/">nginx</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">1.4k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 5 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><blockquote>
+<p> 参考文章 <a href="https://blog.51cto.com/13707680/2116001" target="_blank" rel="noopener">Nginx日志分析和参数详解</a></p>
+</blockquote>
+<h2 id="nginx日志记录格式"><a href="#nginx日志记录格式" class="headerlink" title="nginx日志记录格式"></a>nginx日志记录格式</h2><p>log_format用来设置日志的记录格式：</p>
+<p>log_format name format</p>
+<p>name表示格式名称，format表示等义的格式。</p>
+<h3 id="nginx日志默认配置"><a href="#nginx日志默认配置" class="headerlink" title="nginx日志默认配置"></a>nginx日志默认配置</h3><pre><code>log_format  main  &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;
+                  &apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;
+                  &apos;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&apos;;
+
+# 日志示例
+192.168.10.58 - - [22/Apr/2020:15:44:46 +0800] &quot;GET /login HTTP/1.1&quot; 200 4313 &quot;-&quot; &quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:67.0) Gecko/20100101 Firefox/67.0&quot;</code></pre><h3 id="nginx日志优化配置"><a href="#nginx日志优化配置" class="headerlink" title="nginx日志优化配置"></a>nginx日志优化配置</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">log_format  main  &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;</span><br><span class="line">                  &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;</span><br><span class="line">                  &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39; </span><br><span class="line">                  &#39;&quot;$upstream_addr&quot; $request_time $upstream_response_time&#39;;  # 最后一行新加</span><br><span class="line"> </span><br><span class="line"> # 日志示例</span><br><span class="line"> 116.55.250.205 - - [28&#x2F;Jul&#x2F;2020:00:07:34 +0800] &quot;POST &#x2F;user&#x2F;getInfo HTTP&#x2F;1.1&quot; 200 709 &quot;-&quot; &quot;Mozilla&#x2F;4.0 (compatible; MSIE 6.0; Windows NT 5.0; Alexa Toolbar; Maxthon 2.0)&quot; &quot;60.205.221.21&quot; &quot;172.16.16.3:8080&quot; 0.099 0.032</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="nginx日志参数详解"><a href="#nginx日志参数详解" class="headerlink" title="nginx日志参数详解"></a>nginx日志参数详解</h2><p>$remote_addr：远程客户端的IP地址。</p>
+<p>-：空白，用一个“-”占位符替代，历史原因导致还存在。</p>
+<p>$remote_user：远程客户端用户名称，用于记录浏览者进行身份验证时提供的名字，如登录百度的用户名scq2099yt，如果没有登录就是空白。</p>
+<p>[$time_local]：访问的时间与时区，比如18/Jul/2012:17:00:01 +0800，时间信息最后的”+0800”表示服务器所处时区位于UTC之后的8小时。</p>
+<p>$request：请求的URI和HTTP协议，这是整个PV日志记录中最有用的信息，记录服务器收到一个什么样的请求</p>
+<p>$status：记录请求返回的http状态码，比如成功是200。</p>
+<p>$body_bytes_sent：发送给客户端的文件主体内容的大小，比如899，可以将日志每条记录中的这个值累加起来以粗略估计服务器吞吐量。</p>
+<p>$http_referer：记录从哪个页面链接访问过来的。 </p>
+<p>$http_user_agent：客户端浏览器信息</p>
+<p>$http_x_forwarded_for：客户端的真实ip，通常web服务器放在反向代理的后面，这样就不能获取到客户的IP地址了，通过$remote_add拿到的IP地址是反向代理服务器的iP地址。反向代理服务器在转发请求的http头信息中，可以增加x_forwarded_for信息，用以记录原有客户端的IP地址和原来客户端的请求的服务器地址。</p>
+<p>$upstream_addr：upstream的地址，即真正提供服务的主机地址。 </p>
+<p>$request_time：整个请求的总时间。 </p>
+<p>$upstream_response_time：请求过程中，upstream的响应时间。</p>
+<h3 id="其他的字段"><a href="#其他的字段" class="headerlink" title="其他的字段"></a>其他的字段</h3><p>$http_host  #请求地址，即浏览器中你输入的地址（IP或域名）</p>
+<p>$request_body  #记录POST数据</p>
+<h2 id="Web服务流量名词介绍"><a href="#Web服务流量名词介绍" class="headerlink" title="Web服务流量名词介绍"></a>Web服务流量名词介绍</h2><h3 id="网站并发连接数"><a href="#网站并发连接数" class="headerlink" title="网站并发连接数"></a>网站并发连接数</h3><p>定义为网站服务器在单位时间内能够处理的最大连接数。示例：某网站的并发是5000.意味着单位时间内（理解为1秒或数秒内），正在处理的连接数，正在建立的连接数，加起来一共是5000个。</p>
+<h3 id="IP"><a href="#IP" class="headerlink" title="IP"></a>IP</h3><p>即Internet Protocol，一般指独立IP数，独立IP数是指不同IP地址的计算机访问网站时被计的总次数。一般一天00:00-24:00内相同IP地址只被计算一次。</p>
+<h3 id="PV"><a href="#PV" class="headerlink" title="PV"></a>PV</h3><p>即Page View，中文翻译为页面浏览，即页面浏览量或点击量，不管客户端是否相同，也不管IP和网站页面是否相同，用户只要访问网站页面就会计算PV，一次计为一个PV</p>
+<h3 id="UV"><a href="#UV" class="headerlink" title="UV"></a>UV</h3><p>即Unique Visitor，同一个客户端（PC或移动端）访问网站被计为一个访客。一天（00:00-24:00）内相同的客户端访问同一个网站只统计一次UV。UV一般是以客户端Cookie等技术作为统计依据的，实际统计会有误差。</p>
+<h3 id="IP，PV，UV的区别在哪？"><a href="#IP，PV，UV的区别在哪？" class="headerlink" title="IP，PV，UV的区别在哪？"></a>IP，PV，UV的区别在哪？</h3><p>   举例说明：假设某个公司有10个员工，都访问了<u><a href="http://www.taobao.com" target="_blank" rel="noopener">www.taobao.com</a></u>这个网站。每个人平均浏览了5个页面，但是公司的对外出口是一个公网IP。所以对于<u><a href="http://www.taobao.com" target="_blank" rel="noopener">www.taobao.com</a></u>这个网站而言，只会计算1个独立IP访问。但是因为有10个人在访问<u><a href="http://www.taobao.com" target="_blank" rel="noopener">www.taobao.com</a></u>这个网站，并且平均都访问了5次，因此，对于<u><a href="http://www.taobao.com" target="_blank" rel="noopener">www.taobao.com</a></u>这个网站而言，PV数就是10x5=50个PV，而因为有10个人访问，就是10个不同的客户端访问，因此，UV（独立访客）为10.   </p>
+<p> 因此上例结果为IP数为1个，PV数为50个，UV为10个。通过这个结果，不难看出，一个网站的独立IP数量要比网站实际访问的PV数量小得多。通常情况下，网站的UV数也会大于独立IP数</p>
+<h2 id="Nginx日志常用分析命令示范"><a href="#Nginx日志常用分析命令示范" class="headerlink" title="Nginx日志常用分析命令示范"></a>Nginx日志常用分析命令示范</h2><p>（注：日志的格式不同，awk取的项不同。下面命令针对上面日志格式执行）</p>
+<p><strong>1）总请求数</strong></p>
+<p><code>wc -l access.log | awk &#39;{print $1}&#39;</code></p>
+<p><strong>2）独立IP数</strong></p>
+<p><code>awk &#39;{print $1}&#39; access.log | sort | uniq | wc -l</code></p>
+<p><strong>3）每秒客户端请求数 TOP5</strong></p>
+<p><code>cat access.log | awk &#39;{print $4}&#39; | sort | uniq -c | sort -rn | head -5</code></p>
+<p><strong>4）访问最频繁IP Top5</strong></p>
+<p><code>head -100 access.log | awk &#39;{print $1}&#39; | sort | uniq -c | sort -nr | head -5</code></p>
+<p><code>head -100 access.log | awk &#39;{ips[$1]++}END{for(ip in ips){print ips[ip], ip}}&#39; | sort -nr | head -5</code></p>
+<p><strong>5）访问最频繁的URL TOP5</strong></p>
+<p><code>awk &#39;{print $7}&#39; access.log | sort | uniq -c | sort -nr | head -5</code></p>
+<p><strong>6)响应大于5秒的URL TOP5</strong></p>
+<p><code>head -3 access.log | awk &#39;{if ( $(NF-1) &gt; 5 ){print $7 }}&#39; | sort | uniq -c | sort -rn | head -5</code></p>
+<p><strong>7)HTTP状态码(非200)统计 Top5</strong></p>
+<p><code>awk &#39;{if ($9 != 200){print $7}}&#39; access.log | sort | uniq -c | sort -rn | head -5</code></p>
+<p><strong>8)分析请求数大于50000的源IP</strong></p>
+<p><code>head access.log | awk &#39;{print $NF}&#39;|sort | uniq -c | sort -nr | awk &#39;{if ($1 &gt;50000){print $2}}&#39;</code></p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/07/28/nginx%E6%97%A5%E5%BF%97%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E8%AE%B2%E8%A7%A3/">http://wang.ikongjian.com/2020/07/28/nginx%E6%97%A5%E5%BF%97%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E8%AE%B2%E8%A7%A3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nginx/">nginx</a><a class="post-meta__tags" href="/tags/log/">log</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/07/28/pod%E7%9A%84%E4%BD%BF%E7%94%A8/"><img class="prev_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">pod的使用</div></div></a></div><div class="next-post pull_right"><a href="/2020/07/27/nginx%E7%9A%84%E8%AF%A6%E7%BB%86%E7%94%A8%E6%B3%95/"><img class="next_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">nginx的详细用法</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/07/27/nginx的详细用法/" title="nginx的详细用法"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-27</div><div class="relatedPosts_title">nginx的详细用法</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/24/nginx的安装和配置/" title="nginx的安装和配置"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-24</div><div class="relatedPosts_title">nginx的安装和配置</div></div></a></div><div class="relatedPosts_item"><a href="/2020/08/21/nginx常见问题/" title="nginx常见问题"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-08-21</div><div class="relatedPosts_title">nginx常见问题</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/31/centos7系统日志介绍/" title="centos7系统日志介绍"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-31</div><div class="relatedPosts_title">centos7系统日志介绍</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>51-56.k8s的未来和结束语 | 蚂蚁博客</title><meta name="description" content="极客时间课程张磊的 深入剖析Kuernetes  51 | 谈谈Kubernetes开源社区和未来走向Kubernetes和google的关系 Kubernetes 这个项目是托管在 CNCF 基金会下面的。但是，CNCF 跟 Kubernetes 的关系，并不是传统意义上的基金会与托管项目的关系，CNCF 实际上扮演的，是 Kubernetes 项目的 Marketing 的角色。 本来 Kub"><meta name="keywords" content="kubernetes,深入剖析Kuernetes"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="51-56.k8s的未来和结束语"><meta name="twitter:description" content="极客时间课程张磊的 深入剖析Kuernetes  51 | 谈谈Kubernetes开源社区和未来走向Kubernetes和google的关系 Kubernetes 这个项目是托管在 CNCF 基金会下面的。但是，CNCF 跟 Kubernetes 的关系，并不是传统意义上的基金会与托管项目的关系，CNCF 实际上扮演的，是 Kubernetes 项目的 Marketing 的角色。 本来 Kub"><meta name="twitter:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="og:type" content="article"><meta property="og:title" content="51-56.k8s的未来和结束语"><meta property="og:url" content="http://wang.ikongjian.com/2020/10/06/51-56-k8s%E7%9A%84%E6%9C%AA%E6%9D%A5%E5%92%8C%E7%BB%93%E6%9D%9F%E8%AF%AD/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="极客时间课程张磊的 深入剖析Kuernetes  51 | 谈谈Kubernetes开源社区和未来走向Kubernetes和google的关系 Kubernetes 这个项目是托管在 CNCF 基金会下面的。但是，CNCF 跟 Kubernetes 的关系，并不是传统意义上的基金会与托管项目的关系，CNCF 实际上扮演的，是 Kubernetes 项目的 Marketing 的角色。 本来 Kub"><meta property="og:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="article:published_time" content="2020-10-06T07:00:00.000Z"><meta property="article:modified_time" content="2020-10-22T01:00:11.834Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/10/06/51-56-k8s%E7%9A%84%E6%9C%AA%E6%9D%A5%E5%92%8C%E7%BB%93%E6%9D%9F%E8%AF%AD/"><link rel="prev" title="helm的练习案例" href="http://wang.ikongjian.com/2020/10/09/helm%E7%9A%84%E7%BB%83%E4%B9%A0%E6%A1%88%E4%BE%8B/"><link rel="next" title="48-50.容器监控和日志" href="http://wang.ikongjian.com/2020/10/05/48-50-%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%92%8C%E6%97%A5%E5%BF%97/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#51-谈谈Kubernetes开源社区和未来走向"><span class="toc-number">1.</span> <span class="toc-text">51 | 谈谈Kubernetes开源社区和未来走向</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Kubernetes和google的关系"><span class="toc-number">1.1.</span> <span class="toc-text">Kubernetes和google的关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开源项目和基金会"><span class="toc-number">1.2.</span> <span class="toc-text">开源项目和基金会</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kubernetes-社区"><span class="toc-number">1.3.</span> <span class="toc-text">Kubernetes 社区</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#52-答疑：在问题中解决问题，在思考中产生思考"><span class="toc-number">2.</span> <span class="toc-text">52 | 答疑：在问题中解决问题，在思考中产生思考</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#课外扩展"><span class="toc-number">2.1.</span> <span class="toc-text">课外扩展</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#53-特别放送-2019-年，容器技术生态会发生些什么？"><span class="toc-number">3.</span> <span class="toc-text">53 特别放送 | 2019 年，容器技术生态会发生些什么？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#54-特别放送-基于-Kubernetes-的云原生应用管理，到底应该怎么做？"><span class="toc-number">4.</span> <span class="toc-text">54 特别放送 | 基于 Kubernetes 的云原生应用管理，到底应该怎么做？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#第一个问题"><span class="toc-number">4.1.</span> <span class="toc-text">第一个问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一个好处：自动化"><span class="toc-number">4.1.1.</span> <span class="toc-text">第一个好处：自动化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二个好处：自描述"><span class="toc-number">4.1.2.</span> <span class="toc-text">第二个好处：自描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#声明式API"><span class="toc-number">4.1.3.</span> <span class="toc-text">声明式API</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二个问题"><span class="toc-number">4.2.</span> <span class="toc-text">第二个问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#云原生应用管理"><span class="toc-number">4.3.</span> <span class="toc-text">云原生应用管理</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#55-结束语-Kubernetes：赢开发者赢天下"><span class="toc-number">5.</span> <span class="toc-text">55 结束语 | Kubernetes：赢开发者赢天下</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Kubernetes-项目适应了绝大多数开发者"><span class="toc-number">5.1.</span> <span class="toc-text">Kubernetes 项目适应了绝大多数开发者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kubernetes-项目未来很重要"><span class="toc-number">5.2.</span> <span class="toc-text">Kubernetes 项目未来很重要</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#56-结课测试｜这些Kubernetes的相关知识，你都掌握了吗？"><span class="toc-number">6.</span> <span class="toc-text">56 结课测试｜这些Kubernetes的相关知识，你都掌握了吗？</span></a></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(/img/gkihqEjXxJ5UZ1C.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">51-56.k8s的未来和结束语</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-10-06 15:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-10-06</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-10-22 09:00:11"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-10-22</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/">kubernetes</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kubernetes/">深入剖析Kubernetes</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">3.3k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 9 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>极客时间课程张磊的 <a href="https://time.geekbang.org/column/intro/116" target="_blank" rel="noopener">深入剖析Kuernetes</a> </p>
+<h1 id="51-谈谈Kubernetes开源社区和未来走向"><a href="#51-谈谈Kubernetes开源社区和未来走向" class="headerlink" title="51 | 谈谈Kubernetes开源社区和未来走向"></a>51 | 谈谈Kubernetes开源社区和未来走向</h1><h2 id="Kubernetes和google的关系"><a href="#Kubernetes和google的关系" class="headerlink" title="Kubernetes和google的关系"></a>Kubernetes和google的关系</h2><p> Kubernetes 这个项目是托管在 CNCF 基金会下面的。但是，CNCF 跟 Kubernetes 的关系，并不是传统意义上的基金会与托管项目的关系，CNCF 实际上扮演的，是 Kubernetes 项目的 Marketing 的角色。</p>
+<p>本来 Kubernetes 项目应该是由 Google 公司一家维护、运营和推广的。但是为了表示中立，并且吸引更多的贡献者加入，Kubernetes 项目从一开始就选择了由基金会托管的模式。而这里的关键在于，这个基金会本身，就是 Kubernetes 背后的“大佬们”一手创建出来的，然后以中立的方式，对 Kubernetes 项目进行运营和 推广。</p>
+<p>通过这种方式，Kubernetes 项目既避免了因为 Google 公司在开源社区里的“不良作风”和非中立角色被竞争对手口诛笔伐，又可以站在开源基金会的制高点上团结社区里所有跟容器相关的力量。而随后 CNCF 基金会的迅速发展和壮大，也印证了这个思路其实是非常正确和有先见之明的。</p>
+<p>由于 Kubernetes 项目的巨大成功，CNCF 在云计算领域已经取得了极高的声誉和认可度，也填补了以往 Linux 基金会在这一领域的空白。</p>
+<h2 id="开源项目和基金会"><a href="#开源项目和基金会" class="headerlink" title="开源项目和基金会"></a>开源项目和基金会</h2><p>不过，需要指出的是<strong>，对于开源项目和开源社区的运作来说，第三方基金会从来就不是一个必要条件。</strong>事实上，这个世界上绝大多数成功的开源项目和社区，都来自于一个聪明的想法或者一帮杰出的黑客。在这些项目的发展过程中，一个独立的、第三方基金会的作用，更多是在该项目发展到一定程度后主动进行商业运作的一部分。开源项目与基金会间的这一层关系，希望你不要本末倒置了。</p>
+<h2 id="Kubernetes-社区"><a href="#Kubernetes-社区" class="headerlink" title="Kubernetes 社区"></a>Kubernetes 社区</h2><p>Kubernetes 项目的治理方式，其实还是比较贴近 Google 风格的，即：重视代码，重视社区的民主性。它是一个没有“Maintainer”的项目。取而代之的，则是 approver+reviewer 机制。</p>
+<p>GitHub 比 GitLab 或者其他代码托管平台相比， 它的庞大的 API 和插件生态，才是这个产品最具吸引力的地方。</p>
+<p>其实，到目前为止，Kubernetes 社区最大的一个优点，就是把“搞政治”的人和“搞技术”的人分得比较清楚。相信你也不难理解，这两种角色在一个活跃的开源社区里其实都是需要的，但是，如果这两部分人发生了大量的重合，那对于一个开源社区来说，恐怕就是个灾难了。</p>
+<h1 id="52-答疑：在问题中解决问题，在思考中产生思考"><a href="#52-答疑：在问题中解决问题，在思考中产生思考" class="headerlink" title="52 | 答疑：在问题中解决问题，在思考中产生思考"></a>52 | 答疑：在问题中解决问题，在思考中产生思考</h1><p>这一章主要以前课后问题的总结，要多看。  <a href="https://time.geekbang.org/column/article/73790" target="_blank" rel="noopener">链接地址</a></p>
+<h2 id="课外扩展"><a href="#课外扩展" class="headerlink" title="课外扩展"></a>课外扩展</h2><p>k8s使用动态资源边界调整和应用画像能力来选择最合理的limit值。</p>
+<p>看了阿里的声东写的关于k8s的pdf，跟老师讲得很多内容都贴合。</p>
+<h1 id="53-特别放送-2019-年，容器技术生态会发生些什么？"><a href="#53-特别放送-2019-年，容器技术生态会发生些什么？" class="headerlink" title="53 特别放送 | 2019 年，容器技术生态会发生些什么？"></a>53 特别放送 | 2019 年，容器技术生态会发生些什么？</h1><p>1.Kubernetes 项目被采纳度将持续增长。</p>
+<p>2.“Serverless 化”与“多样性”将成为上层应用服务生态的两大关键词。</p>
+<p>3.看得见、摸得着、能落地的“云原生”。</p>
+<h1 id="54-特别放送-基于-Kubernetes-的云原生应用管理，到底应该怎么做？"><a href="#54-特别放送-基于-Kubernetes-的云原生应用管理，到底应该怎么做？" class="headerlink" title="54 特别放送 | 基于 Kubernetes 的云原生应用管理，到底应该怎么做？"></a>54 特别放送 | 基于 Kubernetes 的云原生应用管理，到底应该怎么做？</h1><p>现在的 Kubernetes 项目里，最有价值的部分到底是哪些呢？</p>
+<p>在《为什么我们需要 Pod？》这篇文章中，为了讲解 Pod 里容器间关系（即：容器设计模式）的典型场景，我举了一个“WAR 包与 Web 服务器解耦”的例子。在这个例子中，我既没有让你通过 Volume 的方式将 WAR 包挂载到 Tomcat 容器中，也没有建议你把 WAR 包和 Tomcat 打包在一个镜像里，而是用了一个 InitContainer 将 WAR 包“注入”给了 Tomcat 容器。</p>
+<p>不过，不同用户面对的场景不同，对问题的思考角度也不一样。提出的问题总结起来，主要为两个问题：</p>
+<ol>
+<li>第一个问题：如果 WAR 包更新了，那不是也得重新制作 WAR 包容器的镜像么？这和重新打 Tomcat 镜像有很大区别吗？</li>
+<li>第二个问题：当用户通过 YAML 文件将 WAR 包镜像更新后，整个 Pod 不会重建么？Tomcat 需要重启么？</li>
+</ol>
+<p>这里的两个问题，实际上都聚焦在了这样一个对于 Kubernetes 项目至关重要的核心问题之上：<strong>基于 Kubernetes 的应用管理，到底应该怎么做？</strong></p>
+<h2 id="第一个问题"><a href="#第一个问题" class="headerlink" title="第一个问题"></a>第一个问题</h2><p>如果 WAR 包更新了，那不是也得重新制作 WAR 包容器的镜像么？这和重新打 Tomcat 像有很大区别吗？</p>
+<h3 id="第一个好处：自动化"><a href="#第一个好处：自动化" class="headerlink" title="第一个好处：自动化"></a>第一个好处：自动化</h3><p>一般来说，如果组织的规模不大、发布和迭代次数不多的话，将 WAR 包（应用代码）的发布流程和 Tomcat （Web 服务器）的发布流程解耦，实际上很难有较强的体感。在这些团队中，Tomcat 本身很可能就是开发人员自己负责管理的，甚至被认为是应用的一部分，无需进行很明确的分离。</p>
+<p>而如果WAR 包和Tomcat ，由两个团队维护，那么在 Pod 的定义中直接将两个容器解耦，相比于每次发布前都必须先将两个镜像“融合”成一个镜像然后再发布，就要自动化得多了。这个原因是显而易见的：开发人员不需要额外维护一个“重新打包”应用的脚本、甚至手动地去做这个步骤了。</p>
+<h3 id="第二个好处：自描述"><a href="#第二个好处：自描述" class="headerlink" title="第二个好处：自描述"></a>第二个好处：自描述</h3><p>然而，相比于 Volume 挂载的方式，通过在 Pod 定义中解耦上述两个容器，其实还会带来另一个更重要的好处，叫作：自描述。一个良好编写的 Pod 的 YAML 文件应该是“自描述”的，它直接描述了这个应用本身的所有信息。</p>
+<p>要想 “Volume 挂载”的方式真正能工作，可行方法只有一种：那就是写一个专门的 Kubernetes Volume 插件（比如，Flexvolume 或者 CSI 插件） 。</p>
+<h3 id="声明式API"><a href="#声明式API" class="headerlink" title="声明式API"></a>声明式API</h3><p>Kubernetes 项目最强大的能力，就是“声明式”的应用定义方式。这个“声明式”背后的设计思想，是在 YAML 文件（Kubernetes API  对象）中描述应用的“终态”。然后 Kubernetes 负责通过“控制器模式”不断地将整个系统的实际状态向这个“终态”逼近并且达成一致。</p>
+<p>“声明式”带来最大的好处，其实正是“自动化”。作为一个 Kubernetes 用户，你只需要在 YAML 里描述清楚这个应用长什么样子，那么剩下的所有事情，就都可以放心地交给 Kubernetes 自动完成了：它会通过控制器模式确保这个系统里的应用状态，最终并且始终跟你在 YAML 文件里的描述完全一致。</p>
+<p>这种“把简单交给用户，把复杂留给自己”的精神，正是一个“声明式”项目的精髓所在了。</p>
+<h2 id="第二个问题"><a href="#第二个问题" class="headerlink" title="第二个问题"></a>第二个问题</h2><p>当通过 YAML 文件将 WAR 包镜像更新后，整个 Pod 不会重建么？Tomcat 需要重启么？</p>
+<p>实际上，当一个  Pod 里的容器镜像被更新后，kubelet 本身就能够判断究竟是哪个容器需要更新，而不会“无脑”地重建整个 Pod。当然，你的 Tomcat 需要配置好 reloadable=“true”，这样就不需要重启 Tomcat 服务器了，这是一个非常常见的做法。</p>
+<p>但是，这里还有一个细节需要注意。即使 kubelet 本身能够“智能”地单独重建被更新的容器，但如果你的 Pod 是用  Deployment 管理的话，它会按照自己的发布策略（RolloutStrategy） 来通过重建的方式更新 Pod。</p>
+<p>这时候，如果这个 Pod 被重新调度到其他机器上，那么 kubelet “单独重建被更新的容器”的能力就没办法发挥作用了。所以说，要让这个案例中的“解耦”能力发挥到最佳程度，你还需要一个“原地升级”的功能，即：允许 Kubernetes 在原地进行 Pod 的更新，避免重调度带来的各种麻烦。原地升级能力，在 Kubernetes 的默认控制器中都是不支持的，需要你自己开启。</p>
+<h2 id="云原生应用管理"><a href="#云原生应用管理" class="headerlink" title="云原生应用管理"></a>云原生应用管理</h2><p>实际上，通过深入地讲解 “Tomcat 与 WAR 包解耦”这个案例，你可以看到 Kubernetes 的“声明式 API”“容器设计模式”“控制器原理”，以及 kubelet 的工作机制等很多核心知识点，实际上是可以通过一条主线贯穿起来的。这条主线，从“应用如何描述”开始，到“容器如何运行”结束。</p>
+<p><strong>这条主线，正是 Kubernetes 项目中最具价值的那个部分，即：云原生应用管理（Cloud Native Application Management）。</strong>它是一条连接 Kubernetes 项目绝大多数核心特性的关键线索，也是 Kubernetes 项目乃至整个云原生社区这五年来飞速发展背后唯一不变的精髓。</p>
+<h1 id="55-结束语-Kubernetes：赢开发者赢天下"><a href="#55-结束语-Kubernetes：赢开发者赢天下" class="headerlink" title="55 结束语 | Kubernetes：赢开发者赢天下"></a>55 结束语 | Kubernetes：赢开发者赢天下</h1><h2 id="Kubernetes-项目适应了绝大多数开发者"><a href="#Kubernetes-项目适应了绝大多数开发者" class="headerlink" title="Kubernetes 项目适应了绝大多数开发者"></a>Kubernetes 项目适应了绝大多数开发者</h2><p>Kubernetes 项目之所以能赢，最重要的原因在于它争取到了云计算生态里的绝大多数开发者。它的成功，是成千上万云计算平台上的开发者用脚投票的结果。云计算平台上的开发者们所关心的，并不是调度，也不是资源管理，更不是网络或者存储，他们关心的只有一件事，那就是 Kubernetes 的 API。</p>
+<p>这也是为什么，在 Kubernetes 这个项目里，只要是跟 API 相关的事情，那就都是大事儿；只要是想要在这个社区构建影响力的人或者组织，就一定会在 API 层面展开角逐。这一层 “API 为王”的思路，早已经深入到了 Kubernetes 里每一个 API 对象的每一个字段的设计过程当中。</p>
+<p>所以说，<strong>Kubernetes 项目的本质其实只有一个，那就是“控制器模式”。</strong>这个思想，不仅仅是 Kubernetes 项目里每一个组件的“设计模板”，也是 Kubernetes 项目能够将开发者们紧紧团结到自己身边的重要原因。作为一个云计算平台的用户，能够用一个 YAML 文件表达我开发的应用的最终运行状态，并且自动地对我的应用进行运维和管理。这种信赖关系，就是连接 Kubernetes 项目和开发者们最重要的纽带。更重要的是，当这个 API 趋向于足够稳定和完善的时候，越来越多的开发者会自动汇集到这个 API 上来，依托它所提供的能力构建出一个全新的生态。</p>
+<h2 id="Kubernetes-项目未来很重要"><a href="#Kubernetes-项目未来很重要" class="headerlink" title="Kubernetes 项目未来很重要"></a>Kubernetes 项目未来很重要</h2><p>Kubernetes 项目里最重要的，是它的“容器设计模式”，是它的 API 对象，是它的 API 编程范式。这些，都是未来云计算时代的每一个开发者需要融会贯通、融化到自己开发基因里的关键所在。也只有这样，作为一个开发者，你才能够开发和构建出符合未来云计算形态的应用。而更重要的是，也只有这样，你才能够借助云计算的力量，让自己的应用真正产生价值。</p>
+<p>所以说，当你不太理解为什么要学习 Kubernetes 项目的时候，或者，你在学习 Kubernetes 项目感到困难的时候，不妨想象一下 Kubernetes 就是未来的 Linux 操作系统。在这个云计算以前所未有的速度迅速普及的世界里，Kubernetes 项目很快就会像操作系统一样，成为每一个技术从业者必备的基础知识。而现在，你不仅牢牢把握住了这个项目的精髓，也就是声明式 API 和控制器模式；掌握了这个 API 独有的编程范式，即 Controller 和 Operator；还以此为基础详细地了解了这个项目每一个核心模块和功能的设计与实现方法。那么，对于这个未来云计算时代的操作系统，你还有什么好担心的呢？</p>
+<h1 id="56-结课测试｜这些Kubernetes的相关知识，你都掌握了吗？"><a href="#56-结课测试｜这些Kubernetes的相关知识，你都掌握了吗？" class="headerlink" title="56 结课测试｜这些Kubernetes的相关知识，你都掌握了吗？"></a>56 结课测试｜这些Kubernetes的相关知识，你都掌握了吗？</h1><p>看看我第一次自测的结果吧！这个结果有点惨，刚刚及格。</p>
+<p>分析了一下，我认真的学习了，但是思考不够深入，要和别人多沟通。以后需要多看看问题，带着这自己的思考，反复学习。</p>
+<p>小伙子，加油。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/10/06/51-56-k8s%E7%9A%84%E6%9C%AA%E6%9D%A5%E5%92%8C%E7%BB%93%E6%9D%9F%E8%AF%AD/">http://wang.ikongjian.com/2020/10/06/51-56-k8s%E7%9A%84%E6%9C%AA%E6%9D%A5%E5%92%8C%E7%BB%93%E6%9D%9F%E8%AF%AD/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kuernetes/">深入剖析Kuernetes</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/10/09/helm%E7%9A%84%E7%BB%83%E4%B9%A0%E6%A1%88%E4%BE%8B/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">helm的练习案例</div></div></a></div><div class="next-post pull_right"><a href="/2020/10/05/48-50-%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%92%8C%E6%97%A5%E5%BF%97/"><img class="next_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">48-50.容器监控和日志</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/09/01/00-04-深入剖析k8s课前必读/" title="00-04.深入剖析k8s课前必读"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-01</div><div class="relatedPosts_title">00-04.深入剖析k8s课前必读</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/06/05-09-容器技术概念入门篇/" title="05-09.容器技术概念入门篇"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-06</div><div class="relatedPosts_title">05-09.容器技术概念入门篇</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/09/10-12-kubernetest集群搭建与实践/" title="10-12.Kubernetest集群搭建与实践"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-09</div><div class="relatedPosts_title">10-12.Kubernetest集群搭建与实践</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/11/13-15-深入解析pod对象/" title="13-15.深入解析pod对象"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-11</div><div class="relatedPosts_title">13-15.深入解析pod对象</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/24/28-31-kubernetes容器持久化存储/" title="28-31.Kubernetes容器持久化存储"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-24</div><div class="relatedPosts_title">28-31.Kubernetes容器持久化存储</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/18/18-20-深入理解statefulset/" title="18-20.深入理解StatefulSet"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-18</div><div class="relatedPosts_title">18-20.深入理解StatefulSet</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

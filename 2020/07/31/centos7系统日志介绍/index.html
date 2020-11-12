@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>centos7系统日志介绍 | 蚂蚁博客</title><meta name="description" content="Linux系统日志分类CentOS系统中有两个日志服务，分别是传统的 rsyslog 和 systemd-journal rsyslogrsyslog作为传统的系统日志服务，把所有收集到的日志都记录到&#x2F;var&#x2F;log&#x2F;目录下的各个日志文件中。 常见的日志文件 &#x2F;var&#x2F;log&#x2F;messages 绝大多数的系统日志都记录到该文件 &#x2F;var&#x2F;log&#x2F;secure 所有跟安全和认证授权等日志都会记录到此"><meta name="keywords" content="system,log,linux"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="centos7系统日志介绍"><meta name="twitter:description" content="Linux系统日志分类CentOS系统中有两个日志服务，分别是传统的 rsyslog 和 systemd-journal rsyslogrsyslog作为传统的系统日志服务，把所有收集到的日志都记录到&#x2F;var&#x2F;log&#x2F;目录下的各个日志文件中。 常见的日志文件 &#x2F;var&#x2F;log&#x2F;messages 绝大多数的系统日志都记录到该文件 &#x2F;var&#x2F;log&#x2F;secure 所有跟安全和认证授权等日志都会记录到此"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="centos7系统日志介绍"><meta property="og:url" content="http://wang.ikongjian.com/2020/07/31/centos7%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97%E4%BB%8B%E7%BB%8D/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="Linux系统日志分类CentOS系统中有两个日志服务，分别是传统的 rsyslog 和 systemd-journal rsyslogrsyslog作为传统的系统日志服务，把所有收集到的日志都记录到&#x2F;var&#x2F;log&#x2F;目录下的各个日志文件中。 常见的日志文件 &#x2F;var&#x2F;log&#x2F;messages 绝大多数的系统日志都记录到该文件 &#x2F;var&#x2F;log&#x2F;secure 所有跟安全和认证授权等日志都会记录到此"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-07-31T06:00:00.000Z"><meta property="article:modified_time" content="2020-08-04T04:03:23.468Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/07/31/centos7%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97%E4%BB%8B%E7%BB%8D/"><link rel="prev" title="k8s资源存储pv和pvc" href="http://wang.ikongjian.com/2020/08/04/k8s%E8%B5%84%E6%BA%90%E5%AD%98%E5%82%A8pv%E5%92%8Cpvc/"><link rel="next" title="dockerfile的使用" href="http://wang.ikongjian.com/2020/07/30/dockerfile%E7%9A%84%E4%BD%BF%E7%94%A8/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux系统日志分类"><span class="toc-number">1.</span> <span class="toc-text">Linux系统日志分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rsyslog"><span class="toc-number">2.</span> <span class="toc-text">rsyslog</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#常见的日志文件"><span class="toc-number">2.1.</span> <span class="toc-text">常见的日志文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rsyslog配置"><span class="toc-number">2.2.</span> <span class="toc-text">rsyslog配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志的分类和级别"><span class="toc-number">2.3.</span> <span class="toc-text">日志的分类和级别</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#分类"><span class="toc-number">2.3.1.</span> <span class="toc-text">分类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#级别"><span class="toc-number">2.3.2.</span> <span class="toc-text">级别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义日志类型和存储位置"><span class="toc-number">2.4.</span> <span class="toc-text">自定义日志类型和存储位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#systemd-journal"><span class="toc-number">3.</span> <span class="toc-text">systemd-journal</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#日志常见问题"><span class="toc-number">4.</span> <span class="toc-text">日志常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#日志maildrop清理"><span class="toc-number">4.1.</span> <span class="toc-text">日志maildrop清理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决方法1"><span class="toc-number">4.1.1.</span> <span class="toc-text">解决方法1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决方法2"><span class="toc-number">4.1.2.</span> <span class="toc-text">解决方法2</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#journalctl清理日志"><span class="toc-number">4.2.</span> <span class="toc-text">journalctl清理日志</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#查看目录的文件大小并排序（单位为MB）"><span class="toc-number">4.2.1.</span> <span class="toc-text">查看目录的文件大小并排序（单位为MB）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1、手动清理日志文件"><span class="toc-number">4.2.2.</span> <span class="toc-text">1、手动清理日志文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、journalctl-命令自动维护文件大小"><span class="toc-number">4.2.3.</span> <span class="toc-text">2、journalctl 命令自动维护文件大小</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结束"><span class="toc-number">5.</span> <span class="toc-text">结束</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">5.1.</span> <span class="toc-text">参考文档</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">centos7系统日志介绍</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-07-31 14:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-07-31</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-08-04 12:03:23"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-08-04</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/linux/">linux</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/linux/system/">system</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">1.9k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 7 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="Linux系统日志分类"><a href="#Linux系统日志分类" class="headerlink" title="Linux系统日志分类"></a>Linux系统日志分类</h2><p>CentOS系统中有两个日志服务，分别是传统的 rsyslog 和 systemd-journal</p>
+<h2 id="rsyslog"><a href="#rsyslog" class="headerlink" title="rsyslog"></a>rsyslog</h2><p>rsyslog作为传统的系统日志服务，把所有收集到的日志都记录到/var/log/目录下的各个日志文件中。</p>
+<h3 id="常见的日志文件"><a href="#常见的日志文件" class="headerlink" title="常见的日志文件"></a>常见的日志文件</h3><ul>
+<li>/var/log/messages 绝大多数的系统日志都记录到该文件</li>
+<li>/var/log/secure 所有跟安全和认证授权等日志都会记录到此文件</li>
+<li>/var/log/maillog 邮件服务的日志</li>
+<li>/var/log/cron crond计划任务的日志</li>
+<li>/var/log/boot.log 系统启动的相关日志</li>
+</ul>
+<h3 id="rsyslog配置"><a href="#rsyslog配置" class="headerlink" title="rsyslog配置"></a>rsyslog配置</h3><p><strong>启动rsyslog服务</strong></p>
+<p><code>systemctl restart rsyslog.service</code></p>
+<p><strong>rsyslog配置文件</strong> </p>
+<p>/etc/rsyslog.conf</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 ~]# grep -vE &quot;^$|^#&quot; &#x2F;etc&#x2F;rsyslog.conf </span><br><span class="line">$ModLoad imuxsock # provides support for local system logging (e.g. via logger command)</span><br><span class="line">$ModLoad imjournal # provides access to the systemd journal</span><br><span class="line">$WorkDirectory &#x2F;var&#x2F;lib&#x2F;rsyslog</span><br><span class="line">$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat</span><br><span class="line">$IncludeConfig &#x2F;etc&#x2F;rsyslog.d&#x2F;*.conf</span><br><span class="line">$OmitLocalLogging on</span><br><span class="line">$IMJournalStateFile imjournal.state</span><br><span class="line">*.info;mail.none;authpriv.none;cron.none                &#x2F;var&#x2F;log&#x2F;messages</span><br><span class="line">authpriv.*                                              &#x2F;var&#x2F;log&#x2F;secure</span><br><span class="line">mail.*                                                  -&#x2F;var&#x2F;log&#x2F;maillog</span><br><span class="line">cron.*                                                  &#x2F;var&#x2F;log&#x2F;cron</span><br><span class="line">*.emerg                                                 :omusrmsg:*</span><br><span class="line">uucp,news.crit                                          &#x2F;var&#x2F;log&#x2F;spooler</span><br><span class="line">local7.*                                                &#x2F;var&#x2F;log&#x2F;boot.log</span><br></pre></td></tr></table></figure>
+
+<p><strong>日志输入规则：分类.级别　　存放的绝对路径。</strong></p>
+<p>其中级别还有单独规则，如果.级别则是指记录高于等于某个级别的日志（严重性高于等于，编码低于等于）；如果.=级别则是指记录等于某个级别的日志；如果.!级别则是指除某个级别外全部记录；如果.none则是指排除某个类别。</p>
+<p>　　注意：-/var/log/maillog这里的减号是由于以前的邮件比较多，先将数据存储到内存中，达到一定大小再全部写入硬盘，减少I/O的消耗。如果关机不当，数据会消失。</p>
+<h3 id="日志的分类和级别"><a href="#日志的分类和级别" class="headerlink" title="日志的分类和级别"></a>日志的分类和级别</h3><h4 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h4><table>
+<thead>
+<tr>
+<th>分类</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>daemon</td>
+<td>后台进程相关的信息</td>
+</tr>
+<tr>
+<td>kern</td>
+<td>内核产生的信息</td>
+</tr>
+<tr>
+<td>lpr</td>
+<td>打印系统产生的信息</td>
+</tr>
+<tr>
+<td>authpriv</td>
+<td>安全认证信息</td>
+</tr>
+<tr>
+<td>cron</td>
+<td>定时计划任务相关的信息</td>
+</tr>
+<tr>
+<td>mail</td>
+<td>邮件相关的信息</td>
+</tr>
+<tr>
+<td>syslog</td>
+<td>日志服务本身的信息</td>
+</tr>
+<tr>
+<td>news</td>
+<td>新闻系统（过时）</td>
+</tr>
+<tr>
+<td>local0~local7</td>
+<td>8个系统保留的类，供其他程序使用或用户自定义</td>
+</tr>
+</tbody></table>
+<h4 id="级别"><a href="#级别" class="headerlink" title="级别"></a>级别</h4><table>
+<thead>
+<tr>
+<th>编码</th>
+<th>优先级</th>
+<th>严重性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>7</td>
+<td>debug</td>
+<td>信息对开发人员调试应用程序有用，在操作过程中没用</td>
+</tr>
+<tr>
+<td>6</td>
+<td>info</td>
+<td>正常的操作信息，可以收集报告，测量吞吐量等</td>
+</tr>
+<tr>
+<td>5</td>
+<td>notice</td>
+<td>注意，正常但重要的事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>warning</td>
+<td>警告，如果不采取措施，将会发生错误，例如文件系统已使用90%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>err</td>
+<td>错误，阻止某个模块或程序的功能不能正常使用</td>
+</tr>
+<tr>
+<td>2</td>
+<td>crit</td>
+<td>关键错误，已经影响到整个系统或软件不能正常工作</td>
+</tr>
+<tr>
+<td>1</td>
+<td>alert</td>
+<td>警报，需要立即修改</td>
+</tr>
+<tr>
+<td>0</td>
+<td>emerg</td>
+<td>紧急，内核崩溃等严重信息</td>
+</tr>
+</tbody></table>
+<p>（编码越小，级别越高）</p>
+<h3 id="自定义日志类型和存储位置"><a href="#自定义日志类型和存储位置" class="headerlink" title="自定义日志类型和存储位置"></a>自定义日志类型和存储位置</h3><p>　　这里需要用到local0~local7的自定义分类。我们以sshd为例。</p>
+<p>　　首先我们需要使用vim打开sshd服务的配置文件，进行修改配置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@xuexi ~]# vim &#x2F;etc&#x2F;ssh&#x2F;sshd_config</span><br><span class="line">#SyslogFacility AUTH</span><br><span class="line">SyslogFacility AUTHPRIV</span><br><span class="line">#LogLevel INFO</span><br></pre></td></tr></table></figure>
+
+<p>　　然后找到如上位置，将其更改为我们需要的分类local0</p>
+<p>　　修改后，如下所示</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#SyslogFacility AUTH</span><br><span class="line">SyslogFacility local0</span><br><span class="line">#SyslogFacility AUTHPRIV</span><br><span class="line">#LogLevel INFO</span><br></pre></td></tr></table></figure>
+
+<p>　　接着我们需要使用vim打开rsyslog服务的配置文件，进行修改配置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@xuexi ~]# vim &#x2F;etc&#x2F;rsyslog.conf</span><br><span class="line"></span><br><span class="line"># 在最后添加一行</span><br><span class="line">local0.*    &#x2F;var&#x2F;log&#x2F;sshd.log</span><br></pre></td></tr></table></figure>
+
+<p>　　最后重启sshd和rsyslog两个服务</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@xuexi ~]# systemctl restart sshd</span><br><span class="line">[root@xuexi ~]# systemctl restart rsyslog.service</span><br></pre></td></tr></table></figure>
+
+<p>　　注意：如果SELinux开着，请手动创建/var/log/sshd.log文件。</p>
+<h2 id="systemd-journal"><a href="#systemd-journal" class="headerlink" title="systemd-journal"></a>systemd-journal</h2><p>systemd-journald是一个改进型日志管理服务，可以收集来自内核、系统早期启动阶段的日志、系统守护进程在启动和运行中的标准输出和错误信息，还有syslog的日志。</p>
+<p>该日志服务仅仅把日志集中保存在单一结构的日志文件/run/log中，由于日志是经历过压缩和格式化的二进制数据，所以在查看和定位的时候很迅速。</p>
+<p>默认情况下并不会持久化保存日志，只会保留一个月的日志。另外，一些rsyslog无法收集的日志也会被journal记录到。</p>
+<p><strong>重启 journalctl 服务</strong></p>
+<p>systemctl restart systemd-journald.service</p>
+<p><strong>配置文件</strong> </p>
+<p>/etc/systemd/journald.conf</p>
+<p><strong>检查journal是否运行正常以及日志文件是否完整无损坏</strong></p>
+<p>journalctl –verify</p>
+<h2 id="日志常见问题"><a href="#日志常见问题" class="headerlink" title="日志常见问题"></a>日志常见问题</h2><h3 id="日志maildrop清理"><a href="#日志maildrop清理" class="headerlink" title="日志maildrop清理"></a>日志maildrop清理</h3><p>由于 Linux 在执行 cron 时，会将 cron 执行脚本中的 output 和 warning 信息，都会以邮件的形式发送 cron 所有者， 而由于客户环境中的 sendmail 和 postfix 没有正常运行，导致邮件发送不成功，全部小文件堆积在了 maildrop 目录下面，而且没有自动清理转换的机制，所以此目录堆积了大量的文件。查看 man cron 的信息，可以知道会发送给 cron owner.</p>
+<p>/var/spool/postfix/maildrop 占用inode索引，导致服务器i节点数量不足</p>
+<p>因为小文件太多，ls直接卡死等情况，文件无法直接删除，所以</p>
+<blockquote>
+<p> ⚠️：一定要切换到指定路径，否则后果很严重，当前数据被删除</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &#x2F;var&#x2F;spool&#x2F;postfix&#x2F;maildrop; </span><br><span class="line">find . -type f -exec rm -f &#123;&#125; \; # 方法一</span><br><span class="line">ls | xargs rm -f;   # 方法二</span><br></pre></td></tr></table></figure>
+
+<h4 id="解决方法1"><a href="#解决方法1" class="headerlink" title="解决方法1"></a>解决方法1</h4><p>修改配置文件，取消邮件发送</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;crontab </span><br><span class="line">将 MAILTO&#x3D;root 替换成 MAILTO&#x3D;&quot;&quot;，</span><br><span class="line"></span><br><span class="line">service crond restart</span><br></pre></td></tr></table></figure>
+
+<h4 id="解决方法2"><a href="#解决方法2" class="headerlink" title="解决方法2"></a>解决方法2</h4><p>​    如果是我们不关心的备注型等输出我们完全可以让其输出到 <code>/dev/null</code> ，这样就不会因为发送失败到导致在<code>/var/spool/postfix/maildrop</code>下面产出什么文件。</p>
+<p>​    */10 * * * * /tmp/test.sh &gt;/dev/null 2&gt;&amp;1</p>
+<h3 id="journalctl清理日志"><a href="#journalctl清理日志" class="headerlink" title="journalctl清理日志"></a>journalctl清理日志</h3><p><strong>查看垃圾文件的方法</strong></p>
+<p>未清理前发现硬盘根分区空间告急，用 <code>du -t 100M /var</code>或 <code>journalctl --disk-usage</code>命令查看，发现/var/log/journal日志文件占用了近3G空间，每个日志文件体积高达8-128M，这些日志文件记录了很长时间以来的systemd情况，毫无价值，用<code>journalctl --vacuum-size=10M</code>命令将其清理之后，腾出了2.7G的空间。用<code>df</code>命令一查，／根分区果然宽敞了很多。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@test ~]# journalctl --disk-usage </span><br><span class="line">Archived and active journals take up 192.0M on disk.</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="查看目录的文件大小并排序（单位为MB）"><a href="#查看目录的文件大小并排序（单位为MB）" class="headerlink" title="查看目录的文件大小并排序（单位为MB）"></a>查看目录的文件大小并排序（单位为MB）</h4><p>du -hm –max-depth=2 /var/ | sort -rn | head</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@test ~]# du -hm --max-depth&#x3D;2 &#x2F;var&#x2F; | sort -rn | head</span><br><span class="line">4741    &#x2F;var&#x2F;</span><br><span class="line">4433    &#x2F;var&#x2F;log</span><br><span class="line">4105    &#x2F;var&#x2F;log&#x2F;journal</span><br><span class="line">195     &#x2F;var&#x2F;cache</span><br><span class="line">193     &#x2F;var&#x2F;cache&#x2F;yum</span><br><span class="line">112     &#x2F;var&#x2F;lib</span><br><span class="line">100     &#x2F;var&#x2F;lib&#x2F;rpm</span><br><span class="line">36      &#x2F;var&#x2F;log&#x2F;audit</span><br><span class="line">18      &#x2F;var&#x2F;log&#x2F;sa</span><br><span class="line">13      &#x2F;var&#x2F;lib&#x2F;yum</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="1、手动清理日志文件"><a href="#1、手动清理日志文件" class="headerlink" title="1、手动清理日志文件"></a>1、手动清理日志文件</h4><p>1）用echo命令，将空字符串内容重定向到指定文件中</p>
+<p>echo “” &gt; system.journal</p>
+<p>说明：此方法只会清空一次，一段时间后还要再次手动清空很麻烦，这里可以用以下命令让journalctl 自动维护空间</p>
+<p> 2）直接删除 <strong>/var/log/journal/</strong> 目录下的日志文件</p>
+<p>rm -rf /var/log/journal/f9d400c5e1e8c3a8209e990d887d4ac1</p>
+<h4 id="2、journalctl-命令自动维护文件大小"><a href="#2、journalctl-命令自动维护文件大小" class="headerlink" title="2、journalctl 命令自动维护文件大小"></a>2、journalctl 命令自动维护文件大小</h4><p>1）只保留近一周的日志</p>
+<p>journalctl –vacuum-time=1w</p>
+<p> 2）只保留500MB的日志</p>
+<p>journalctl –vacuum-size=500M</p>
+<p> <strong>命令执行示例</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@test journal]# journalctl --vacuum-time&#x3D;1w</span><br><span class="line">Deleted archived journal &#x2F;var&#x2F;log&#x2F;journal&#x2F;20190215172108590907433256076310&#x2F;user-1001@3485b7786e7b412c828c12638f75f7a9-0000000001eab2be-0005a853f7cd0f9f.journal (8.0M).</span><br><span class="line">Deleted archived journal &#x2F;var&#x2F;log&#x2F;journal&#x2F;20190215172108590907433256076310&#x2F;system@00000000000000000000000000000000-0000000001eb196c-0005a85a7d0fa36d.journal (56.0M).</span><br><span class="line">...</span><br><span class="line">&#x2F;var&#x2F;log&#x2F;journal&#x2F;20190215172108590907433256076310&#x2F;system@00000000000000000000000000000000-000000000218e63f-0005ab2389724c69.journal (56.0M).</span><br><span class="line">Vacuuming done, freed 3.3G of archived journals on disk.</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h2><h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><a href="https://www.cnblogs.com/diantong/p/10706418.html" target="_blank" rel="noopener">CentOS日志的简单介绍</a></li>
+<li><a href="https://blog.csdn.net/ithomer/article/details/89530790" target="_blank" rel="noopener">Linux 系统 /var/log/journal/ 垃圾日志清理</a></li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/07/31/centos7%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97%E4%BB%8B%E7%BB%8D/">http://wang.ikongjian.com/2020/07/31/centos7%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97%E4%BB%8B%E7%BB%8D/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/system/">system</a><a class="post-meta__tags" href="/tags/log/">log</a><a class="post-meta__tags" href="/tags/linux/">linux</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/08/04/k8s%E8%B5%84%E6%BA%90%E5%AD%98%E5%82%A8pv%E5%92%8Cpvc/"><img class="prev_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">k8s资源存储pv和pvc</div></div></a></div><div class="next-post pull_right"><a href="/2020/07/30/dockerfile%E7%9A%84%E4%BD%BF%E7%94%A8/"><img class="next_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">dockerfile的使用</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/07/28/nginx日志的使用和讲解/" title="nginx日志的使用和讲解"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-28</div><div class="relatedPosts_title">nginx日志的使用和讲解</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

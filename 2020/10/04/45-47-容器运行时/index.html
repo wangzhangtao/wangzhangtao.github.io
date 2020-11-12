@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>45-47.容器运行时 | 蚂蚁博客</title><meta name="description" content="极客时间课程张磊的 深入剖析Kuernetes  45 | 幕后英雄：SIG-Node与CRIKubernetes在调度和资源管理度这一步完成后，就需要负责将这个调度成功的 Pod，在宿主机上创建出来，并把它所定义的各个容器启动起来。这些，都是 kubelet 这个核心组件的主要功能。 与 kubelet 以及容器运行时管理相关的内容，都属于 SIG-Node 的范畴。 kubelet 这个组件，"><meta name="keywords" content="kubernetes,深入剖析Kuernetes"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="45-47.容器运行时"><meta name="twitter:description" content="极客时间课程张磊的 深入剖析Kuernetes  45 | 幕后英雄：SIG-Node与CRIKubernetes在调度和资源管理度这一步完成后，就需要负责将这个调度成功的 Pod，在宿主机上创建出来，并把它所定义的各个容器启动起来。这些，都是 kubelet 这个核心组件的主要功能。 与 kubelet 以及容器运行时管理相关的内容，都属于 SIG-Node 的范畴。 kubelet 这个组件，"><meta name="twitter:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="og:type" content="article"><meta property="og:title" content="45-47.容器运行时"><meta property="og:url" content="http://wang.ikongjian.com/2020/10/04/45-47-%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="极客时间课程张磊的 深入剖析Kuernetes  45 | 幕后英雄：SIG-Node与CRIKubernetes在调度和资源管理度这一步完成后，就需要负责将这个调度成功的 Pod，在宿主机上创建出来，并把它所定义的各个容器启动起来。这些，都是 kubelet 这个核心组件的主要功能。 与 kubelet 以及容器运行时管理相关的内容，都属于 SIG-Node 的范畴。 kubelet 这个组件，"><meta property="og:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="article:published_time" content="2020-10-04T02:00:00.000Z"><meta property="article:modified_time" content="2020-10-22T00:59:18.078Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/10/04/45-47-%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6/"><link rel="prev" title="48-50.容器监控和日志" href="http://wang.ikongjian.com/2020/10/05/48-50-%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%92%8C%E6%97%A5%E5%BF%97/"><link rel="next" title="40-44.作业调度和资源管理" href="http://wang.ikongjian.com/2020/10/02/40-44-%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6%E5%92%8C%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#45-幕后英雄：SIG-Node与CRI"><span class="toc-number">1.</span> <span class="toc-text">45 | 幕后英雄：SIG-Node与CRI</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#kubelet-的工作核心SyncLoop"><span class="toc-number">1.1.</span> <span class="toc-text">kubelet 的工作核心SyncLoop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么引入CRI？"><span class="toc-number">1.2.</span> <span class="toc-text">为什么引入CRI？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CRI的作用"><span class="toc-number">1.3.</span> <span class="toc-text">CRI的作用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#46-解读-CRI-与-容器运行时"><span class="toc-number">2.</span> <span class="toc-text">46 | 解读 CRI 与 容器运行时</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CRI-shim简述"><span class="toc-number">2.1.</span> <span class="toc-text">CRI shim简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CRI-shim对-CRI-的具体实现"><span class="toc-number">2.2.</span> <span class="toc-text">CRI shim对 CRI 的具体实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RuntimeService-部分"><span class="toc-number">2.3.</span> <span class="toc-text">RuntimeService 部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Streaming-API-的原理"><span class="toc-number">2.4.</span> <span class="toc-text">Streaming API 的原理</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#47-绝不仅仅是安全：Kata-Containers-与-gVisor"><span class="toc-number">3.</span> <span class="toc-text">47 | 绝不仅仅是安全：Kata Containers 与 gVisor</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#其他容器项目"><span class="toc-number">3.1.</span> <span class="toc-text">其他容器项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#KataContainers-容器"><span class="toc-number">3.2.</span> <span class="toc-text">KataContainers 容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gVisor-容器"><span class="toc-number">3.3.</span> <span class="toc-text">gVisor 容器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentry-进程的第一种实现方式"><span class="toc-number">3.3.1.</span> <span class="toc-text">Sentry 进程的第一种实现方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentry-进程的第二种实现方式"><span class="toc-number">3.3.2.</span> <span class="toc-text">Sentry 进程的第二种实现方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kata-Containers-与-gVisor对比"><span class="toc-number">3.4.</span> <span class="toc-text">Kata Containers 与 gVisor对比</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(/img/gkihqEjXxJ5UZ1C.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">45-47.容器运行时</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-10-04 10:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-10-04</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-10-22 08:59:18"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-10-22</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/">kubernetes</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kubernetes/">深入剖析Kubernetes</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">5.2k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 16 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>极客时间课程张磊的 <a href="https://time.geekbang.org/column/intro/116" target="_blank" rel="noopener">深入剖析Kuernetes</a> </p>
+<h1 id="45-幕后英雄：SIG-Node与CRI"><a href="#45-幕后英雄：SIG-Node与CRI" class="headerlink" title="45 | 幕后英雄：SIG-Node与CRI"></a>45 | 幕后英雄：SIG-Node与CRI</h1><p>Kubernetes在调度和资源管理度这一步完成后，就需要负责将这个调度成功的 Pod，在宿主机上创建出来，并把它所定义的各个容器启动起来。这些，都是 kubelet 这个核心组件的主要功能。</p>
+<p>与 kubelet 以及容器运行时管理相关的内容，都属于 SIG-Node 的范畴。</p>
+<p>kubelet 这个组件，是 Kubernetes 里面第二个不可被替代的组件（第一个不可被替代的组件是 kube-apiserver）。也就是说，<strong>无论如何，我都不建议你对 kubelet 的代码进行大量的改动。保持 kubelet 跟上游基本一致的重要性，就跟保持 kube-apiserver 跟上游一致是一个道理。</strong></p>
+<h2 id="kubelet-的工作核心SyncLoop"><a href="#kubelet-的工作核心SyncLoop" class="headerlink" title="kubelet 的工作核心SyncLoop"></a>kubelet 的工作核心SyncLoop</h2><p>kubelet 也是按照“控制器”模式来工作的。它实际的工作原理，可以用如下所示的一幅示意图来表示清楚。</p>
+<img src="/img/body/jike/914e097aed10b9ff39b509759f8b1d03.png" alt="Kubelet的工作原理" style="zoom:67%;max-width: 70%" />
+
+<p>可以看到，kubelet 的工作核心，就是一个控制循环，即：SyncLoop（图中的大圆圈）。而驱动这个控制循环运行的事件，包括四种：</p>
+<ol>
+<li>Pod 更新事件；</li>
+<li>Pod 生命周期变化；</li>
+<li>kubelet 本身设置的执行周期；</li>
+<li>定时的清理事件。</li>
+</ol>
+<p>所以，跟其他控制器类似，kubelet 启动的时候，要做的第一件事情，就是设置 Listers，也就是注册它所关心的各种事件的 Informer。这些 Informer，就是 SyncLoop 需要处理的数据的来源。</p>
+<p>此外，kubelet 还负责维护着很多其他的子控制循环（也就是图中的小圆圈）。这些控制循环的名字，一般被称作某某 Manager，比如 Volume Manager、Image Manager、Node Status Manager 等等。</p>
+<p>这些控制循环的责任，就是通过控制器模式，完成 kubelet 的某项具体职责。比如 Node Status Manager，就负责响应 Node 的状态变化，然后将 Node 的状态收集起来，并通过 Heartbeat 的方式上报给 APIServer。再比如 CPU Manager，就负责维护该 Node 的 CPU 核的信息，以便在 Pod 通过 cpuset 的方式请求 CPU 核的时候，能够正确地管理 CPU 核的使用量和可用量。</p>
+<p>那么这个 <strong>SyncLoop，又是如何根据 Pod 对象的变化，来进行容器操作的呢？</strong></p>
+<p>实际上，kubelet 也是通过 Watch 机制，监听了与自己相关的 Pod 对象的变化。当然，这个 Watch 的过滤条件是该 Pod 的 nodeName 字段与自己相同。kubelet 会把这些 Pod 的信息缓存在自己的内存里。</p>
+<p>而当一个 Pod 完成调度、与一个 Node 绑定起来之后， 这个 Pod 的变化就会触发 kubelet 在控制循环里注册的 Handler，也就是上图中的 HandlePods 部分。此时，通过检查该 Pod 在 kubelet 内存里的状态，kubelet 就能够判断出这是一个新调度过来的 Pod，从而触发 Handler 里 ADD 事件对应的处理逻辑。</p>
+<p>在具体的处理过程当中，kubelet 会启动一个名叫 Pod Update Worker 的、单独的 Goroutine 来完成对 Pod 的处理工作。</p>
+<p>在这里需要注意的是，<strong>kubelet 调用下层容器运行时的执行过程，并不会直接调用 Docker 的 API，而是通过一组叫作 CRI（Container Runtime Interface，容器运行时接口）的 gRPC 接口来间接执行的。</strong></p>
+<h2 id="为什么引入CRI？"><a href="#为什么引入CRI？" class="headerlink" title="为什么引入CRI？"></a>为什么引入CRI？</h2><p>Kubernetes 项目之所以要在 kubelet 中引入这样一层单独的抽象，当然是为了对 Kubernetes 屏蔽下层容器运行时的差异。实际上，对于 1.6 版本之前的 Kubernetes 来说，它就是直接调用 Docker 的 API 来创建和管理容器的。</p>
+<p>Kata Containers 项目，这种基于虚拟化技术的强隔离容器，与 Kubernetes 和 Linux 容器项目之间具有良好的互补关系。所以，在 Kubernetes 上，对虚拟化容器的支持很快就被提上了日程。</p>
+<p>在 2016 年，SIG-Node 决定开始动手解决上述问题。而解决办法就是把 kubelet 对容器的操作，统一地抽象成一个接口。这样，kubelet 就只需要跟这个接口打交道了。而作为具体的容器项目，比如 Docker、 rkt、runV，它们就只需要自己提供一个该接口的实现，然后对 kubelet 暴露出 gRPC 服务即可。这一层统一的容器操作接口，就是 CRI 。</p>
+<h2 id="CRI的作用"><a href="#CRI的作用" class="headerlink" title="CRI的作用"></a>CRI的作用</h2><p>而在有了 CRI 之后，Kubernetes 以及 kubelet 本身的架构，就可以用如下所示的一幅示意图来描述。</p>
+<img src="/img/body/jike/5161bd6201942f7a1ed6d70d7d55acfe.png" alt="带CRI的kubelet的架构" style="zoom:80%;" />
+
+<p>可以看到，当 Kubernetes 通过编排能力创建了一个 Pod 之后，调度器会为这个 Pod 选择一个具体的节点来运行。这时候，kubelet 就会通过 SyncLoop 来判断需要执行的具体操作，比如创建一个 Pod。那么此时，kubelet 实际上就会调用一个叫作 GenericRuntime 的通用组件来发起创建 Pod 的 CRI 请求。</p>
+<p><strong>这个 CRI 请求，又该由谁来响应呢？</strong></p>
+<ul>
+<li><p>如果你使用的容器项目是 Docker 的话，那么负责响应这个请求的就是一个叫作 dockershim 的组件。它会把 CRI 请求里的内容拿出来，然后组装成 Docker API 请求发给 Docker Daemon。现在dockershim 依然是 kubelet 代码的一部分，但将来dockershim 肯定会被从 kubelet 里移出来，甚至废弃。</p>
+</li>
+<li><p>而更普遍的场景，就是你需要在每台宿主机上单独安装一个负责响应 CRI 的组件，这个组件，一般被称作 CRI shim。顾名思义，CRI shim 的工作，就是扮演 kubelet 与容器项目之间的“垫片”（shim）。所以它的作用非常单一，那就是实现 CRI 规定的每个接口，然后把具体的 CRI 请求“翻译”成对后端容器项目的请求或者操作。</p>
+</li>
+</ul>
+<p>在这个过程中，kubelet 的 SyncLoop 和 CRI 的设计，是其中最重要的两个关键点。也正是基于以上设计，SyncLoop 本身就要求这个控制循环是绝对不可以被阻塞的。所以，凡是在 kubelet 里有可能会耗费大量时间的操作，比如准备 Pod 的 Volume、拉取镜像等，SyncLoop 都会开启单独的 Goroutine 来进行操作。</p>
+<h1 id="46-解读-CRI-与-容器运行时"><a href="#46-解读-CRI-与-容器运行时" class="headerlink" title="46 | 解读 CRI 与 容器运行时"></a>46 | 解读 CRI 与 容器运行时</h1><h2 id="CRI-shim简述"><a href="#CRI-shim简述" class="headerlink" title="CRI shim简述"></a>CRI shim简述</h2><p>CRI 机制能够发挥作用的核心，就在于每一种容器项目现在都可以自己实现一个 CRI shim，自行对 CRI 请求进行处理。这样，Kubernetes 就有了一个统一的容器抽象层，使得下层容器运行时可以自由地对接进入 Kubernetes 当中。</p>
+<p>所以说，这里的 CRI shim，就是容器项目的维护者们自行维护。而除了 dockershim 之外，其他容器运行时的 CRI shim，都是需要额外部署在宿主机上的。</p>
+<p>举个例子。CNCF 里的 containerd 项目，就可以提供一个典型的 CRI shim 的能力，即：将 Kubernetes 发出的 CRI 请求，转换成对 containerd 的调用，然后创建出 runC 容器。而 runC 项目，才是负责执行设置容器 Namespace、Cgroups 和 chroot 等基础操作的组件。所以，这几层的组合关系，可以用如下所示的示意图来描述。</p>
+<img src="/img/body/jike/62c591c4d832d44fed6f76f60be88e3d.png" alt="containerd 项目层级" style="zoom:60%;max-width: 50%" />
+
+
+
+<h2 id="CRI-shim对-CRI-的具体实现"><a href="#CRI-shim对-CRI-的具体实现" class="headerlink" title="CRI shim对 CRI 的具体实现"></a>CRI shim对 CRI 的具体实现</h2><p>而作为一个 CRI shim，containerd 对 CRI 的具体实现，又是怎样的呢？</p>
+<p>我们先来看一下 CRI 这个接口的定义。下面这幅示意图，就展示了 CRI 里主要的待实现接口。</p>
+<img src="/img/body/jike/f7e86505c09239b80ad05aecfb032e16.png" alt="CRI代码示例" style="zoom:60%;max-width: 60%;" />
+
+<p>具体地说，我们可以把 CRI 分为两组：</p>
+<ul>
+<li>第一组，是 RuntimeService。它提供的接口，主要是跟容器相关的操作。比如，创建和启动容器、删除容器、执行 exec 命令等。</li>
+<li>第二组，则是 ImageService。它提供的接口，主要是容器镜像相关的操作，比如拉取镜像、删除镜像等。</li>
+</ul>
+<h2 id="RuntimeService-部分"><a href="#RuntimeService-部分" class="headerlink" title="RuntimeService 部分"></a>RuntimeService 部分</h2><p>CRI 设计的一个重要原则，就是确保这个接口本身，只关注容器，不关注 Pod:</p>
+<ul>
+<li>第一，Pod 是 Kubernetes 的编排概念，而不是容器运行时的概念。所以，我们就不能假设所有下层容器项目，都能够暴露出可以直接映射为 Pod 的 API。</li>
+<li>第二，如果 CRI 里引入了关于 Pod 的概念，那么接下来只要 Pod API 对象的字段发生变化，那么 CRI 就很有可能需要变更。而在 Kubernetes 开发的前期，Pod 对象的变化还是比较频繁的，但对于 CRI 这样的标准接口来说，这个变更频率太快。</li>
+</ul>
+<p>所以，在 CRI 的设计里，并没有一个直接创建 Pod 或者启动 Pod 的接口，而是通过RunPodSandbox 的接口。</p>
+<p>这个 PodSandbox，对应的并不是 Kubernetes 里的 Pod API 对象，而只是抽取了 Pod 里的一部分与容器运行时相关的字段，比如 HostName、DnsConfig、CgroupParent 等。所以说，PodSandbox 这个接口描述的，其实是 Kubernetes 将 Pod 这个概念映射到容器运行时层面所需要的字段，或者说是一个 Pod 对象子集。</p>
+<p>而作为具体的容器项目，你就需要自己决定如何使用这些字段来实现一个 Kubernetes 期望的 Pod 模型。这里的原理，可以用如下所示的示意图来表示清楚。</p>
+<img src="/img/body/jike/d9fb7404c5dc9e0b5c902f74df9d7a61.png" alt="RuntimeService示例图" style="zoom:50%;max-width: 60%" />
+
+<p>比如，当我们执行 kubectl run 创建了一个名叫 foo 的、包括了 A、B 两个容器的 Pod 之后。这个 Pod 的信息最后来到 kubelet，kubelet 就会按照图中所示的顺序来调用 CRI 接口。</p>
+<p>在具体的 CRI shim 中，这些接口的实现是可以完全不同的。比如：</p>
+<ul>
+<li>如果是 Docker 项目，dockershim 就会创建出一个名叫 foo 的 Infra 容器（pause 容器），用来创建整个 Pod 的 Network Namespace。</li>
+<li>如果是基于虚拟化技术的容器，比如 Kata Containers 项目，它的 CRI 实现就会直接创建出一个轻量级虚拟机来充当 Pod。</li>
+</ul>
+<p>此外，需要注意的是，在 RunPodSandbox 这个接口的实现中，你还需要调用 networkPlugin.SetUpPod(…) 来为这个 Sandbox 设置网络。这个 SetUpPod(…) 方法，实际上就在执行 CNI 插件里的 add(…) 方法，也就是 CNI 插件为 Pod 创建网络，并且把 Infra 容器加入到网络中的操作。</p>
+<p>接下来，kubelet 继续调用 CreateContainer 和 StartContainer 接口来创建和启动容器 A、B。对应到 dockershim 里，就是直接启动 A，B 两个 Docker 容器。所以最后，宿主机上会出现三个 Docker 容器组成这一个 Pod。</p>
+<p>而如果是 Kata Containers 的话，CreateContainer 和 StartContainer 接口的实现，就只会在前面创建的轻量级虚拟机里创建两个 A、B 容器对应的 Mount Namespace。所以，最后在宿主机上，只会有一个叫作 foo 的轻量级虚拟机在运行。</p>
+<p>除了上述对容器生命周期的实现之外，CRI shim 还有一个重要的工作，就是如何实现 exec、logs 等接口。这些接口跟前面的操作有一个很大的不同，就是这些 gRPC 接口调用期间，kubelet 需要跟容器项目维护一个长连接来传输数据。这种 API，我们就称之为 Streaming API。</p>
+<h2 id="Streaming-API-的原理"><a href="#Streaming-API-的原理" class="headerlink" title="Streaming API 的原理"></a>Streaming API 的原理</h2><p>CRI shim 里对 Streaming API 的实现，依赖于一套独立的 Streaming Server 机制。这一部分原理，可以用如下所示的示意图来为你描述。</p>
+<img src="/img/body/jike/a8e7ff6a6b0c9591a0a4f2b8e9e9bdef.png" alt="Streaming API 的原理示意图" style="zoom: 67%;max-width: 80%;" />
+
+<p>Kubectl exec 执行过程：</p>
+<ol>
+<li>当我们对一个容器执行 kubectl exec 命令的时候，这个请求首先交给 API Server</li>
+<li>然后 API Server 就会调用 kubelet 的 Exec API。</li>
+<li>这时，kubelet 就会调用 CRI 的 Exec 接口，而负责响应这个接口的，自然就是具体的 CRI shim。</li>
+<li>在这一步，CRI shim 并不会直接去调用后端的容器项目（比如 Docker ）来进行处理，而只会返回一个 URL 给 kubelet。这个 URL，就是该 CRI shim 对应的 Streaming Server 的地址和端口。</li>
+<li>而 kubelet 在拿到这个 URL 之后，就会把它以 Redirect 的方式返回给 API Server。</li>
+<li>所以这时候，API Server 就会通过重定向来向 Streaming Server 发起真正的 /exec 请求，与它建立长连接。</li>
+</ol>
+<p>当然，这个 Streaming Server 本身，是需要通过使用 SIG-Node 为你维护的 Streaming API 库来实现的。并且，Streaming Server 会在 CRI shim 启动时就一起启动。此外，Stream Server 这一部分具体怎么实现，由 CRI shim 的维护者自行决定。比如，对于 Docker 项目来说，dockershim 就是直接调用 Docker 的 Exec API 来作为实现的。</p>
+<p>以上，就是 CRI 的设计以及具体的工作原理了。</p>
+<h1 id="47-绝不仅仅是安全：Kata-Containers-与-gVisor"><a href="#47-绝不仅仅是安全：Kata-Containers-与-gVisor" class="headerlink" title="47 | 绝不仅仅是安全：Kata Containers 与 gVisor"></a>47 | 绝不仅仅是安全：Kata Containers 与 gVisor</h1><h2 id="其他容器项目"><a href="#其他容器项目" class="headerlink" title="其他容器项目"></a>其他容器项目</h2><p>CRI 的设计，其中的一个重要推动力，就是基于虚拟化或者独立内核的安全容器项目的逐渐成熟。</p>
+<p>使用虚拟化技术来做一个像 Docker 一样的容器项目：</p>
+<ul>
+<li><p>Kata Containers 项目：2017 年，借着 Kubernetes 的东风，Intel Clear Container 和 runV 项目合并，就成了现在大家耳熟能详的 Kata Containers 项目。由于 Kata Containers 的本质就是一个精简后的轻量级虚拟机，所以它的特点，就是“像虚拟机一样安全，像容器一样敏捷”。</p>
+</li>
+<li><p>gVisor 项目：2018 年，Google 公司则发布了一个名叫 gVisor 的项目。gVisor 项目给容器进程配置一个用 Go 语言实现的、运行在用户态的、极小的“独立内核”。这个内核对容器进程暴露 Linux 内核 ABI，扮演着“Guest Kernel”的角色，从而达到了将容器和宿主机隔离开的目的。</p>
+</li>
+</ul>
+<p>不难看到，无论是 Kata Containers，还是 gVisor，它们实现安全容器的方法其实是殊途同归的。<strong>这两种容器实现的本质，都是给进程分配了一个独立的操作系统内核，从而避免了让容器共享宿主机的内核。</strong>这样，容器进程能够看到的信息，就从整个宿主机内核变成了一个极小的、独立的、以容器为单位的内核，从而有效解决了容器进程发生“逃逸”或者夺取整个宿主机的控制权的问题。这个原理，可以用如下所示的示意图来表示清楚。</p>
+<img src="/img/body/jike/959c4c40c767acb6a3ffe6e144202e1d.png" alt="容器实现示意图" style="zoom:50%;max-width: 40%" />
+
+<p>Kata Containers 和 gVisor的区别：</p>
+<ul>
+<li><p>Kata Containers 使用的是传统的虚拟化技术，通过虚拟硬件模拟出了一台“小虚拟机”，然后在这个小虚拟机里安装了一个裁剪后的 Linux 内核来实现强隔离。</p>
+</li>
+<li><p>而 gVisor 的做法则更加激进，Google 的工程师直接用 Go 语言“模拟”出了一个运行在用户态的操作系统内核，然后通过这个模拟的内核来代替容器进程向宿主机发起有限的、可控的系统调用。</p>
+</li>
+</ul>
+<h2 id="KataContainers-容器"><a href="#KataContainers-容器" class="headerlink" title="KataContainers 容器"></a>KataContainers 容器</h2><p>它的工作原理可以用如下所示的示意图来描述。</p>
+<img src="/img/body/jike/8d7bbc8acaf27adff890f0be637df889.png" alt="KataContainers设计原理" style="zoom:67%;" />
+
+
+
+<p>Kata Containers 的本质，就是一个轻量化虚拟机。所以当你启动一个 Kata Containers 之后，你其实就会看到一个正常的虚拟机在运行。这也就意味着，一个标准的虚拟机管理程序（Virtual Machine Manager, VMM）是运行 Kata Containers 必备的一个组件。在我们上面图中，使用的 VMM 就是 Qemu。</p>
+<p>而使用了虚拟机作为进程的隔离环境之后，Kata Containers 原生就带有了 Pod 的概念。即：这个 Kata Containers 启动的虚拟机，就是一个 Pod；而用户定义的容器，就是运行在这个轻量级虚拟机里的进程。在具体实现上，Kata Containers 的虚拟机里会有一个特殊的 Init 进程负责管理虚拟机里面的用户容器，并且只为这些容器开启 Mount Namespace。所以，这些用户容器之间，原生就是共享 Network 以及其他 Namespace 的。</p>
+<p>此外，为了跟上层编排框架比如 Kubernetes 进行对接，Kata Containers 项目会启动一系列跟用户容器对应的 shim 进程，来负责操作这些用户容器的生命周期。当然，这些操作，实际上还是要靠虚拟机里的 Init 进程来帮你做到。</p>
+<p>而在具体的架构上，Kata Containers 的实现方式同一个正常的虚拟机其实也非常类似。这里的原理，可以用如下所示的一幅示意图来表示。</p>
+<img src="/img/body/jike/1684d0d89c170c2f8e6d050919c883f3.jpg" alt="Kata Containers的类实现架构" style="zoom:60%;max-width: 55%" />
+
+<p>可以看到，当 Kata Containers 运行起来之后，虚拟机里的用户进程（容器），实际上只能看到虚拟机里的、被裁减过的 Guest Kernel，以及通过 Hypervisor 虚拟出来的硬件设备。</p>
+<p>而为了能够对这个虚拟机的 I/O 性能进行优化，Kata Containers 也会通过 vhost 技术（比如：vhost-user）来实现 Guest 与 Host 之间的高效的网络通信，并且使用 PCI Passthrough （PCI 穿透）技术来让 Guest 里的进程直接访问到宿主机上的物理设备。这些架构设计与实现，其实跟常规虚拟机的优化手段是基本一致的。</p>
+<h2 id="gVisor-容器"><a href="#gVisor-容器" class="headerlink" title="gVisor 容器"></a>gVisor 容器</h2><p>它的原理，可以用如下所示的示意图来表示清楚。</p>
+<img src="/img/body/jike/2f7903a7c494ddf6989d00c794bd7a7b.png" alt="gVisor 的设计原理" style="zoom:67%;" />
+
+<p>gVisor 工作的核心，在于它为应用进程（用户容器），启动了一个名叫 Sentry 的进程。 而 Sentry 进程的主要职责，就是提供一个传统的操作系统内核的能力，即：运行用户程序，执行系统调用。所以说，Sentry 并不是使用 Go 语言重新实现了一个完整的 Linux 内核，而只是一个对应用进程“冒充”内核的系统组件。</p>
+<p>在这种设计思想下，Sentry 其实需要自己实现一个完整的 Linux 内核网络栈，以便处理应用进程的通信请求。然后，把封装好的二层帧直接发送给 Kubernetes 设置的 Pod 的 Network Namespace 即可。</p>
+<p>而在具体的实现上，gVisor 的 Sentry 进程，其实还分为两种不同的实现方式。这里的工作原理，可以用下面的示意图来描述清楚。</p>
+<img src="/img/body/jike/5a1d6e0291306417864033b3f40f74b8.png" alt="Sentry 进程第一种实现方式" style="zoom:67%; max-width: 50%;" />
+
+<h3 id="Sentry-进程的第一种实现方式"><a href="#Sentry-进程的第一种实现方式" class="headerlink" title="Sentry 进程的第一种实现方式"></a>Sentry 进程的第一种实现方式</h3><p>使用 Ptrace 机制来拦截用户应用的系统调用（System Call），然后把这些系统调用交给 Sentry 来进行处理。</p>
+<p>这个过程，对于应用进程来说，是完全透明的。而 Sentry 接下来，则会扮演操作系统的角色，在用户态执行用户程序，然后仅在需要的时候，才向宿主机发起 Sentry 自己所需要执行的系统调用。这，就是 gVisor 对用户应用进程进行强隔离的主要手段。不过， Ptrace 进行系统调用拦截的性能实在是太差，仅能供 Demo 时使用。</p>
+<h3 id="Sentry-进程的第二种实现方式"><a href="#Sentry-进程的第二种实现方式" class="headerlink" title="Sentry 进程的第二种实现方式"></a>Sentry 进程的第二种实现方式</h3><p>这种方式则更加具有普适性。它的工作原理如下图所示。</p>
+<img src="/img/body/jike/3faf90550425378be91eb8cd2f0c63bf.png" alt="Sentry 进程第二种实现方式" style="zoom:67%;max-width: 50%;" />
+
+<p>在这种实现里，Sentry 会使用 KVM 来进行系统调用的拦截，这个性能比 Ptrace 就要好很多了。</p>
+<p>当然，为了能够做到这一点，Sentry 进程就必须扮演一个 Guest Kernel 的角色，负责执行用户程序，发起系统调用。而这些系统调用被 KVM 拦截下来，还是继续交给 Sentry 进行处理。只不过在这时候，Sentry 就切换成了一个普通的宿主机进程的角色，来向宿主机发起它所需要的系统调用。</p>
+<p>可以看到，在这种实现里，Sentry 并不会真的像虚拟机那样去虚拟出硬件设备、安装 Guest 操作系统。它只是借助 KVM 进行系统调用的拦截，以及处理地址空间切换等细节</p>
+<p>值得一提的是，在 Google 内部，他们也是使用的第二种基于 Hypervisor 的 gVisor 实现。只不过 Google 内部有自己研发的 Hypervisor，所以要比 KVM 实现的性能还要好。但到目前为止，gVisor 的实现依然不是非常完善。</p>
+<h2 id="Kata-Containers-与-gVisor对比"><a href="#Kata-Containers-与-gVisor对比" class="headerlink" title="Kata Containers 与 gVisor对比"></a>Kata Containers 与 gVisor对比</h2><p>在性能上，KataContainers 和 KVM 实现的 gVisor 不分伯仲，在启动速度和占用资源上，基于用户态内核的 gVisor 还略胜一筹。但是，对于系统调用密集的应用，比如重 I/O 或者重网络的应用，gVisor 就会因为需要频繁拦截系统调用而出现性能急剧下降的情况。此外，gVisor 由于要自己使用 Sentry 去模拟一个 Linux 内核，所以它能支持的系统调用是有限的，只是 Linux 系统调用的一个子集。</p>
+<p>不过，gVisor 虽然现在没有任何优势，但是这种<strong>通过在用户态运行一个操作系统内核，来为应用进程提供强隔离的思路，</strong>的确是未来安全容器进一步演化的一个非常有前途的方向。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/10/04/45-47-%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6/">http://wang.ikongjian.com/2020/10/04/45-47-%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kuernetes/">深入剖析Kuernetes</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/10/05/48-50-%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%92%8C%E6%97%A5%E5%BF%97/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">48-50.容器监控和日志</div></div></a></div><div class="next-post pull_right"><a href="/2020/10/02/40-44-%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6%E5%92%8C%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/"><img class="next_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">40-44.作业调度和资源管理</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/09/01/00-04-深入剖析k8s课前必读/" title="00-04.深入剖析k8s课前必读"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-01</div><div class="relatedPosts_title">00-04.深入剖析k8s课前必读</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/06/05-09-容器技术概念入门篇/" title="05-09.容器技术概念入门篇"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-06</div><div class="relatedPosts_title">05-09.容器技术概念入门篇</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/09/10-12-kubernetest集群搭建与实践/" title="10-12.Kubernetest集群搭建与实践"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-09</div><div class="relatedPosts_title">10-12.Kubernetest集群搭建与实践</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/11/13-15-深入解析pod对象/" title="13-15.深入解析pod对象"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-11</div><div class="relatedPosts_title">13-15.深入解析pod对象</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/24/28-31-kubernetes容器持久化存储/" title="28-31.Kubernetes容器持久化存储"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-24</div><div class="relatedPosts_title">28-31.Kubernetes容器持久化存储</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/18/18-20-深入理解statefulset/" title="18-20.深入理解StatefulSet"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-18</div><div class="relatedPosts_title">18-20.深入理解StatefulSet</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>nginx的详细用法 | 蚂蚁博客</title><meta name="description" content="nginx的upstream的5种分配方式 原文地址 nginx的upstream支持5种方式的分配  轮询（默认）每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。  weight指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。  例如： upstream bakend &amp;#123;    server 192.168.0.2 weig"><meta name="keywords" content="nginx"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="nginx的详细用法"><meta name="twitter:description" content="nginx的upstream的5种分配方式 原文地址 nginx的upstream支持5种方式的分配  轮询（默认）每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。  weight指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。  例如： upstream bakend &amp;#123;    server 192.168.0.2 weig"><meta name="twitter:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="og:type" content="article"><meta property="og:title" content="nginx的详细用法"><meta property="og:url" content="http://wang.ikongjian.com/2020/07/27/nginx%E7%9A%84%E8%AF%A6%E7%BB%86%E7%94%A8%E6%B3%95/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="nginx的upstream的5种分配方式 原文地址 nginx的upstream支持5种方式的分配  轮询（默认）每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。  weight指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。  例如： upstream bakend &amp;#123;    server 192.168.0.2 weig"><meta property="og:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="article:published_time" content="2020-07-27T06:00:00.000Z"><meta property="article:modified_time" content="2020-09-23T05:47:37.976Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/07/27/nginx%E7%9A%84%E8%AF%A6%E7%BB%86%E7%94%A8%E6%B3%95/"><link rel="prev" title="nginx日志的使用和讲解" href="http://wang.ikongjian.com/2020/07/28/nginx%E6%97%A5%E5%BF%97%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E8%AE%B2%E8%A7%A3/"><link rel="next" title="linux常见问题2" href="http://wang.ikongjian.com/2020/07/25/linux%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%982/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx的upstream的5种分配方式"><span class="toc-number">1.</span> <span class="toc-text">nginx的upstream的5种分配方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#轮询（默认）"><span class="toc-number">1.1.</span> <span class="toc-text">轮询（默认）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#weight"><span class="toc-number">1.2.</span> <span class="toc-text">weight</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ip-hash"><span class="toc-number">1.3.</span> <span class="toc-text">ip_hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fair（第三方）"><span class="toc-number">1.4.</span> <span class="toc-text">fair（第三方）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#url-hash（第三方）"><span class="toc-number">1.5.</span> <span class="toc-text">url_hash（第三方）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx优化配置"><span class="toc-number">2.</span> <span class="toc-text">nginx优化配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx配置文件"><span class="toc-number">3.</span> <span class="toc-text">nginx配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#nginx重定义请求头"><span class="toc-number">3.1.</span> <span class="toc-text">nginx重定义请求头</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#默认用法"><span class="toc-number">3.1.1.</span> <span class="toc-text">默认用法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#proxy-set-header-X-real-ip-remote-addr"><span class="toc-number">3.1.2.</span> <span class="toc-text">proxy_set_header X-real-ip $remote_addr;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#proxy-set-header-Host-http-host"><span class="toc-number">3.1.3.</span> <span class="toc-text">proxy_set_header Host $http_host;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#proxy-set-header-Host-host"><span class="toc-number">3.1.4.</span> <span class="toc-text">proxy_set_header Host $host;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#proxy-set-header-X-Forwarded-For-remote-addr"><span class="toc-number">3.1.5.</span> <span class="toc-text">proxy_set_header X-Forwarded-For $remote_addr;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#proxy-set-header-lt-lt-lt-gt-gt-gt-“”"><span class="toc-number">3.1.6.</span> <span class="toc-text">proxy_set_header &lt;&lt;&lt;*&gt;&gt;&gt; “”;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#proxy-set-header-X-Forwarded-For-proxy-add-x-forwarded-for"><span class="toc-number">3.1.7.</span> <span class="toc-text">proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#更改域名请求头-重定向"><span class="toc-number">3.1.8.</span> <span class="toc-text">更改域名请求头(重定向)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#location匹配规则"><span class="toc-number">4.</span> <span class="toc-text">location匹配规则</span></a></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(/img/gkihqEjXxJ5UZ1C.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">nginx的详细用法</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-07-27 14:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-07-27</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-09-23 13:47:37"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-09-23</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/nginx/">nginx</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">1.1k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 4 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="nginx的upstream的5种分配方式"><a href="#nginx的upstream的5种分配方式" class="headerlink" title="nginx的upstream的5种分配方式"></a>nginx的upstream的5种分配方式</h2><blockquote>
+<p>原文地址 <a href="http://blog.chinaunix.net/uid-20662363-id-3049712.html" target="_blank" rel="noopener">nginx的upstream支持5种方式的分配</a></p>
+</blockquote>
+<h3 id="轮询（默认）"><a href="#轮询（默认）" class="headerlink" title="轮询（默认）"></a>轮询（默认）</h3><p>每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。 </p>
+<h3 id="weight"><a href="#weight" class="headerlink" title="weight"></a>weight</h3><p>指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。 </p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream bakend &#123;</span><br><span class="line">    server 192.168.0.2 weight&#x3D;10;</span><br><span class="line">    server 192.168.0.3 weight&#x3D;5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="ip-hash"><a href="#ip-hash" class="headerlink" title="ip_hash"></a><strong>ip_hash</strong></h3><p>每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。 </p>
+<p>例如： </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream bakend &#123;</span><br><span class="line">    ip_hash;</span><br><span class="line">    server 192.168.0.2:8080;</span><br><span class="line">    server 192.168.0.3:8080;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="fair（第三方）"><a href="#fair（第三方）" class="headerlink" title="fair（第三方）"></a>fair（第三方）</h3><p>按后端服务器的响应时间来分配请求，响应时间短的优先分配。 </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream backend &#123;</span><br><span class="line">    fair;</span><br><span class="line">    server server1;</span><br><span class="line">    server server2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="url-hash（第三方）"><a href="#url-hash（第三方）" class="headerlink" title="url_hash（第三方）"></a>url_hash（第三方）</h3><p>按访问url的hash结果来分配请求，使每个url定向到同一个后端服务器，后端服务器为缓存时比较有效。</p>
+<p>例：在upstream中加入hash语句，server语句中不能写入weight等其他的参数，hash_method是使用的hash算法 </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream backend &#123;</span><br><span class="line">    server squid1:3128;</span><br><span class="line">    server squid2:3128;</span><br><span class="line">    hash $request_uri;</span><br><span class="line">    hash_method crc32;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="nginx优化配置"><a href="#nginx优化配置" class="headerlink" title="nginx优化配置"></a>nginx优化配置</h2><p>Nginx  1.1.14版本以前与后端upstream服务器建立的都是短链接，即通过HTTP/1.0向后端发起连接，并把请求的”Connection”  header设为”close”。这样nginx往upstream后端发请求时，也会消耗很多的时间与带宽(重复连接)，如果让nginx与upstream后端建立起长链接，从nginx发起的请求就可以挑选一个合适的长链接发往upstream后端服务器，这样即可以节省带宽，也可以提高响应速度。</p>
+<p>其中keepalive指定最大保持的长连接数为1024.，同时要求HTTP协议版本指定为HTTP 1.1，以及清除掉HTTP头部Connection</p>
+<p>针对后端的keepalive是通过nginx.conf配置文件来指定的，典型配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream bakend &#123;</span><br><span class="line">    keepalive 16;</span><br><span class="line">    server 192.168.0.2:8080;</span><br><span class="line">    server 192.168.0.3:8080;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="nginx配置文件"><a href="#nginx配置文件" class="headerlink" title="nginx配置文件"></a>nginx配置文件</h2><h3 id="nginx重定义请求头"><a href="#nginx重定义请求头" class="headerlink" title="nginx重定义请求头"></a>nginx重定义请求头</h3><blockquote>
+<p> 参考文章:<a href="https://www.cnblogs.com/liuxia912/p/10943970.html" target="_blank" rel="noopener">proxy_set_header常见用法</a></p>
+</blockquote>
+<p>proxy_set_header用来重定义发往后端服务器的请求头。</p>
+<p>语法:    proxy_set_header field value;</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">location &#x2F; &#123;</span><br><span class="line">    proxy_set_header Host $host;</span><br><span class="line">    proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">    proxy_set_header REMOTE-HOST $remote_addr;</span><br><span class="line">    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">    proxy_pass http:&#x2F;&#x2F;backend;</span><br><span class="line">    error_page 404 &#x3D; &#x2F;404.html;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="默认用法"><a href="#默认用法" class="headerlink" title="默认用法"></a>默认用法</h4><p>有两个请求头会被重新定义： </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">proxy_set_header Host $proxy_host; &#x2F;&#x2F;默认会将后端服务器的HOST填写进去</span><br><span class="line">proxy_set_header Connection close;</span><br></pre></td></tr></table></figure>
+
+<h4 id="proxy-set-header-X-real-ip-remote-addr"><a href="#proxy-set-header-X-real-ip-remote-addr" class="headerlink" title="proxy_set_header X-real-ip $remote_addr;"></a>proxy_set_header X-real-ip $remote_addr;</h4><p>其中这个X-real-ip是一个自定义的变量名，名字可以随意取，这样做完之后，用户的真实ip就被放在X-real-ip这个变量里了，然后，在web端可以这样获取：</p>
+<p>​        request.getHeader(“X-real-ip”) </p>
+<h4 id="proxy-set-header-Host-http-host"><a href="#proxy-set-header-Host-http-host" class="headerlink" title="proxy_set_header Host $http_host;"></a>proxy_set_header Host $http_host;</h4><p>如果想获取客户端访问的头部，可以这样来设置。 </p>
+<p>但是，如果客户端请求头中没有携带这个头部，那么传递到后端服务器的请求也不含这个头部。 </p>
+<h4 id="proxy-set-header-Host-host"><a href="#proxy-set-header-Host-host" class="headerlink" title="proxy_set_header Host $host;"></a><strong>proxy_set_header Host $host;</strong></h4><p>这个配置相当于上面配置的增强。 </p>
+<p>它的值在请求包含”Host”请求头时为”Host”字段的值，在请求未携带”Host”请求头时为虚拟主机的主域名。</p>
+<h4 id="proxy-set-header-X-Forwarded-For-remote-addr"><a href="#proxy-set-header-X-Forwarded-For-remote-addr" class="headerlink" title="proxy_set_header X-Forwarded-For $remote_addr;"></a>proxy_set_header X-Forwarded-For $remote_addr;</h4><p>同上。 </p>
+<p>真实的显示出客户端原始ip。（nginx更多使用这条配置，X-Forwarded-For为默认字段，以下介绍均为默认字段）</p>
+<h4 id="proxy-set-header-lt-lt-lt-gt-gt-gt-“”"><a href="#proxy-set-header-lt-lt-lt-gt-gt-gt-“”" class="headerlink" title="proxy_set_header &lt;&lt;&lt;*&gt;&gt;&gt; “”;"></a>proxy_set_header &lt;&lt;&lt;*&gt;&gt;&gt; “”;</h4><p>请求头的值为空，请求头将不会传送给后端服务器。 </p>
+<h4 id="proxy-set-header-X-Forwarded-For-proxy-add-x-forwarded-for"><a href="#proxy-set-header-X-Forwarded-For-proxy-add-x-forwarded-for" class="headerlink" title="proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;"></a>proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</h4><p>在默认情况下经过proxy转发的请求，在后端看来远程地址都是proxy端的ip 。</p>
+<p>添加这条配置之后： </p>
+<p>意思是增加一个$proxy_add_x_forwarded_for到X-Forwarded-For里去，注意是<strong>增加</strong>，而不是覆盖，当然由于默认的X-Forwarded-For值是空的，所以我们总感觉X-Forwarded-For的值就等于$proxy_add_x_forwarded_for的值，实际上当你搭建两台nginx在不同的ip上，并且都使用了这段配置，那你会发现在web服务器端通过request.getHeader(“X-Forwarded-For”)获得的将会是<strong><em>客户端***</em></strong>ip<strong>和</strong>第一台<strong><em>*nginx的ip</em></strong>。</p>
+<h4 id="更改域名请求头-重定向"><a href="#更改域名请求头-重定向" class="headerlink" title="更改域名请求头(重定向)"></a>更改域名请求头(重定向)</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">proxy_set_header Host crmtest.aty.sohuno.com;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="location匹配规则"><a href="#location匹配规则" class="headerlink" title="location匹配规则"></a>location匹配规则</h2><p>匹配规则示例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">location &#x3D; &#x2F; &#123;</span><br><span class="line">    #规则A</span><br><span class="line">&#125;</span><br><span class="line">location &#x3D; &#x2F;login &#123;</span><br><span class="line">    #规则B</span><br><span class="line">&#125;</span><br><span class="line">location ^~ &#x2F;static&#x2F; &#123;</span><br><span class="line">    #规则C</span><br><span class="line">&#125;</span><br><span class="line">location ~ \.(gif|jpg|png|js|css)$ &#123;</span><br><span class="line">    #规则D</span><br><span class="line">&#125;</span><br><span class="line">location ~* \.png$ &#123;</span><br><span class="line">    #规则E</span><br><span class="line">&#125;</span><br><span class="line">location !~ \.xhtml$ &#123;</span><br><span class="line">    #规则F</span><br><span class="line">&#125;</span><br><span class="line">location !~* \.xhtml$ &#123;</span><br><span class="line">    #规则G</span><br><span class="line">&#125;</span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">    #规则H</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/07/27/nginx%E7%9A%84%E8%AF%A6%E7%BB%86%E7%94%A8%E6%B3%95/">http://wang.ikongjian.com/2020/07/27/nginx%E7%9A%84%E8%AF%A6%E7%BB%86%E7%94%A8%E6%B3%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nginx/">nginx</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/07/28/nginx%E6%97%A5%E5%BF%97%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E8%AE%B2%E8%A7%A3/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">nginx日志的使用和讲解</div></div></a></div><div class="next-post pull_right"><a href="/2020/07/25/linux%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%982/"><img class="next_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">linux常见问题2</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/07/28/nginx日志的使用和讲解/" title="nginx日志的使用和讲解"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-28</div><div class="relatedPosts_title">nginx日志的使用和讲解</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/24/nginx的安装和配置/" title="nginx的安装和配置"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-24</div><div class="relatedPosts_title">nginx的安装和配置</div></div></a></div><div class="relatedPosts_item"><a href="/2020/08/21/nginx常见问题/" title="nginx常见问题"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-08-21</div><div class="relatedPosts_title">nginx常见问题</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

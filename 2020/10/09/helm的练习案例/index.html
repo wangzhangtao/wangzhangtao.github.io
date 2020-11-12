@@ -1,0 +1,549 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>helm的练习案例 | 蚂蚁博客</title><meta name="description" content="本文档主要为参考阳明的文档摘抄，并从其他文章参考而来，主要文章链接，请查看结尾  43. Helm 的基本使用仓库可以用helm repo list来查看当前的仓库配置 $ helm repo listNAME       URLstable     https:&#x2F;&#x2F;kubernetes-charts.storage.googleapis.com&#x2F;local"><meta name="keywords" content="kubernetes,helm"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="helm的练习案例"><meta name="twitter:description" content="本文档主要为参考阳明的文档摘抄，并从其他文章参考而来，主要文章链接，请查看结尾  43. Helm 的基本使用仓库可以用helm repo list来查看当前的仓库配置 $ helm repo listNAME       URLstable     https:&#x2F;&#x2F;kubernetes-charts.storage.googleapis.com&#x2F;local"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="helm的练习案例"><meta property="og:url" content="http://wang.ikongjian.com/2020/10/09/helm%E7%9A%84%E7%BB%83%E4%B9%A0%E6%A1%88%E4%BE%8B/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="本文档主要为参考阳明的文档摘抄，并从其他文章参考而来，主要文章链接，请查看结尾  43. Helm 的基本使用仓库可以用helm repo list来查看当前的仓库配置 $ helm repo listNAME       URLstable     https:&#x2F;&#x2F;kubernetes-charts.storage.googleapis.com&#x2F;local"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-10-09T08:00:00.000Z"><meta property="article:modified_time" content="2020-10-22T03:57:05.667Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/10/09/helm%E7%9A%84%E7%BB%83%E4%B9%A0%E6%A1%88%E4%BE%8B/"><link rel="prev" title="helm的安装和使用" href="http://wang.ikongjian.com/2020/10/10/helm%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/"><link rel="next" title="51-56.k8s的未来和结束语" href="http://wang.ikongjian.com/2020/10/06/51-56-k8s%E7%9A%84%E6%9C%AA%E6%9D%A5%E5%92%8C%E7%BB%93%E6%9D%9F%E8%AF%AD/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#43-Helm-的基本使用"><span class="toc-number">1.</span> <span class="toc-text">43. Helm 的基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#仓库"><span class="toc-number">1.1.</span> <span class="toc-text">仓库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查找-chart"><span class="toc-number">1.2.</span> <span class="toc-text">查找 chart</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装-chart"><span class="toc-number">1.3.</span> <span class="toc-text">安装 chart</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自定义-chart"><span class="toc-number">1.4.</span> <span class="toc-text">自定义 chart</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#升级"><span class="toc-number">1.5.</span> <span class="toc-text">升级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删除"><span class="toc-number">1.6.</span> <span class="toc-text">删除</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#44-Helm-模板之内置函数和Values"><span class="toc-number">2.</span> <span class="toc-text">44. Helm 模板之内置函数和Values</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#定义-chart"><span class="toc-number">2.1.</span> <span class="toc-text">定义 chart</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建模板"><span class="toc-number">2.2.</span> <span class="toc-text">创建模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#添加一个简单的模板"><span class="toc-number">2.3.</span> <span class="toc-text">添加一个简单的模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#调试"><span class="toc-number">2.4.</span> <span class="toc-text">调试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内置对象"><span class="toc-number">2.5.</span> <span class="toc-text">内置对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#values-文件"><span class="toc-number">2.6.</span> <span class="toc-text">values 文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#45-Helm-模板之模板函数与管道"><span class="toc-number">3.</span> <span class="toc-text">45. Helm 模板之模板函数与管道</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#模板函数"><span class="toc-number">3.1.</span> <span class="toc-text">模板函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#管道"><span class="toc-number">3.2.</span> <span class="toc-text">管道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#default-函数"><span class="toc-number">3.3.</span> <span class="toc-text">default 函数</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#46-Helm-模板之控制流程"><span class="toc-number">4.</span> <span class="toc-text">46. Helm 模板之控制流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#if-else-条件"><span class="toc-number">4.1.</span> <span class="toc-text">if&#x2F;else 条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#空格控制"><span class="toc-number">4.2.</span> <span class="toc-text">空格控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-with-修改范围"><span class="toc-number">4.3.</span> <span class="toc-text">使用 with 修改范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#range-循环"><span class="toc-number">4.4.</span> <span class="toc-text">range 循环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量"><span class="toc-number">4.5.</span> <span class="toc-text">变量</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#47-Helm模板之命名模板"><span class="toc-number">5.</span> <span class="toc-text">47. Helm模板之命名模板</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#声明和使用命名模板"><span class="toc-number">5.1.</span> <span class="toc-text">声明和使用命名模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模板范围"><span class="toc-number">5.2.</span> <span class="toc-text">模板范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#include-函数"><span class="toc-number">5.3.</span> <span class="toc-text">include 函数</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#48-Helm模板之其他注意事项"><span class="toc-number">6.</span> <span class="toc-text">48. Helm模板之其他注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#NOTES-txt-文件"><span class="toc-number">6.1.</span> <span class="toc-text">NOTES.txt 文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#子-chart-包"><span class="toc-number">6.2.</span> <span class="toc-text">子 chart 包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#创建子-chart"><span class="toc-number">6.2.1.</span> <span class="toc-text">创建子 chart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#值覆盖"><span class="toc-number">6.2.2.</span> <span class="toc-text">值覆盖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全局值"><span class="toc-number">6.2.3.</span> <span class="toc-text">全局值</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#49-Helm-Hooks"><span class="toc-number">7.</span> <span class="toc-text">49. Helm Hooks</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Hooks"><span class="toc-number">7.1.</span> <span class="toc-text">Hooks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生命周期"><span class="toc-number">7.2.</span> <span class="toc-text">生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写一个-hook"><span class="toc-number">7.3.</span> <span class="toc-text">写一个 hook</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#结尾"><span class="toc-number">8.</span> <span class="toc-text">结尾</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文档"><span class="toc-number">8.1.</span> <span class="toc-text">参考文档</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">helm的练习案例</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-10-09 16:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-10-09</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-10-22 11:57:05"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-10-22</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/">kubernetes</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/helm/">helm</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">9.4k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 36 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><blockquote>
+<p>本文档主要为参考阳明的文档摘抄，并从其他文章参考而来，主要文章链接，请查看结尾</p>
+</blockquote>
+<h1 id="43-Helm-的基本使用"><a href="#43-Helm-的基本使用" class="headerlink" title="43. Helm 的基本使用"></a>43. Helm 的基本使用</h1><h2 id="仓库"><a href="#仓库" class="headerlink" title="仓库"></a>仓库</h2><p>可以用<code>helm repo list</code>来查看当前的仓库配置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ helm repo list</span><br><span class="line">NAME       URL</span><br><span class="line">stable     https:&#x2F;&#x2F;kubernetes-charts.storage.googleapis.com&#x2F;</span><br><span class="line">local      http:&#x2F;&#x2F;127.0.0.1:8879&#x2F;charts</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="查找-chart"><a href="#查找-chart" class="headerlink" title="查找 chart"></a>查找 chart</h2><p>Helm 将 Charts 包安装到 Kubernetes 集群中，一个安装实例就是一个新的 Release，要找到新的 Chart，我们可以通过搜索命令完成。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm search </span><br><span class="line">Usage:</span><br><span class="line">  helm search [command]</span><br><span class="line"></span><br><span class="line">Available Commands:</span><br><span class="line">  hub         search for charts in the Helm Hub or an instance of Monocular</span><br><span class="line">  repo        search repositories for a keyword in charts</span><br></pre></td></tr></table></figure>
+
+<p>查看repo的stable案例</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm search repo stable</span><br><span class="line">NAME                                    CHART VERSION   APP VERSION             DESCRIPTION                                       </span><br><span class="line">stable&#x2F;acs-engine-autoscaler            2.2.2           2.1.1                   DEPRECATED Scales worker nodes within agent pools </span><br><span class="line">stable&#x2F;aerospike                        0.3.3           v4.5.0.5                A Helm chart for Aerospike in Kubernetes          </span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>如果没有使用过滤条件，helm search 显示所有可用的 charts。可以通过使用过滤条件进行搜索来缩小搜索的结果范围：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm search repo mysql</span><br><span class="line">NAME                                    CHART VERSION   APP VERSION     DESCRIPTION                                       </span><br><span class="line">aliyun&#x2F;mysql                            0.3.5                           Fast, reliable, scalable, and easy to use open-...</span><br><span class="line">stable&#x2F;mysql                            1.6.7           5.7.30          Fast, reliable, scalable, and easy to use open-...</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>使用 inspect 命令来查看一个 chart 的详细信息：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm inspect chart stable&#x2F;mysql</span><br><span class="line">apiVersion: v1</span><br><span class="line">appVersion: 5.7.30</span><br><span class="line">description: Fast, reliable, scalable, and easy to use open-source relational database</span><br><span class="line">  system.</span><br><span class="line">home: https:&#x2F;&#x2F;www.mysql.com&#x2F;</span><br><span class="line">icon: https:&#x2F;&#x2F;www.mysql.com&#x2F;common&#x2F;logos&#x2F;logo-mysql-170x115.png</span><br><span class="line">keywords:</span><br><span class="line">- mysql</span><br><span class="line">- database</span><br><span class="line">- sql</span><br><span class="line">maintainers:</span><br><span class="line">- email: o.with@sportradar.com</span><br><span class="line">  name: olemarkus</span><br><span class="line">- email: viglesias@google.com</span><br><span class="line">  name: viglesiasce</span><br><span class="line">name: mysql</span><br><span class="line">sources:</span><br><span class="line">- https:&#x2F;&#x2F;github.com&#x2F;kubernetes&#x2F;charts</span><br><span class="line">- https:&#x2F;&#x2F;github.com&#x2F;docker-library&#x2F;mysql</span><br><span class="line">version: 1.6.7</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="安装-chart"><a href="#安装-chart" class="headerlink" title="安装 chart"></a>安装 chart</h2><p>要安装新的软件包，直接使用 helm install 命令即可。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm install mydb stable&#x2F;mysql </span><br><span class="line">NAME: mydb</span><br><span class="line">LAST DEPLOYED: Sat Oct 10 15:33:41 2020</span><br><span class="line">NAMESPACE: default</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>在安装过程中，helm 客户端将打印有关创建哪些资源的有用信息，release 的状态以及其他有用的配置信息，比如这里的有访问 mysql 服务的方法、获取 root 用户的密码以及连接 mysql 的方法等信息。</p>
+<p>要跟踪 release 状态或重新读取配置信息，可以使用 helm status 查看：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm status mydb</span><br><span class="line">NAME: mydb</span><br><span class="line">LAST DEPLOYED: Sat Oct 10 15:33:41 2020</span><br><span class="line">NAMESPACE: default</span><br><span class="line">STATUS: deployed</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>可以看到当前 release 的状态是<code>DEPLOYED</code>，下面还有一些安装的时候出现的信息。</p>
+<h2 id="自定义-chart"><a href="#自定义-chart" class="headerlink" title="自定义 chart"></a>自定义 chart</h2><p>上面的安装方式是使用 chart 的默认配置选项。但是在很多时候，我们都需要自定义 chart 以满足自身的需求，要自定义 chart，我们就需要知道我们使用的 chart 支持的可配置选项才行。</p>
+<p>要查看 chart 上可配置的选项，使用<code>helm inspect values</code>命令即可，比如我们这里查看上面的 mysql 的配置选项：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm inspect values stable&#x2F;mysql</span><br><span class="line">## mysql image version</span><br><span class="line">## ref: https:&#x2F;&#x2F;hub.docker.com&#x2F;r&#x2F;library&#x2F;mysql&#x2F;tags&#x2F;</span><br><span class="line">##</span><br><span class="line">image: &quot;mysql&quot;</span><br><span class="line">imageTag: &quot;5.7.30&quot;</span><br><span class="line"></span><br><span class="line">strategy:</span><br><span class="line">  type: Recreate</span><br><span class="line"></span><br><span class="line">busybox:</span><br><span class="line">  image: &quot;busybox&quot;</span><br><span class="line">  tag: &quot;1.32&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>然后，我们可以直接在 YAML 格式的文件中来覆盖上面的任何配置，在安装的时候直接使用该配置文件即可：(config.yaml)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqlUser: haimaxyUser</span><br><span class="line">mysqlDatabase: haimaxyDB</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br></pre></td></tr></table></figure>
+
+<p>我们来安装的时候直接指定该 yaml 文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm install mydb stable&#x2F;mysql -f config.yaml </span><br><span class="line">NAME: mydb</span><br><span class="line">LAST DEPLOYED: Sat Oct 10 15:37:58 2020</span><br><span class="line">NAMESPACE: default</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>可以看到当前 release 的名字已经变成 mydb 了。然后可以查看下 mydb 关联的 Service 变成 NodePort 类型的了。</p>
+<p>helm 更新的用法，我们这里来直接禁用掉数据持久化，可以在上面的 config.yaml 文件中设置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">persistence:</span><br><span class="line">  enabled: false</span><br></pre></td></tr></table></figure>
+
+<p>另外一种方法就是在安装过程中使用<code>--set</code>来覆盖对应的 value 值，比如禁用数据持久化，我们这里可以这样来覆盖：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">helm install mydb stable&#x2F;mysql --set persistence.enabled&#x3D;false</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="升级"><a href="#升级" class="headerlink" title="升级"></a>升级</h2><p>我们这里将数据持久化禁用掉来对上面的 mydb 进行升级：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# echo config.yaml</span><br><span class="line">mysqlUser: haimaxyUser</span><br><span class="line">mysqlDatabase: haimaxyDB</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">persistence:</span><br><span class="line">  enabled: false</span><br><span class="line">  </span><br><span class="line">[root@wang-200 test]# helm upgrade mydb stable&#x2F;mysql -f config.yaml </span><br><span class="line">Release &quot;mydb&quot; has been upgraded. Happy Helming!</span><br><span class="line">NAME: mydb</span><br><span class="line">LAST DEPLOYED: Sat Oct 10 15:41:12 2020</span><br><span class="line">NAMESPACE: default</span><br><span class="line">STATUS: deployed</span><br></pre></td></tr></table></figure>
+
+<p>使用 helm ls 命令查看先当前的 release：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm ls</span><br><span class="line">NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION</span><br><span class="line">mydb    default         2               2020-10-10 15:41:12.15738066 +0800 CST  deployed        mysql-1.6.7     5.7.30</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以看到 mydb 这个 release 的<code>REVISION</code>已经变成<strong>2</strong>了，这是因为 release 的版本是递增的，每次安装、升级或者回滚，版本号都会加<strong>1</strong>，第一个版本号始终为<strong>1</strong>，同样我们可以使用 helm history 命令查看 release 的历史版本：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm history mydb</span><br><span class="line">REVISION        UPDATED                         STATUS          CHART           APP VERSION     DESCRIPTION     </span><br><span class="line">1               Sat Oct 10 15:37:58 2020        superseded      mysql-1.6.7     5.7.30          Install complete</span><br><span class="line">2               Sat Oct 10 15:41:12 2020        deployed        mysql-1.6.7     5.7.30          Upgrade complete</span><br></pre></td></tr></table></figure>
+
+<p>当然如果我们要回滚到某一个版本的话，使用 helm rollback 命令即可，比如我们将 mydb 回滚到上一个版本：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm rollback mydb 1</span><br><span class="line">Rollback was a success! Happy Helming!</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>helm history mydb</code> 查看，版本依然在增加。</p>
+<h2 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h2><p>直接使用 helm uninstall 命令</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm uninstall mydb</span><br><span class="line">release &quot;mydb&quot; uninstalled</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="44-Helm-模板之内置函数和Values"><a href="#44-Helm-模板之内置函数和Values" class="headerlink" title="44. Helm 模板之内置函数和Values"></a>44. Helm 模板之内置函数和Values</h1><p>这节课来和大家一起定义一个<code>chart</code>包，了解 Helm 中模板的一些使用方法。</p>
+<h2 id="定义-chart"><a href="#定义-chart" class="headerlink" title="定义 chart"></a>定义 chart</h2><p>一个 chart 包就是一个文件夹的集合，文件夹名称就是 chart 包的名称，比如创建一个 mychart 的 chart 包：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm create mychart</span><br><span class="line">Creating mychart</span><br><span class="line"></span><br><span class="line">[root@wang-200 test]# tree mychart&#x2F;</span><br><span class="line">mychart&#x2F;</span><br><span class="line">├── charts</span><br><span class="line">├── Chart.yaml</span><br><span class="line">├── templates</span><br><span class="line">│   ├── deployment.yaml</span><br><span class="line">│   ├── _helpers.tpl</span><br><span class="line">│   ├── hpa.yaml</span><br><span class="line">│   ├── ingress.yaml</span><br><span class="line">│   ├── NOTES.txt</span><br><span class="line">│   ├── serviceaccount.yaml</span><br><span class="line">│   ├── service.yaml</span><br><span class="line">│   └── tests</span><br><span class="line">│       └── test-connection.yaml</span><br><span class="line">└── values.yaml</span><br><span class="line"></span><br><span class="line">3 directories, 10 files</span><br></pre></td></tr></table></figure>
+
+
+
+<p>chart 包的目录上节课我们就已经学习过了，这里我们再来仔细看看 templates 目录下面的文件:</p>
+<ul>
+<li>NOTES.txt：chart 的 “帮助文本”。这会在用户运行 helm install 时显示给用户。</li>
+<li>deployment.yaml：创建 Kubernetes deployment 的基本 manifest</li>
+<li>service.yaml：为 deployment 创建 service 的基本 manifest</li>
+<li>ingress.yaml: 创建 ingress 对象的资源清单文件</li>
+<li>_helpers.tpl：放置模板助手的地方，可以在整个 chart 中重复使用</li>
+</ul>
+<p>这里我们明白每一个文件是干嘛的就行，然后我们把 templates 目录下面所有文件全部删除掉，这里我们自己来创建模板文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# rm -rf mychart&#x2F;templates&#x2F;*.*</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="创建模板"><a href="#创建模板" class="headerlink" title="创建模板"></a>创建模板</h2><p>这里我们来创建一个非常简单的模板 ConfigMap，在 templates 目录下面新建一个<code>configmap.yaml</code>文件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# cat mychart&#x2F;templates&#x2F;configmap.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: mychart-configmap</span><br><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>实际上现在我们就有一个可安装的 chart 包了，通过<code>helm install</code>命令来进行安装：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm install cmtest .&#x2F;mychart&#x2F;</span><br><span class="line">NAME: cmtest</span><br><span class="line">LAST DEPLOYED: Sat Oct 10 15:58:21 2020</span><br><span class="line">NAMESPACE: default</span><br><span class="line">STATUS: deployed</span><br><span class="line">REVISION: 1</span><br><span class="line">TEST SUITE: None</span><br></pre></td></tr></table></figure>
+
+<p>通过命令，我们可以看到cm已经创建</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# kubectl get cm mychart-configmap</span><br><span class="line">NAME                DATA   AGE</span><br><span class="line">mychart-configmap   1      51s</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="添加一个简单的模板"><a href="#添加一个简单的模板" class="headerlink" title="添加一个简单的模板"></a>添加一个简单的模板</h2><p>上面我们定义的 ConfigMap 的名字是固定的，但往往这并不是一种很好的做法，我们可以通过插入 release  的名称来生成资源的名称，比如这里 ConfigMap 的名称我们希望是：ringed-lynx-configmap，这就需要用到 Chart  的模板定义方法了。</p>
+<p>Helm Chart 模板使用的是<a href="https://golang.org/pkg/text/template/" target="_blank" rel="noopener"><code>Go</code>语言模板</a>编写而成，并添加了<a href="https://github.com/Masterminds/sprig" target="_blank" rel="noopener"><code>Sprig</code>库</a>中的50多个附件模板函数以及一些其他<a href="https://github.com/kubernetes/helm/blob/master/docs/charts_tips_and_tricks.md" target="_blank" rel="noopener">特殊的函</a>。</p>
+<blockquote>
+<p>需要注意的是<code>kubernetes</code>资源对象的 labels 和 name 定义被<a href="http://kubernetes.io/docs/user-guide/labels/#syntax-and-character-set" target="_blank" rel="noopener">限制 63个字符</a>，所以需要注意名称的定义。</p>
+</blockquote>
+<p>现在我们来重新定义下上面的 configmap.yaml 文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# cat mychart&#x2F;templates&#x2F;configmap.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: &#123;&#123; .Release.Name &#125;&#125;-configmap</span><br><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br><span class="line">  </span><br><span class="line">[root@wang-200 test]# helm install cmtest .&#x2F;mychart</span><br></pre></td></tr></table></figure>
+
+
+
+<p>现在我们来重新安装我们的 Chart 包，注意观察 ConfigMap 资源对象的名称：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# kubectl get cm | grep configmap</span><br><span class="line">cmtest-configmap   1      27s</span><br></pre></td></tr></table></figure>
+
+<p>可以看到现在生成的名称变成了cmtest-configmap.</p>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>Helm 为我们提供了<code>--dry-run --debug</code>这个可选参数，进行调试</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# helm install cmtest .&#x2F;mychart --dry-run --debug </span><br><span class="line">install.go:172: [debug] Original chart version: &quot;&quot;</span><br><span class="line">install.go:189: [debug] CHART PATH: &#x2F;root&#x2F;test&#x2F;mychart</span><br><span class="line"></span><br><span class="line">NAME: cmtest</span><br><span class="line">LAST DEPLOYED: Sat Oct 10 16:05:54 2020</span><br><span class="line">NAMESPACE: default</span><br><span class="line">STATUS: pending-install</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">HOOKS:</span><br><span class="line">MANIFEST:</span><br><span class="line">---</span><br><span class="line"># Source: mychart&#x2F;templates&#x2F;configmap.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: cmtest-configmap</span><br><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br></pre></td></tr></table></figure>
+
+<p>但是要注意的是这不能确保 Kubernetes 本身就一定会接受生成的模板，在调试完成后，还是需要去安装一个实际的 release 实例来进行验证的。</p>
+<h2 id="内置对象"><a href="#内置对象" class="headerlink" title="内置对象"></a>内置对象</h2><p>下面是一些常用的内置对象：</p>
+<ul>
+<li><strong>Release</strong>：这个对象描述了 release 本身。它里面有几个对象：<ul>
+<li>Release.Name：release 名称</li>
+<li>Release.Time：release 的时间</li>
+<li>Release.Namespace：release 的 namespace（如果清单未覆盖）</li>
+<li>Release.Revision：此 release 的修订版本号，从1开始累加。</li>
+<li>Release.IsUpgrade：如果当前操作是升级或回滚，则将其设置为 true。</li>
+<li>Release.IsInstall：如果当前操作是安装，则设置为 true。</li>
+</ul>
+</li>
+<li><strong>Values</strong>：从<code>values.yaml</code>文件和用户提供的文件传入模板的值。默认情况下，Values 是空的。</li>
+<li>Chart：<code>Chart.yaml</code>文件的内容。所有的 Chart 对象都将从该文件中获取。chart 指南中<a href="https://github.com/kubernetes/helm/blob/master/docs/charts.md#the-chartyaml-file" target="_blank" rel="noopener">Charts Guide</a>列出了可用字段，可以前往查看。</li>
+<li>Files：这提供对 chart 中所有非特殊文件的访问。虽然无法使用它来访问模板，但可以使用它来访问 chart 中的其他文件。请参阅 “访问文件” 部分。<ul>
+<li>Files.Get 是一个按名称获取文件的函数（.Files.Get config.ini）</li>
+<li>Files.GetBytes 是将文件内容作为字节数组而不是字符串获取的函数。这对于像图片这样的东西很有用。</li>
+</ul>
+</li>
+<li>Capabilities：这提供了关于 Kubernetes 集群支持的功能的信息。<ul>
+<li>Capabilities.APIVersions 是一组版本信息。</li>
+<li>Capabilities.APIVersions.Has $version 指示是否在群集上启用版本（batch/v1）。</li>
+<li>Capabilities.KubeVersion 提供了查找 Kubernetes  版本的方法。它具有以下值：Major，Minor，GitVersion，GitCommit，GitTreeState，BuildDate，GoVersion，Compiler，和 Platform。</li>
+<li>Capabilities.TillerVersion 提供了查找 Tiller 版本的方法。它具有以下值：SemVer，GitCommit，和 GitTreeState。</li>
+</ul>
+</li>
+<li>Template：包含有关正在执行的当前模板的信息</li>
+<li>Name：到当前模板的文件路径（例如 mychart/templates/mytemplate.yaml）</li>
+<li>BasePath：当前 chart 模板目录的路径（例如 mychart/templates）。</li>
+</ul>
+<p>上面这些值可用于任何顶级模板，要注意内置值始终以大写字母开头。这也符合<code>Go</code>的命名约定。当你创建自己的名字时，你可以自由地使用适合你的团队的惯例。</p>
+<h2 id="values-文件"><a href="#values-文件" class="headerlink" title="values 文件"></a>values 文件</h2><p>Values 对象的值有4个来源：</p>
+<ul>
+<li>chart 包中的 values.yaml 文件</li>
+<li>父 chart 包的 values.yaml 文件</li>
+<li>通过 helm install 或者 helm upgrade 的<code>-f</code>或者<code>--values</code>参数传入的自定义的 yaml 文件(上节课我们已经学习过)</li>
+<li>通过<code>--set</code> 参数传入的值</li>
+</ul>
+<p>chart 的 values.yaml 提供的值可以被用户提供的 values 文件覆盖，而该文件同样可以被<code>--set</code>提供的参数所覆盖。</p>
+<p>比如（values.yaml）：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">course:</span><br><span class="line">  k8s: devops</span><br></pre></td></tr></table></figure>
+
+<p>使用方式(configmap.yaml)：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br><span class="line">  course: &#123;&#123; .Values.course.k8s &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>建议保持 value 树浅一些，平一些，这样维护起来要简单一点。</p>
+<h1 id="45-Helm-模板之模板函数与管道"><a href="#45-Helm-模板之模板函数与管道" class="headerlink" title="45. Helm 模板之模板函数与管道"></a>45. Helm 模板之模板函数与管道</h1><p>上节课我们学习了如何将信息渲染到模板之中，但是这些信息都是直接传入模板引擎中进行渲染的，有的时候我们想要转换一下这些数据才进行渲染，这就需要使用到 Go 模板语言中的一些其他用法。</p>
+<p>查看生成的结果</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">helm install cmtest . --dry-run --debug</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="模板函数"><a href="#模板函数" class="headerlink" title="模板函数"></a>模板函数</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 mychart]# cat values.yaml </span><br><span class="line">course:</span><br><span class="line">  k8s: devops</span><br><span class="line">  python: django</span><br></pre></td></tr></table></figure>
+
+<p>从<code>.Values</code>中读取的值变成字符串的时候就可以通过调用<code>quote</code>模板函数来实现(templates/configmap.yaml)：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: &#123;&#123; .Release.Name &#125;&#125;-configmap</span><br><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br><span class="line">  k8s: &#123;&#123; quote .Values.course.k8s &#125;&#125;</span><br><span class="line">  python: &#123;&#123; .Values.course.python &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>quote</code>前后结构对比，结果加上了双引号””：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 使用前</span><br><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br><span class="line">  k8s: devops</span><br><span class="line">  python: django</span><br><span class="line"></span><br><span class="line"># 使用后</span><br><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br><span class="line">  k8s: &quot;devops&quot;</span><br><span class="line">  python: django</span><br></pre></td></tr></table></figure>
+
+
+
+<p>使用的<code>quote</code>函数就是<code>Sprig 模板库</code>提供的一种字符串函数，用途就是用双引号将字符串括起来，如果需要双引号<code>&quot;</code>，则需要添加<code>\</code>来进行转义，而<code>squote</code>函数的用途则是用双引号将字符串括起来，而不会对内容进行转义。</p>
+<h2 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h2><p>和<code>UNIX</code>中一样，管道我们通常称为<code>Pipeline</code>，是一个链在一起的一系列模板命令的工具，以紧凑地表达一系列转换。简单来说，管道是可以按顺序完成一系列事情的一种方法。比如我们用管道来重写上面的 ConfigMap 模板（templates/configmap.yaml）：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">k8s: &#123;&#123; .Values.course.k8s | quote &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>k8s 的 value 值被渲染后是大写的字符串，则我们就可以使用管道来修改：（templates/configmap.yaml）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">k8s: &#123;&#123; .Values.course.k8s | upper | quote &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们在管道中增加了一个<code>upper</code>函数，该函数同样是<a href="https://godoc.org/github.com/Masterminds/sprig" target="_blank" rel="noopener"><code>Sprig 模板库</code></a>提供的，表示将字符串每一个字母都变成大写。然后我们用<code>debug</code>模式来查看下上面的模板最终渲染的结果。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  k8s: &quot;DEVOPS&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>使用管道操作的时候，前面的操作结果会作为参数传递给后面的模板函数，比如我们这里希望将上面模板中的 python 的值渲染为重复出现3次的字符串，则我们就可以使用到<a href="https://godoc.org/github.com/Masterminds/sprig" target="_blank" rel="noopener"><code>Sprig 模板库</code></a>提供的<code>repeat</code>函数，不过该函数需要传入一个参数<code>repeat COUNT STRING</code>表示重复的次数：（templates/configmap.yaml）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">python: &#123;&#123; .Values.course.python | repeat 3 | quote &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  python: &quot;djangodjangodjango&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="default-函数"><a href="#default-函数" class="headerlink" title="default 函数"></a>default 函数</h2><p><code>default 函数</code>：<code>default DEFAULT_VALUE GIVEN_VALUE</code>。该函数允许我们在模板内部指定默认值，以防止该值被忽略掉了。比如我们来修改上面的 ConfigMap 的模板：（templates/configmap.yaml）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">myvalue: &#123;&#123; .Values.hello | default  &quot;Hello World&quot; | quote &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>由于我们的<code>values.yaml</code>文件中只定义了 course 结构的信息，并没有定义 hello 的值，所以使用默认值：<code>Hello World</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="46-Helm-模板之控制流程"><a href="#46-Helm-模板之控制流程" class="headerlink" title="46. Helm 模板之控制流程"></a>46. Helm 模板之控制流程</h1><p>控制流程为我们提供了控制模板生成流程的一种能力，Helm 的模板语言提供了以下几种流程控制：</p>
+<ul>
+<li><code>if/else</code> 条件块</li>
+<li><code>with</code> 指定范围</li>
+<li><code>range</code> 循环块</li>
+</ul>
+<p>除此之外，它还提供了一些声明和使用命名模板段的操作：</p>
+<ul>
+<li><code>define</code>在模板中声明一个新的命名模板</li>
+<li><code>template</code>导入一个命名模板</li>
+<li><code>block</code>声明了一种特殊的可填写的模板区域</li>
+</ul>
+<h2 id="if-else-条件"><a href="#if-else-条件" class="headerlink" title="if/else 条件"></a>if/else 条件</h2><p><code>if/else</code>块是用于在模板中有条件地包含文本块的方法，条件块的基本结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123; if PIPELINE &#125;&#125;</span><br><span class="line">  # Do something</span><br><span class="line">&#123;&#123; else if OTHER PIPELINE &#125;&#125;</span><br><span class="line">  # Do something else</span><br><span class="line">&#123;&#123; else &#125;&#125;</span><br><span class="line">  # Default case</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然要使用条件块就得判断条件是否为真，如果值为下面的几种情况，则管道的结果为 false：</p>
+<ul>
+<li>一个布尔类型的<code>假</code></li>
+<li>一个数字<code>零</code></li>
+<li>一个<code>空</code>的字符串</li>
+<li>一个<code>nil</code>（空或<code>null</code>）</li>
+<li>一个空的集合（<code>map</code>、<code>slice</code>、<code>tuple</code>、<code>dict</code>、<code>array</code>）</li>
+</ul>
+<p>除了上面的这些情况外，其他所有条件都为<code>真</code>。</p>
+<p>还是以上面的 ConfigMap 模板文件为例，添加一个简单的条件判断，如果 python 被设置为 django，则添加一个<code>web: true</code>：（tempaltes/configmap.yaml）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123; if eq .Values.course.python &quot;django&quot; &#125;&#125; web: true &#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中运算符<code>eq</code>是判断是否相等的操作，除此之外，还有<code>ne</code>、<code>lt</code>、<code>gt</code>、<code>and</code>、<code>or</code>等运算符都是 Helm 模板已经实现了的，直接使用即可。</p>
+<h2 id="空格控制"><a href="#空格控制" class="headerlink" title="空格控制"></a>空格控制</h2><p>如果是一下格式，则会有空行</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123; if eq .Values.course.python &quot;django&quot; &#125;&#125;</span><br><span class="line">web: true</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果示例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  myvalue: &quot;Hello World&quot;</span><br><span class="line">  k8s: devops</span><br><span class="line">  python: django</span><br><span class="line">  </span><br><span class="line">  web: true</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到渲染出来会有多余的空行，这是因为当模板引擎运行时，它将一些值渲染过后，之前的指令被删除，但它之前所占的位置完全按原样保留剩余的空白了，所以就出现了多余的空行。<code>YAML</code>文件中的空格是非常严格的，所以对于空格的管理非常重要，一不小心就会导致你的<code>YAML</code>文件格式错误。</p>
+<p>我们可以通过使用在模板标识 { 后面添加破折号和空格 前面添加一个空格和破折号 -}} 表示应该删除右边的空格，另外需要注意的是<strong>换行符也是空格！</strong></p>
+<p>使用这个语法，我们来修改我们上面的模板文件去掉多余的空格：（templates/configmap.yaml）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;- if eq .Values.course.python &quot;django&quot; &#125;&#125;</span><br><span class="line">web: true</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="使用-with-修改范围"><a href="#使用-with-修改范围" class="headerlink" title="使用 with 修改范围"></a>使用 with 修改范围</h2><p>关键词<code>with</code>用来控制变量作用域。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123; with PIPELINE &#125;&#125;</span><br><span class="line">  #  restricted scope</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>with</code>语句可以允许将当前范围<code>.</code>设置为特定的对象，比如我们前面一直使用的<code>.Values.course</code>，我们可以使用<code>with</code>来将<code>.</code>范围指向<code>.Values.course</code>：(templates/configmap.yaml)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  myvalue: &#123;&#123; .Values.hello | default  &quot;Hello World&quot; | quote &#125;&#125;</span><br><span class="line">  &#123;&#123;- with .Values.course &#125;&#125;</span><br><span class="line">  k8s: &#123;&#123; .k8s | upper | quote &#125;&#125;</span><br><span class="line">  python: &#123;&#123; .python | repeat 3 | quote &#125;&#125;</span><br><span class="line">  &#123;&#123;- if eq .python &quot;django&quot; &#125;&#125;</span><br><span class="line">  web: true</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到上面我们增加了一个<code>xxx</code>的一个块，这样的话我们就可以在当前的块里面直接引用<code>.python</code>和<code>.k8s</code>了，而不需要进行限定了，这是因为该<code>with</code>声明将<code>.</code>指向了<code>.Values.course</code>，在<code></code>后<code>.</code>就会复原其之前的作用范围了，我们可以使用模板引擎来渲染上面的模板查看是否符合预期结果。</p>
+<p>不过需要注意的是在<code>with</code>声明的范围内，此时将无法从父范围访问到其他对象了，比如下面的模板渲染的时候将会报错，因为显然<code>.Release</code>根本就不在当前的<code>.</code>范围内，当然如果我们最后两行交换下位置就正常了，因为<code></code>之后范围就被重置了：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;- with .Values.course &#125;&#125;</span><br><span class="line">k8s: &#123;&#123; .k8s | upper | quote &#125;&#125;</span><br><span class="line">python: &#123;&#123; .python | repeat 3 | quote &#125;&#125;</span><br><span class="line">release: &#123;&#123; .Release.Name &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="range-循环"><a href="#range-循环" class="headerlink" title="range 循环"></a>range 循环</h2><p>在 Helm 模板语言中，是使用<code>range</code>关键字来进行循环操作。</p>
+<p>我们在<code>values.yaml</code>文件中添加上一个课程列表：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">course:</span><br><span class="line">  k8s: devops</span><br><span class="line">  python: django</span><br><span class="line">courselist:</span><br><span class="line">- k8s</span><br><span class="line">- python</span><br><span class="line">- search</span><br><span class="line">- golang</span><br></pre></td></tr></table></figure>
+
+<p>修改 ConfigMap 模板文件来循环打印出该列表：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">toppings: |-</span><br><span class="line">  &#123;&#123;- range .Values.courselist &#125;&#125;</span><br><span class="line">  - &#123;&#123; . | title | quote &#125;&#125;</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以看到最下面我们使用了一个<code>range</code>函数，该函数将会遍历 &lt;!–￼82–&gt;  列表，循环内部我们使用的是一个<code>.</code>，这是因为当前的作用域就在当前循环内，这个<code>.</code>从列表的第一个元素一直遍历到最后一个元素，然后在遍历过程中使用了<code>title</code>和<code>quote</code>这两个函数，前面这个函数是将字符串首字母变成大写，后面就是加上双引号变成字符串，所以按照上面这个模板被渲染过后的结果为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">toppings: |-</span><br><span class="line">  - &quot;Mushrooms&quot;</span><br><span class="line">  - &quot;Cheese&quot;</span><br><span class="line">  - &quot;Peppers&quot;</span><br><span class="line">  - &quot;Onions&quot;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到<code>courselist</code>按照我们的要求循环出来了。除了 list 或者 tuple，range 还可以用于遍历具有键和值的集合（如map 或 dict），这个就需要用到变量的概念了。</p>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>在 Helm 模板中，使用变量的场合不是特别多，但是在合适的时候使用变量可以很好的解决我们的问题。如下面的模板：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;- with .Values.course &#125;&#125;</span><br><span class="line">k8s: &#123;&#123; .k8s | upper | quote &#125;&#125;</span><br><span class="line">python: &#123;&#123; .python | repeat 3 | quote &#125;&#125;</span><br><span class="line">release: &#123;&#123; .Release.Name &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们在<code>with</code>语句块内添加了一个<code>.Release.Name</code>对象，但这个模板是错误的，编译的时候会失败，这是因为<code>.Release.Name</code>不在该<code>with</code>语句块限制的作用范围之内，我们可以将该对象赋值给一个变量可以来解决这个问题：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  &#123;&#123;- $releaseName :&#x3D; .Release.Name -&#125;&#125;</span><br><span class="line">  &#123;&#123;- with .Values.course &#125;&#125;</span><br><span class="line">  k8s: &#123;&#123; .k8s | upper | quote &#125;&#125;</span><br><span class="line">  python: &#123;&#123; .python | repeat 3 | quote &#125;&#125;</span><br><span class="line">  release: &#123;&#123; $releaseName &#125;&#125;</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们可以看到我们在<code>with</code>语句上面增加了一句 &lt;!–￼83–&gt; ，其中<code>$releaseName</code>就是后面的对象的一个引用变量，它的形式就是<code>$name</code>，赋值操作使用<code>:=</code>，这样<code>with</code>语句块内部的<code>$releaseName</code>变量仍然指向的是<code>.Release.Name</code>。</p>
+<p>另外变量在<code>range</code>循环中也非常有用，我们可以在循环中用变量来同时捕获索引的值：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">toppings: |-</span><br><span class="line">  &#123;&#123;- range $index, $course :&#x3D; .Values.courselist &#125;&#125;</span><br><span class="line">  - &#123;&#123; $index &#125;&#125;: &#123;&#123; $course | title | quote &#125;&#125;</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>显示结果</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  k8s: &quot;DEVOPS&quot;</span><br><span class="line">  python: &quot;djangodjangodjango&quot;</span><br><span class="line">  release: cmtest</span><br><span class="line">  toppings: |-</span><br><span class="line">    - 0: &quot;K8s&quot;</span><br><span class="line">    - 1: &quot;Python&quot;</span><br><span class="line">    - 2: &quot;Search&quot;</span><br><span class="line">    - 3: &quot;Golang&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="47-Helm模板之命名模板"><a href="#47-Helm模板之命名模板" class="headerlink" title="47. Helm模板之命名模板"></a>47. Helm模板之命名模板</h1><p>命名模板我们也可以称为子模板，是限定在一个文件内部的模板，然后给一个名称。在使用命名模板的时候有一个需要特别注意的是：<strong>模板名称是全局的</strong>，如果我们声明了两个相同名称的模板，最后加载的一个模板会覆盖掉另外的模板，由于子 chart 中的模板也是和顶层的模板一起编译的，所以在命名的时候一定要注意，不要重名了。</p>
+<p>为了避免重名，有个通用的约定就是为每个定义的模板添加上 chart 名称：&lt;!–￼84–&gt; ，<code>define</code>关键字就是用来声明命名模板的，加上 chart 名称就可以避免不同 chart 间的模板出现冲突的情况。</p>
+<h2 id="声明和使用命名模板"><a href="#声明和使用命名模板" class="headerlink" title="声明和使用命名模板"></a>声明和使用命名模板</h2><p>使用<code>define</code>关键字就可以允许我们在模板文件内部创建一个命名模板，它的语法格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123; define &quot;ChartName.TplName&quot; &#125;&#125;</span><br><span class="line"># 模板内容区域</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们可以将该模板嵌入到现有的 ConfigMap 中，然后使用<code>template</code>关键字在需要的地方包含进来即可：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;- define &quot;mychart.labels&quot; &#125;&#125;</span><br><span class="line">  labels:</span><br><span class="line">    from: helm</span><br><span class="line">    date: &#123;&#123; now | htmlDate &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: &#123;&#123; .Release.Name &#125;&#125;-configmap</span><br><span class="line">  &#123;&#123;- template &quot;mychart.labels&quot; &#125;&#125;</span><br><span class="line">data:</span><br><span class="line">  &#123;&#123;- range $key, $value :&#x3D; .Values.course &#125;&#125;</span><br><span class="line">  &#123;&#123; $key &#125;&#125;: &#123;&#123; $value | quote &#125;&#125;</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到<code>define</code>区域定义的命名模板被嵌入到了<code>template</code>所在的区域，但是如果我们将命名模板全都写入到一个模板文件中的话无疑也会增大模板的复杂性。</p>
+<p>还记得我们在创建 chart 包的时候，templates 目录下面默认会生成一个<code>_helpers.tpl</code>文件吗？我们前面也提到过 templates 目录下面除了<code>NOTES.txt</code>文件和以下划线<code>_</code>开头命令的文件之外，都会被当做 kubernetes 的资源清单文件，而这个下划线开头的文件不会被当做资源清单外，还可以被其他 chart 模板中调用，这个就是 Helm 中的<code>partials</code>文件，所以其实我们完全就可以将命名模板定义在这些<code>partials</code>文件中，默认就是<code>_helpers.tpl</code>文件了。</p>
+<p>现在我们将上面定义的命名模板移动到 templates/_helpers.tpl 文件中去：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;&#x2F;* 生成基本的 labels 标签 *&#x2F;&#125;&#125;</span><br><span class="line">&#123;&#123;- define &quot;mychart.labels&quot; &#125;&#125;</span><br><span class="line">  labels:</span><br><span class="line">    from: helm</span><br><span class="line">    date: &#123;&#123; now | htmlDate &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一般情况下面，我们都会在命名模板头部加一个简单的文档块，用<code>/**/</code>包裹起来，用来描述我们这个命名模板的用途的。</p>
+<p>现在我们讲命名模板从模板文件 templates/configmap.yaml 中移除，当然还是需要保留 template 来嵌入命名模板内容，名称还是之前的 mychart.lables，这是因为<strong>模板名称是全局</strong>的，所以我们可以能够直接获取到。</p>
+<h2 id="模板范围"><a href="#模板范围" class="headerlink" title="模板范围"></a>模板范围</h2><p>上面我们定义的命名模板中，没有使用任何对象，只是使用了一个简单的函数，如果我们在里面来使用 chart 对象相关信息呢：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;&#x2F;* 生成基本的 labels 标签 *&#x2F;&#125;&#125;</span><br><span class="line">&#123;&#123;- define &quot;mychart.labels&quot; &#125;&#125;</span><br><span class="line">  labels:</span><br><span class="line">    from: helm</span><br><span class="line">    date: &#123;&#123; now | htmlDate &#125;&#125;</span><br><span class="line">    chart: &#123;&#123; .Chart.Name &#125;&#125;</span><br><span class="line">    version: &#123;&#123; .Chart.Version &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果这样的直接进行渲染测试的话，是不会得到我们的预期结果的,直接报错：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error: unable to build kubernetes objects from release manifest: error validating &quot;&quot;: error validating data: [unknown object type &quot;nil&quot; in ConfigMap.metadata.labels.chart, unknown object type &quot;nil&quot; in ConfigMap.metadata.labels.version]</span><br></pre></td></tr></table></figure>
+
+<p><code>ConfigMap.metadata.labels.chart</code> 的值不对。 （正好是我们yaml文件的层级结构）</p>
+<p>chart 的名称和版本都没有正确被渲染，这是因为他们不在我们定义的模板范围内，当命名模板被渲染时，它会接收由 template  调用时传入的作用域，由于我们这里并没有传入对应的作用域，因此模板中我们无法调用到 .Chart 对象，要解决也非常简单，我们只需要在  template 后面加上作用域范围即可：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: &#123;&#123; .Release.Name &#125;&#125;-configmap</span><br><span class="line">  &#123;&#123;- template &quot;mychart.labels&quot; . &#125;&#125;</span><br><span class="line">data:</span><br><span class="line">  &#123;&#123;- range $key, $value :&#x3D; .Values.course &#125;&#125;</span><br><span class="line">  &#123;&#123; $key &#125;&#125;: &#123;&#123; $value | quote &#125;&#125;</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在 template 末尾传递了<code>.</code>，表示当前的最顶层的作用范围，如果我们想要在命名模板中使用<code>.Values</code>范围内的数据，当然也是可以的。</p>
+<h2 id="include-函数"><a href="#include-函数" class="headerlink" title="include 函数"></a>include 函数</h2><p>假如现在我们将上面的定义的 labels 单独提取出来放置到 _helpers.tpl 文件中：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;&#x2F;* 生成基本的 labels 标签 *&#x2F;&#125;&#125;</span><br><span class="line">&#123;&#123;- define &quot;mychart.labels&quot; &#125;&#125;</span><br><span class="line">from: helm</span><br><span class="line">date: &#123;&#123; now | htmlDate &#125;&#125;</span><br><span class="line">chart: &#123;&#123; .Chart.Name &#125;&#125;</span><br><span class="line">version: &#123;&#123; .Chart.Version &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>现在我们将该命名模板插入到 configmap 模板文件的 labels 部分和 data 部分：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: &#123;&#123; .Release.Name &#125;&#125;-configmap</span><br><span class="line">  labels:</span><br><span class="line">    &#123;&#123;- template &quot;mychart.labels&quot; . &#125;&#125;</span><br><span class="line">data:</span><br><span class="line">  &#123;&#123;- range $key, $value :&#x3D; .Values.course &#125;&#125;</span><br><span class="line">  &#123;&#123; $key &#125;&#125;: &#123;&#123; $value | quote &#125;&#125;</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br><span class="line">  &#123;&#123;- template &quot;mychart.labels&quot; . &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到渲染结果是有问题的，不是一个正常的 YAML 文件格式，这是因为<code>template</code>只是表示一个嵌入动作而已，不是一个函数，所以原本命名模板中是怎样的格式就是怎样的格式被嵌入进来了，比如我们可以在命名模板中给内容区域都空了两个空格，再来查看下渲染的结构：</p>
+<p>为了解决这个问题，Helm 提供了另外一个方案来代替<code>template</code>，那就是使用<code>include</code>函数，在需要控制空格的地方使用<code>indent</code>管道函数来自己控制，比如上面的例子我们替换成<code>include</code>函数：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: &#123;&#123; .Release.Name &#125;&#125;-configmap</span><br><span class="line">  labels:</span><br><span class="line">&#123;&#123;- include &quot;mychart.labels&quot; . | indent 4 &#125;&#125;</span><br><span class="line">data:</span><br><span class="line">  &#123;&#123;- range $key, $value :&#x3D; .Values.course &#125;&#125;</span><br><span class="line">  &#123;&#123; $key &#125;&#125;: &#123;&#123; $value | quote &#125;&#125;</span><br><span class="line">  &#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- include &quot;mychart.labels&quot; . | indent 2 &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到是符合我们的预期，所以在 Helm 模板中我们使用 include 函数要比 template 更好，可以更好地处理 YAML 文件输出格式。</p>
+<h1 id="48-Helm模板之其他注意事项"><a href="#48-Helm模板之其他注意事项" class="headerlink" title="48. Helm模板之其他注意事项"></a>48. Helm模板之其他注意事项</h1><h2 id="NOTES-txt-文件"><a href="#NOTES-txt-文件" class="headerlink" title="NOTES.txt 文件"></a>NOTES.txt 文件</h2><p>我们前面在使用 helm install 命令的时候，Helm 都会为我们打印出一大堆介绍信息，这样当别的用户在使用我们的 chart  包的时候就可以根据这些注释信息快速了解我们的 chart 包的使用方法，这些信息就是编写在 NOTES.txt  文件之中的，这个文件是纯文本的，但是它和其他模板一样，具有所有可用的普通模板函数和对象。</p>
+<p>现在我们在前面的示例中 templates 目录下面创建一个 NOTES.txt 文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Thank you for installing &#123;&#123; .Chart.Name &#125;&#125;.</span><br><span class="line"></span><br><span class="line">Your release is named &#123;&#123; .Release.Name &#125;&#125;.</span><br><span class="line"></span><br><span class="line">To learn more about the release, try:</span><br><span class="line"></span><br><span class="line">  $ helm status &#123;&#123; .Release.Name &#125;&#125;</span><br><span class="line">  $ helm get &#123;&#123; .Release.Name &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们可以看到我们在 NOTES.txt 文件中也使用 Chart 和 Release 对象，现在我们在 mychart 包根目录下面执行安装命令查看是否能够得到上面的注释信息：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">NOTES:</span><br><span class="line">Thank you for installing mychart.</span><br><span class="line"></span><br><span class="line">Your release is named cmtest.</span><br><span class="line"></span><br><span class="line">To learn more about the release, try:</span><br><span class="line"></span><br><span class="line">  $ helm status cmtest</span><br><span class="line">  $ helm get cmtest</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="子-chart-包"><a href="#子-chart-包" class="headerlink" title="子 chart 包"></a>子 chart 包</h2><p>我们到目前为止都只用了一个 chart，但是 chart 也可以有 子 chart 的依赖关系，它们也有自己的值和模板，在学习字 chart 之前，我们需要了解几点关于子 chart 的说明：</p>
+<ul>
+<li>子 chart 是<strong>独立</strong>的，所以子 chart 不能明确依赖于其父 chart</li>
+<li>子 chart 无法访问其父 chart 的值</li>
+<li>父 chart 可以覆盖子 chart 的值</li>
+<li>Helm 中有全局值的概念，可以被所有的 chart 访问</li>
+</ul>
+<h3 id="创建子-chart"><a href="#创建子-chart" class="headerlink" title="创建子 chart"></a>创建子 chart</h3><p>在创建 mychart 包的时候，在根目录下面有一个空文件夹 charts 目录。这就是我们的子 chart 所在的目录，在该目录下面添加一个新的 chart：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 test]# cd mychart&#x2F;charts&#x2F;</span><br><span class="line">[root@wang-200 charts]# helm create mysubchart</span><br><span class="line">Creating mysubchart</span><br><span class="line">[root@wang-200 charts]# rm -rf mysubchart&#x2F;templates&#x2F;*</span><br><span class="line">[root@wang-200 charts]# tree ..</span><br><span class="line">..</span><br><span class="line">├── charts</span><br><span class="line">│   └── mysubchart</span><br><span class="line">│       ├── charts</span><br><span class="line">│       ├── Chart.yaml</span><br><span class="line">│       ├── templates</span><br><span class="line">│       └── values.yaml</span><br><span class="line">├── Chart.yaml</span><br><span class="line">├── templates</span><br><span class="line">│   ├── configmap.yaml</span><br><span class="line">│   ├── _helpers.tpl</span><br><span class="line">│   └── NOTES.txt</span><br><span class="line">└── values.yaml</span><br><span class="line"></span><br><span class="line">5 directories, 7 files</span><br></pre></td></tr></table></figure>
+
+<p>同样的，我们将子 chart 模板中的文件全部删除了，接下来，我们为子 chart 创建一个简单的模板和 values 文件了。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cat &gt; mysubchart&#x2F;values.yaml &lt;&lt;EOF</span><br><span class="line">in: mysub</span><br><span class="line">EOF</span><br><span class="line">$ cat &gt; mysubchart&#x2F;templates&#x2F;configmap.yaml &lt;&lt;EOF</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: &#123;&#123; .Release.Name &#125;&#125;-configmap2</span><br><span class="line">data:</span><br><span class="line">  in: &#123;&#123; .Values.in &#125;&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>我们上面已经提到过每个子 chart 都是独立的 chart，所以我们可以单独给 mysubchart 进行测试：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 charts]# helm install mysubchart .&#x2F;mysubchart&#x2F; --dry-run --debug</span><br><span class="line">install.go:172: [debug] Original chart version: &quot;&quot;</span><br><span class="line">install.go:189: [debug] CHART PATH: &#x2F;root&#x2F;test&#x2F;mychart&#x2F;charts&#x2F;mysubchart</span><br><span class="line">---</span><br><span class="line"># Source: mysubchart&#x2F;templates&#x2F;configmap.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: mysubchart-configmap2</span><br><span class="line">data:</span><br><span class="line">  in: mysub</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="值覆盖"><a href="#值覆盖" class="headerlink" title="值覆盖"></a>值覆盖</h3><p>现在 mysubchart 这个子 chart 就属于 mychart 这个父 chart 了，由于 mychart 是父级，所以我们可以在  mychart 的 values.yaml 文件中直接配置子 chart 中的值，比如我们可以在 mychart/values.yaml  文件中添加上子 chart 的值：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">course:</span><br><span class="line">  k8s: devops</span><br><span class="line">  python: django</span><br><span class="line">courselist:</span><br><span class="line">- k8s</span><br><span class="line">- python</span><br><span class="line">- search</span><br><span class="line">- golang</span><br><span class="line"></span><br><span class="line">mysubchart:</span><br><span class="line">  in: parent</span><br></pre></td></tr></table></figure>
+
+<p>注意最后两行，mysubchart 部分内的任何指令都会传递到 mysubchart 这个子 chart 中去的，现在我们在 <strong>mychart 根目录</strong>中执行调试命令，可以查看到子 chart 也被一起渲染了：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 mychart]# helm install mychart . --dry-run --debug   </span><br><span class="line">...</span><br><span class="line">---</span><br><span class="line"># Source: mychart&#x2F;charts&#x2F;mysubchart&#x2F;templates&#x2F;configmap.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: ideal-ostrich-configmap2</span><br><span class="line">data:</span><br><span class="line">  in: parent</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到子 chart 中的值已经被顶层的值给覆盖了。但是在某些场景下面我们还是希望某些值在所有模板中都可以使用，这就需要用到全局 chart 值了。</p>
+<h3 id="全局值"><a href="#全局值" class="headerlink" title="全局值"></a>全局值</h3><p>全局值可以从任何 chart 或者子 chart中进行访问使用，values 对象中有一个保留的属性是<code>Values.global</code>，就可以被用来设置全局值，比如我们在父 chart 的 values.yaml 文件中添加一个全局值：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">course:</span><br><span class="line">  k8s: devops</span><br><span class="line">  python: django</span><br><span class="line">courselist:</span><br><span class="line">- k8s</span><br><span class="line">- python</span><br><span class="line">- search</span><br><span class="line">- golang</span><br><span class="line"></span><br><span class="line">mysubchart:</span><br><span class="line">  in: parent</span><br><span class="line"></span><br><span class="line">global:</span><br><span class="line">  allin: helm</span><br></pre></td></tr></table></figure>
+
+<p>我们在 values.yaml 文件中添加了一个 global 的属性，这样的话无论在父 chart 中还是在子 chart 中我们都可以通过 &lt;!–￼85–&gt; 来访问这个全局值了。比如我们在 mychart/templates/configmap.yaml 和 mychart/charts/mysubchart/templates/configmap.yaml 文件的 data 区域下面都添加上如下内容：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">data:</span><br><span class="line">  allin: &#123;&#123; .Values.global.allin &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>父 chart 和子 chart 可以共享模板。任何 chart 中的任何定义块都可用于其他 chart，所以我们在给命名模板定义名称的时候添加了 chart 名称这样的前缀，避免冲突。</p>
+<h1 id="49-Helm-Hooks"><a href="#49-Helm-Hooks" class="headerlink" title="49. Helm Hooks"></a>49. Helm Hooks</h1><p>和 Kubernetes 里面的容器一样，Helm 也提供了 <a href="https://docs.helm.sh/developing_charts/#hooks" target="_blank" rel="noopener">Hook</a> 的机制，允许 chart 开发人员在 release 的生命周期中的某些节点来进行干预，比如我们可以利用 Hooks 来做下面的这些事情：</p>
+<ul>
+<li>在加载任何其他 chart 之前，在安装过程中加载 ConfigMap 或 Secret</li>
+<li>在安装新 chart 之前执行作业以备份数据库，然后在升级后执行第二个作业以恢复数据</li>
+<li>在删除 release 之前运行作业，以便在删除 release 之前优雅地停止服务</li>
+</ul>
+<p>值得注意的是 Hooks 和普通模板一样工作，但是它们具有特殊的注释，可以使 Helm 以不同的方式使用它们。</p>
+<p>Hook 在资源清单中的 metadata 部分用 annotations 的方式进行声明：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: ...</span><br><span class="line">kind: ....</span><br><span class="line">metadata:</span><br><span class="line">  annotations:</span><br><span class="line">    &quot;helm.sh&#x2F;hook&quot;: &quot;pre-install&quot;</span><br><span class="line"># ...</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们就来和大家介绍下 Helm Hooks 的一些基本使用方法。</p>
+<h2 id="Hooks"><a href="#Hooks" class="headerlink" title="Hooks"></a>Hooks</h2><p>在 Helm 中定义了如下一些可供我们使用的 Hooks：</p>
+<ul>
+<li>预安装<code>pre-install</code>：在模板渲染后，kubernetes 创建任何资源之前执行</li>
+<li>安装后<code>post-install</code>：在所有 kubernetes 资源安装到集群后执行</li>
+<li>预删除<code>pre-delete</code>：在从 kubernetes 删除任何资源之前执行删除请求</li>
+<li>删除后<code>post-delete</code>：删除所有 release 的资源后执行</li>
+<li>升级前<code>pre-upgrade</code>：在模板渲染后，但在任何资源升级之前执行</li>
+<li>升级后<code>post-upgrade</code>：在所有资源升级后执行</li>
+<li>预回滚<code>pre-rollback</code>：在模板渲染后，在任何资源回滚之前执行</li>
+<li>回滚后<code>post-rollback</code>：在修改所有资源后执行回滚请求</li>
+<li><code>crd-install</code>：在运行其他检查之前添加 CRD 资源，只能用于 chart 中其他的资源清单定义的 CRD 资源。</li>
+</ul>
+<h2 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h2><p>待定</p>
+<h2 id="写一个-hook"><a href="#写一个-hook" class="headerlink" title="写一个 hook"></a>写一个 hook</h2><p>上面我们也说了 hook 和普通模板一样，也可以使用普通的模板函数和常用的一些对象，比如<code>Values</code>、<code>Chart</code>、<code>Release</code>等等，唯一和普通模板不太一样的地方就是在资源清单文件中的 metadata 部分会有一些特殊的注释 annotation。</p>
+<p>例如，现在我们来创建一个 hook，在前面的示例 templates 目录中添加一个 post-install-job.yaml 的文件，表示安装后执行的一个 hook：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: batch&#x2F;v1</span><br><span class="line">kind: Job</span><br><span class="line">metadata:</span><br><span class="line">  name: &#123;&#123; .Release.Name &#125;&#125;-post-install-job</span><br><span class="line">  lables:</span><br><span class="line">    release: &#123;&#123; .Release.Name &#125;&#125;</span><br><span class="line">    chart: &#123;&#123; .Chart.Name &#125;&#125;</span><br><span class="line">    version: &#123;&#123; .Chart.Version &#125;&#125;</span><br><span class="line">  annotations:</span><br><span class="line">    # 注意，如果没有下面的这个注释的话，当前的这个Job就会被当成release的一部分</span><br><span class="line">    &quot;helm.sh&#x2F;hook&quot;: post-install</span><br><span class="line">    &quot;helm.sh&#x2F;hook-weight&quot;: &quot;-5&quot;</span><br><span class="line">    &quot;helm.sh&#x2F;hook-delete-policy&quot;: hook-succeeded</span><br><span class="line">spec:</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      name: &#123;&#123; .Release.Name &#125;&#125;</span><br><span class="line">      labels:</span><br><span class="line">        release: &#123;&#123; .Release.Name &#125;&#125;</span><br><span class="line">        chart: &#123;&#123; .Chart.Name &#125;&#125;</span><br><span class="line">        version: &#123;&#123; .Chart.Version &#125;&#125;</span><br><span class="line">    spec:</span><br><span class="line">      restartPolicy: Never</span><br><span class="line">      containers:</span><br><span class="line">      - name: post-install-job</span><br><span class="line">        image: alpine</span><br><span class="line">        command: [&quot;&#x2F;bin&#x2F;sleep&quot;, &quot;&#123;&#123; default &quot;10&quot; .Values.sleepTime &#125;&#125;&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>上面的 Job 资源中我们添加一个 annotations，要注意的是，如果我们没有添加下面这行注释的话，这个资源就会被当成是 release 的一部分资源：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">annotations:</span><br><span class="line">  &quot;helm.sh&#x2F;hook&quot;: post-install</span><br></pre></td></tr></table></figure>
+
+<p>当然一个资源中我们也可以同时部署多个 hook，比如我们还可以添加一个<code>post-upgrade</code>的钩子：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">annotations:</span><br><span class="line">  &quot;helm.sh&#x2F;hook&quot;: post-install,post-upgrade</span><br></pre></td></tr></table></figure>
+
+<p>另外值得注意的是我们为 hook 定义了一个权重，这有助于建立一个确定性的执行顺序，权重可以是正数也可以是负数，但是必须是字符串才行。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">annotations:</span><br><span class="line">  &quot;helm.sh&#x2F;hook-weight&quot;: &quot;-5&quot;</span><br></pre></td></tr></table></figure>
+
+<p>最后还添加了一个删除 hook 资源的策略：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">annotations:</span><br><span class="line">  &quot;helm.sh&#x2F;hook-delete-policy&quot;: hook-succeeded</span><br></pre></td></tr></table></figure>
+
+<p>删除资源的策略可供选择的注释值：</p>
+<ul>
+<li><code>hook-succeeded</code>：表示 Tiller 在 hook 成功执行后删除 hook 资源</li>
+<li><code>hook-failed</code>：表示如果 hook 在执行期间失败了，Tiller 应该删除 hook 资源</li>
+<li><code>before-hook-creation</code>：表示在删除新的 hook 之前应该删除以前的 hook</li>
+</ul>
+<p>当 helm 的 release 更新时，有可能 hook 资源已经存在于群集中。默认情况下，helm 会尝试创建资源，并抛出错误<strong>“… already exists”</strong>。</p>
+<p>我们可以选择 “helm.sh/hook-delete-policy”: “before-hook-creation”，取代 “helm.sh/hook-delete-policy”: “hook-succeeded,hook-failed” 因为：</p>
+<p>例如为了手动调试，将错误的 hook 作业资源保存在 kubernetes 中是很方便的。 出于某种原因，可能有必要将成功的 hook 资源保留在 kubernetes 中。同时，在 helm release  升级之前进行手动资源删除是不可取的。 “helm.sh/hook-delete-policy”: “before-hook-creation” 在 hook 中的注释，如果在新的  hook 启动前有一个 hook 的话，会使 Tiller 将以前的release 中的 hook 删除，而这个 hook  同时它可能正在被其他一个策略使用。</p>
+<h1 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h1><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>阳明的 <a href="https://www.qikqiak.com/k8s-book/docs/42.Helm%E5%AE%89%E8%A3%85.html" target="_blank" rel="noopener">42. Helm安装使用</a> </li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/10/09/helm%E7%9A%84%E7%BB%83%E4%B9%A0%E6%A1%88%E4%BE%8B/">http://wang.ikongjian.com/2020/10/09/helm%E7%9A%84%E7%BB%83%E4%B9%A0%E6%A1%88%E4%BE%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/helm/">helm</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/10/10/helm%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">helm的安装和使用</div></div></a></div><div class="next-post pull_right"><a href="/2020/10/06/51-56-k8s%E7%9A%84%E6%9C%AA%E6%9D%A5%E5%92%8C%E7%BB%93%E6%9D%9F%E8%AF%AD/"><img class="next_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">51-56.k8s的未来和结束语</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/10/10/helm的安装和使用/" title="helm的安装和使用"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-10-10</div><div class="relatedPosts_title">helm的安装和使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/01/一、生态-etcd数据库备份和恢复/" title="一、生态-etcd数据库备份和恢复"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-01</div><div class="relatedPosts_title">一、生态-etcd数据库备份和恢复</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/14/二、k8s常用命令/" title="二、k8s常用命令"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-14</div><div class="relatedPosts_title">二、k8s常用命令</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/14/六、alpine和apk的使用/" title="六、Alpine和apk的使用"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-14</div><div class="relatedPosts_title">六、Alpine和apk的使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/28/pod的使用/" title="pod的使用"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-28</div><div class="relatedPosts_title">pod的使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/05/一、交付-基础环境准备/" title="一、交付-基础环境准备"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-05</div><div class="relatedPosts_title">一、交付-基础环境准备</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

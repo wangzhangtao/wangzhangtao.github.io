@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>linux-tmp2 | 蚂蚁博客</title><meta name="description" content="什么是Pipeline​        Jenkins Pipeline是一组插件，支持在Jenkins上实现和集成持续交付的管道。Pipeline这个单词是水管、流水线的意思。这里持续集成（CI）和持续交付（CD）。 ​        Jenkins为了更好支持CI和CD，通过Groovy语言这么DSL（动态描述语言）来开发Pipeline组件。在Jenkins中有一句话，Pipeline as"><meta name="keywords" content="Linux,其他"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="linux-tmp2"><meta name="twitter:description" content="什么是Pipeline​        Jenkins Pipeline是一组插件，支持在Jenkins上实现和集成持续交付的管道。Pipeline这个单词是水管、流水线的意思。这里持续集成（CI）和持续交付（CD）。 ​        Jenkins为了更好支持CI和CD，通过Groovy语言这么DSL（动态描述语言）来开发Pipeline组件。在Jenkins中有一句话，Pipeline as"><meta name="twitter:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="og:type" content="article"><meta property="og:title" content="linux-tmp2"><meta property="og:url" content="http://wang.ikongjian.com/2021/01/02/linux-tmp2/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="什么是Pipeline​        Jenkins Pipeline是一组插件，支持在Jenkins上实现和集成持续交付的管道。Pipeline这个单词是水管、流水线的意思。这里持续集成（CI）和持续交付（CD）。 ​        Jenkins为了更好支持CI和CD，通过Groovy语言这么DSL（动态描述语言）来开发Pipeline组件。在Jenkins中有一句话，Pipeline as"><meta property="og:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="article:published_time" content="2021-01-02T02:00:00.000Z"><meta property="article:modified_time" content="2020-11-03T12:24:57.190Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2021/01/02/linux-tmp2/"><link rel="next" title="linux-tmp" href="http://wang.ikongjian.com/2021/01/01/linux-tmp/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Pipeline"><span class="toc-number">1.</span> <span class="toc-text">什么是Pipeline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么要选择使用Pipeline"><span class="toc-number">2.</span> <span class="toc-text">为什么要选择使用Pipeline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Blue-Ocean界面"><span class="toc-number">3.</span> <span class="toc-text">Blue Ocean界面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试案例"><span class="toc-number">4.</span> <span class="toc-text">测试案例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#重试和超时"><span class="toc-number">5.</span> <span class="toc-text">重试和超时</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完成时动作"><span class="toc-number">6.</span> <span class="toc-text">完成时动作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#agent定义执行环境"><span class="toc-number">7.</span> <span class="toc-text">agent定义执行环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用环境变量"><span class="toc-number">8.</span> <span class="toc-text">使用环境变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#记录测试和构建结果"><span class="toc-number">9.</span> <span class="toc-text">记录测试和构建结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试和通知"><span class="toc-number">9.1.</span> <span class="toc-text">测试和通知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署"><span class="toc-number">9.2.</span> <span class="toc-text">部署</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(/img/gkihqEjXxJ5UZ1C.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">linux-tmp2</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2021-01-02 10:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2021-01-02</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-11-03 20:24:57"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-11-03</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Linux/">Linux</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Linux/%E5%85%B6%E4%BB%96/">其他</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">1.2k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 4 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="什么是Pipeline"><a href="#什么是Pipeline" class="headerlink" title="什么是Pipeline"></a>什么是Pipeline</h2><p>​        Jenkins Pipeline是一组插件，支持在Jenkins上实现和集成持续交付的管道。Pipeline这个单词是水管、流水线的意思。这里持续集成（CI）和持续交付（CD）。</p>
+<p>​        Jenkins为了更好支持CI和CD，通过Groovy语言这么DSL（动态描述语言）来开发Pipeline组件。在Jenkins中有一句话，Pipeline as code，Pipeline是Jenkins中最优雅的存在。之前Jenkins上UI操作动作，都可以在Pipeline中代码实现，主要你对Jenkins和Groovy语言有足够多掌握。</p>
+<p>​        以后我们经常说CI Pipeline和CD Pipeline，你现在大致可以理解为，要实现CD，先要实现CI。CD Pipeline就是一个代码文件，里面把你项目业务场景都通过Groovy代码和Pipeline语法实现，一个一个业务串联起来，全部实现自动化，从代码仓库到生产环境完成部署的自动化流水线。这个过程就是一个典型的CD Pipeline</p>
+<p>​       官网建议我们把Pipeline代码放在一个名称为Jenkinsfile的文本文件中，并且把这个文件放在你项目代码的根目录，采用版本管理工具管理。Jenkinsfile我后面会具体例子来介绍。当然，我们也可以把Pipeline代码用一个Hello.groovy这样的文件去保存在代码库，这也是没问题的。</p>
+<h2 id="为什么要选择使用Pipeline"><a href="#为什么要选择使用Pipeline" class="headerlink" title="为什么要选择使用Pipeline"></a>为什么要选择使用Pipeline</h2><p>​        现在Jenkins是一个非常著名的CI服务器平台，支持很多不同第三方（插件的形式）集成自动化测试。Jenkins UI 配置已经满足不了这么复杂的自动化需求，加入Pipeline功能之后，Jenkins 表现更强大，Pipeline主要有一下特点。</p>
+<p>代码：Pipeline是用代码去实现，并且支持check in到代码仓库，这样项目团队人员就可以修改，更新Pipeline脚本代码，支持代码迭代。</p>
+<p>耐用：Pipeline支持在Jenkins master(主节点)上计划之内或计划外的重启下也能使用。</p>
+<p>可暂停：Pipeline支持可选的停止和恢复或者等待批准之后再跑Pipeline代码。</p>
+<p>丰富功能：Pipeline支持复杂和实时的CD需求，包括循环，拉取代码，和并行执行的能力。</p>
+<p>可扩展性：Pipeline支持DSL的自定义插件扩展和支持和其他插件的集成。</p>
+<h2 id="Blue-Ocean界面"><a href="#Blue-Ocean界面" class="headerlink" title="Blue Ocean界面"></a>Blue Ocean界面</h2><h2 id="测试案例"><a href="#测试案例" class="headerlink" title="测试案例"></a>测试案例</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any </span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#39;Build&#39;) &#123; </span><br><span class="line">            steps &#123;</span><br><span class="line">                println &quot;Build&quot; </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#39;Test&#39;) &#123; </span><br><span class="line">            steps &#123;</span><br><span class="line">                println &quot;Test&quot; </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(&#39;Deploy&#39;) &#123; </span><br><span class="line">            steps &#123;</span><br><span class="line">                println &quot;Deploy&quot; </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">使用mvn</span><br><span class="line">pipeline &#123;</span><br><span class="line">    agent &#123; docker &#39;maven:3.3.3&#39; &#125;</span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#39;build&#39;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#39;mvn --version&#39;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在 Linux、BSD 和 Mac OS（类 Unix ) 系统中的 shell 命令， 对应于 Pipeline 中的一个 sh 步骤（step）。</p>
+<h2 id="重试和超时"><a href="#重试和超时" class="headerlink" title="重试和超时"></a>重试和超时</h2><p>重复执行 flakey-deploy.sh 脚本3次，然后等待 health-check.sh 脚本最长执行3分钟</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">steps &#123;</span><br><span class="line">    retry(3) &#123;</span><br><span class="line">        sh &#39;.&#x2F;flakey-deploy.sh&#39;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    timeout(time: 3, unit: &#39;MINUTES&#39;) &#123;</span><br><span class="line">        sh &#39;.&#x2F;health-check.sh&#39;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>内嵌类型的步骤，例如 timeout 和 retry 可以包含其他的步骤，包括 timeout 和 retry</p>
+<p>重试部署任务 5 次，但是总共花费的时间不能超过 3 分钟。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">steps &#123;</span><br><span class="line">    timeout(time: 3, unit: &#39;MINUTES&#39;) &#123;</span><br><span class="line">        retry(5) &#123;</span><br><span class="line">            sh &#39;.&#x2F;flakey-deploy.sh&#39;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="完成时动作"><a href="#完成时动作" class="headerlink" title="完成时动作"></a>完成时动作</h2><p>当 Pipeline 运行完成时，你可能需要做一些清理工作或者基于 Pipeline 的运行结果执行不同的操作， 这些操作可以放在 post 部分。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">post &#123;</span><br><span class="line">    always &#123;</span><br><span class="line">        echo &#39;This will always run&#39;</span><br><span class="line">    &#125;</span><br><span class="line">    success &#123;</span><br><span class="line">        echo &#39;This will run only if successful&#39;</span><br><span class="line">    &#125;</span><br><span class="line">    failure &#123;</span><br><span class="line">        echo &#39;This will run only if failed&#39;</span><br><span class="line">    &#125;</span><br><span class="line">    unstable &#123;</span><br><span class="line">        echo &#39;This will run only if the run was marked as unstable&#39;</span><br><span class="line">    &#125;</span><br><span class="line">    changed &#123;</span><br><span class="line">        echo &#39;This will run only if the state of the Pipeline has changed&#39;</span><br><span class="line">        echo &#39;For example, if the Pipeline was previously failing but is now successful&#39;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="agent定义执行环境"><a href="#agent定义执行环境" class="headerlink" title="agent定义执行环境"></a>agent定义执行环境</h2><p>agent 指令告诉Jenkins在哪里以及如何执行Pipeline或者Pipeline子集</p>
+<ul>
+<li>所有在块block中的步骤steps会被Jenkins保存在一个执行队列中。 一旦一个执行器 <a href="https://jenkins.io/zh/doc/pipeline/tour/agents/#../../book/glossary/#executor" target="_blank" rel="noopener">executor</a> 是可以利用的，这些步骤将会开始执行。</li>
+<li>一个工作空间 <a href="https://jenkins.io/zh/doc/pipeline/tour/agents/#../../book/glossary/#workspace" target="_blank" rel="noopener">workspace</a> 将会被分配， 工作空间中会包含来自远程仓库的文件和一些用于Pipeline的工作文件</li>
+</ul>
+<h2 id="使用环境变量"><a href="#使用环境变量" class="headerlink" title="使用环境变量"></a>使用环境变量</h2><p>环境变量可以是全局，也可以是阶段（stage）级别的</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line"></span><br><span class="line">    environment &#123;</span><br><span class="line">        DISABLE_AUTH &#x3D; &#39;true&#39;</span><br><span class="line">        DB_ENGINE    &#x3D; &#39;sqlite&#39;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&#39;Build&#39;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &#39;printenv&#39;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="记录测试和构建结果"><a href="#记录测试和构建结果" class="headerlink" title="记录测试和构建结果"></a>记录测试和构建结果</h2><h3 id="测试和通知"><a href="#测试和通知" class="headerlink" title="测试和通知"></a>测试和通知</h3><p>电子邮件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">post &#123;</span><br><span class="line">    failure &#123;</span><br><span class="line">        mail to: &#39;team@example.com&#39;,</span><br><span class="line">             subject: &quot;Failed Pipeline: $&#123;currentBuild.fullDisplayName&#125;&quot;,</span><br><span class="line">             body: &quot;Something is wrong with $&#123;env.BUILD_URL&#125;&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>人工确认</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">stage(&#39;Sanity check&#39;) &#123;</span><br><span class="line">    steps &#123;</span><br><span class="line">        input &quot;Does the staging environment look ok?&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2021/01/02/linux-tmp2/">http://wang.ikongjian.com/2021/01/02/linux-tmp2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="next-post pull-full"><a href="/2021/01/01/linux-tmp/"><img class="next_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">linux-tmp</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2021/01/01/linux-tmp/" title="linux-tmp"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2021-01-01</div><div class="relatedPosts_title">linux-tmp</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/13/四、git使用/" title="四、git使用"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-13</div><div class="relatedPosts_title">四、git使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/16/常用软件-nexus私服/" title="常用软件-nexus私服"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-16</div><div class="relatedPosts_title">常用软件-nexus私服</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/17/常用软件-elkf-kafka集群/" title="常用软件-ELKF+kafka集群"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-17</div><div class="relatedPosts_title">常用软件-ELKF+kafka集群</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/16/常用软件-部署activemq/" title="常用软件-部署activemq"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-16</div><div class="relatedPosts_title">常用软件-部署activemq</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/30/二、shell经验收集/" title="二、shell经验收集"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-30</div><div class="relatedPosts_title">二、shell经验收集</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

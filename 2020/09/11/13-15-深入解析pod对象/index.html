@@ -1,0 +1,252 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>13-15.深入解析pod对象 | 蚂蚁博客</title><meta name="description" content="极客时间课程张磊的 深入剖析Kuernetes  13 | 为什么我们需要Pod？Kubernetes 为什么使用podPOD的直议是豆荚，豆荚中的一个或者多个豆 ( docker ) 属于同一个家庭，共享一个物理豆荚。 容器的本质是进程, Pod是 Kubernetes 项目的原子调度单位。 Pod 在 Kubernetes 项目里还有更重要的意义，那就是：容器设计模式。 Kubernetes"><meta name="keywords" content="kubernetes,深入剖析Kuernetes"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="13-15.深入解析pod对象"><meta name="twitter:description" content="极客时间课程张磊的 深入剖析Kuernetes  13 | 为什么我们需要Pod？Kubernetes 为什么使用podPOD的直议是豆荚，豆荚中的一个或者多个豆 ( docker ) 属于同一个家庭，共享一个物理豆荚。 容器的本质是进程, Pod是 Kubernetes 项目的原子调度单位。 Pod 在 Kubernetes 项目里还有更重要的意义，那就是：容器设计模式。 Kubernetes"><meta name="twitter:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="og:type" content="article"><meta property="og:title" content="13-15.深入解析pod对象"><meta property="og:url" content="http://wang.ikongjian.com/2020/09/11/13-15-%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90pod%E5%AF%B9%E8%B1%A1/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="极客时间课程张磊的 深入剖析Kuernetes  13 | 为什么我们需要Pod？Kubernetes 为什么使用podPOD的直议是豆荚，豆荚中的一个或者多个豆 ( docker ) 属于同一个家庭，共享一个物理豆荚。 容器的本质是进程, Pod是 Kubernetes 项目的原子调度单位。 Pod 在 Kubernetes 项目里还有更重要的意义，那就是：容器设计模式。 Kubernetes"><meta property="og:image" content="http://wang.ikongjian.com/img/gkihqEjXxJ5UZ1C.jpg"><meta property="article:published_time" content="2020-09-11T02:00:00.000Z"><meta property="article:modified_time" content="2020-09-23T01:21:13.545Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/09/11/13-15-%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90pod%E5%AF%B9%E8%B1%A1/"><link rel="prev" title="16-17.控制器和deployment" href="http://wang.ikongjian.com/2020/09/16/16-17-%E6%8E%A7%E5%88%B6%E5%99%A8%E5%92%8Cdeployment/"><link rel="next" title="监控DELL服务器的硬件信息" href="http://wang.ikongjian.com/2020/09/09/%E7%9B%91%E6%8E%A7dell%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%A1%AC%E4%BB%B6%E4%BF%A1%E6%81%AF/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#13-为什么我们需要Pod？"><span class="toc-number">1.</span> <span class="toc-text">13 | 为什么我们需要Pod？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Kubernetes-为什么使用pod"><span class="toc-number">1.1.</span> <span class="toc-text">Kubernetes 为什么使用pod</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pod原理"><span class="toc-number">1.2.</span> <span class="toc-text">Pod原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pod网络"><span class="toc-number">1.3.</span> <span class="toc-text">Pod网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pod容器设计模式"><span class="toc-number">1.4.</span> <span class="toc-text">Pod容器设计模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务上云"><span class="toc-number">1.5.</span> <span class="toc-text">服务上云</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#14-深入解析Pod对象（一）：基本概念"><span class="toc-number">2.</span> <span class="toc-text">14 | 深入解析Pod对象（一）：基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#调度pod到指定的节点"><span class="toc-number">2.1.</span> <span class="toc-text">调度pod到指定的节点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ImagePullPolicy-镜像拉取策略"><span class="toc-number">2.2.</span> <span class="toc-text">ImagePullPolicy 镜像拉取策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lifecycle钩子"><span class="toc-number">2.3.</span> <span class="toc-text">Lifecycle钩子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pod-对象在-Kubernetes-中的生命周期。"><span class="toc-number">2.4.</span> <span class="toc-text">Pod 对象在 Kubernetes 中的生命周期。</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#15-深入解析Pod对象（二）：使用进阶"><span class="toc-number">3.</span> <span class="toc-text">15 | 深入解析Pod对象（二）：使用进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#投射数据卷"><span class="toc-number">3.1.</span> <span class="toc-text">投射数据卷</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Secret"><span class="toc-number">3.2.</span> <span class="toc-text">Secret</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConfigMap"><span class="toc-number">3.3.</span> <span class="toc-text">ConfigMap</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Downward-API"><span class="toc-number">3.4.</span> <span class="toc-text">Downward API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-Account服务账号"><span class="toc-number">3.5.</span> <span class="toc-text">Service Account服务账号</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#容器健康检查和恢复机制。"><span class="toc-number">3.5.1.</span> <span class="toc-text">容器健康检查和恢复机制。</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PodPreset"><span class="toc-number">3.6.</span> <span class="toc-text">PodPreset</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(/img/gkihqEjXxJ5UZ1C.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">13-15.深入解析pod对象</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-09-11 10:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-09-11</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-09-23 09:21:13"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-09-23</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/">kubernetes</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kubernetes/">深入剖析Kubernetes</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">4.8k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 15 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>极客时间课程张磊的 <a href="https://time.geekbang.org/column/intro/116" target="_blank" rel="noopener">深入剖析Kuernetes</a> </p>
+<h1 id="13-为什么我们需要Pod？"><a href="#13-为什么我们需要Pod？" class="headerlink" title="13 | 为什么我们需要Pod？"></a>13 | 为什么我们需要Pod？</h1><h2 id="Kubernetes-为什么使用pod"><a href="#Kubernetes-为什么使用pod" class="headerlink" title="Kubernetes 为什么使用pod"></a>Kubernetes 为什么使用pod</h2><p>POD的直议是豆荚，豆荚中的一个或者多个豆 ( docker ) 属于同一个家庭，共享一个物理豆荚。</p>
+<p>容器的本质是进程, Pod是 Kubernetes 项目的原子调度单位。</p>
+<p>Pod 在 Kubernetes 项目里还有更重要的意义，那就是：容器设计模式。</p>
+<p>Kubernetes 项目所做的，其实就是将“进程组”的概念映射到了容器技术中。pstree -g  展示当前系统中正在运行的进程的树状结构。</p>
+<p>Mesos 中就有一个资源囤积（resource hoarding）的机制，会在所有设置了 Affinity 约束的任务都达到时，才开始对它们统一进行调度。而在 Google Omega 论文中，则提出了使用乐观调度处理冲突的方法，即：先不管这些冲突，而是通过精心设计的回滚机制在出现了冲突之后解决问题。</p>
+<p>“超亲密关系”容器的典型特征包括但不限于：互相之间会发生直接的文件交换、使用 localhost 或者 Socket 文件进行本地通信、会发生非常频繁的远程调用、需要共享某些 Linux Namespace等等。</p>
+<h2 id="Pod原理"><a href="#Pod原理" class="headerlink" title="Pod原理"></a>Pod原理</h2><p>首先，关于 Pod 最重要的一个事实是：它只是一个逻辑概念。</p>
+<p>Kubernetes 真正处理的，还是宿主机操作系统上 Linux 容器的 Namespace 和 Cgroups，而并不存在一个所谓的 Pod 的边界或者隔离环境。</p>
+<p>Pod，其实是一组共享了某些资源的容器。Pod 里的所有容器，共享的是同一个 Network Namespace，并且可以声明共享同一个 Volume。</p>
+<h2 id="Pod网络"><a href="#Pod网络" class="headerlink" title="Pod网络"></a>Pod网络</h2><p>镜像 k8s.gcr.io/pause 是一个用汇编语言编写的、永远处于“暂停”状态的特殊容器，解压后的大小只有 100~200 KB 。</p>
+<p>对于同一个 Pod 里面的所有用户容器来说，它们的进出流量，可以认为都是通过 Infra 容器完成的。这一点很重要，因为将来如果你要为 Kubernetes 开发一个网络插件时，应该重点考虑的是如何配置这个 Pod 的 Network Namespace，而不是每一个用户容器如何使用你的网络配置，这是没有意义的。</p>
+<p>这就意味着，如果你的网络插件需要在容器里安装某些包或者配置才能完成的话，是不可取的：Infra 容器镜像的 rootfs 里几乎什么都没有，没有你随意发挥的空间。当然，这同时也意味着你的网络插件完全不必关心用户容器的启动与否，而只需要关注如何配置 Pod，也就是 Infra 容器的 Network Namespace 即可。</p>
+<h2 id="Pod容器设计模式"><a href="#Pod容器设计模式" class="headerlink" title="Pod容器设计模式"></a>Pod容器设计模式</h2><p>在 Pod 中，所有 Init Container 定义的容器，都会比 spec.containers 定义的用户容器先启动。并且，<strong>Init Container 容器会按顺序逐一启动，而直到它们都启动并且退出了，用户容器才会启动</strong>。</p>
+<p>实际上，这个所谓的“组合”操作，正是容器设计模式里最常用的一种模式 sidecar（边车）。顾名思义，sidecar 指的就是我们可以在一个 Pod 中，启动一个辅助容器，来完成一些独立于主进程（主容器）之外的工作。</p>
+<p>Pod 的另一个重要特性是，它的所有容器都共享同一个 Network Namespace。这就使得很多与 Pod 网络相关的配置和管理，也都可以交给 sidecar 完成，而完全无须干涉用户容器。这里最典型的例子莫过于 Istio 这个微服务治理项目了。</p>
+<h2 id="服务上云"><a href="#服务上云" class="headerlink" title="服务上云"></a>服务上云</h2><p>“服务上云”工作的完成，最终还是要靠深入理解容器的本质，即：进程。</p>
+<p>实际上，一个运行在虚拟机里的应用，哪怕再简单，也是被管理在 systemd 或者 supervisord 之下的一组进程，而不是一个进程。这跟本地物理机上应用的运行方式其实是一样的。这也是为什么，从物理机到虚拟机之间的应用迁移，往往并不困难。</p>
+<p>可是对于容器来说，一个容器永远只能管理一个进程。更确切地说，一个容器，就是一个进程。这是容器技术的“天性”，不可能被修改。所以，将一个原本运行在虚拟机里的应用，“无缝迁移”到容器中的想法，实际上跟容器的本质是相悖的。</p>
+<p>Pod 这个概念，提供的是一种编排思想，而不是具体的技术方案。所以，如果愿意的话，你完全可以使用虚拟机来作为 Pod 的实现，然后把用户容器都运行在这个虚拟机里。</p>
+<p> Pod  实际上是在扮演传统基础设施里”虚拟机”的角色；而容器则是这个虚拟机里的应用程序。要完成传统基于虚拟机的应用到微服务架构的迁移，核心思想是：分析应用组成（组件、进程），将其拆分成松耦合的容器（以容器镜像方式分发），利用 Init Container 来解决顺序和依赖关系。这样的设计，是为了使用户从传统环境（虚拟机环境）向 Kubernetes（容器环境）的迁移，更加平滑。</p>
+<h1 id="14-深入解析Pod对象（一）：基本概念"><a href="#14-深入解析Pod对象（一）：基本概念" class="headerlink" title="14 | 深入解析Pod对象（一）：基本概念"></a>14 | 深入解析Pod对象（一）：基本概念</h1><p>进程的哪些属性属于 Pod 对象，而又有哪些属性属于 Container 呢？</p>
+<p>凡是调度、网络、存储，以及安全相关的属性，基本上是 Pod 级别的。</p>
+<p>这些属性的共同特征是，它们描述的是“机器”这个整体，而不是里面运行的“程序”。</p>
+<h2 id="调度pod到指定的节点"><a href="#调度pod到指定的节点" class="headerlink" title="调度pod到指定的节点"></a>调度pod到指定的节点</h2><p>NodeSelector：是一个供用户将 Pod 与 Node 进行绑定的字段</p>
+<p>NodeName：一旦 Pod 的这个字段被赋值，Kubernetes 项目就会被认为这个 Pod 已经经过了调度，调度的结果就是赋值的节点名字。所以，这个字段一般由调度器负责设置，但用户也可以设置它来“骗过”调度器，当然这个做法一般是在测试或者调试的时候才会用到。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">spec: </span><br><span class="line">  nodeSelector:   </span><br><span class="line">    disktype: ssd</span><br><span class="line">  nodeName: wang-23.host.com</span><br></pre></td></tr></table></figure>
+
+
+
+<p>HostAliases：定义了 Pod 的 hosts 文件（比如 /etc/hosts）里的内容</p>
+<p>除了上述跟“机器”相关的配置外，你可能也会发现，凡是跟容器的 Linux Namespace 相关的属性，也一定是 Pod 级别的。这个原因也很容易理解：Pod 的设计，就是要让它里面的容器尽可能多地共享 Linux Namespace，仅保留必要的隔离和限制能力。这样，Pod 模拟出的效果，就跟虚拟机里程序间的关系非常类似了。</p>
+<p>凡是 Pod 中的容器要共享宿主机的 Namespace，也一定是 Pod 级别的定义</p>
+<p>shareProcessNamespace=true： 这个 Pod 里的容器要共享 PID Namespace。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx</span><br><span class="line">spec:</span><br><span class="line">  shareProcessNamespace: true</span><br><span class="line">  hostNetwork: true </span><br><span class="line">  hostIPC: true </span><br><span class="line">  hostPID: true</span><br><span class="line">  containers:</span><br><span class="line">  - name: nginx</span><br><span class="line">    image: nginx</span><br><span class="line">  - name: shell</span><br><span class="line">    image: busybox</span><br><span class="line">    stdin: true</span><br><span class="line">    tty: true</span><br></pre></td></tr></table></figure>
+
+<p>在 Pod 的 YAML 文件里声明开启stdin 和 tty ，其实等同于设置了 docker run 里的 -it（-i 即 stdin，-t 即 tty）参数。</p>
+<h2 id="ImagePullPolicy-镜像拉取策略"><a href="#ImagePullPolicy-镜像拉取策略" class="headerlink" title="ImagePullPolicy 镜像拉取策略"></a>ImagePullPolicy 镜像拉取策略</h2><p>ImagePullPolicy 它定义了镜像拉取的策略。而它之所以是一个 Container 级别的属性，是因为容器镜像本来就是 Container 定义中的一部分。</p>
+<ul>
+<li>Always： 默认策略。即每次创建 Pod 都重新拉取一次镜像。另外，当容器的镜像是类似于 nginx 或者 nginx:latest  这样的名字时，ImagePullPolicy 也会被认为 Always。</li>
+<li>IfNotPresent：只在宿主机上不存在这个镜像时才拉取。</li>
+<li>Never：  Pod 永远不会主动拉取这个镜像</li>
+</ul>
+<h2 id="Lifecycle钩子"><a href="#Lifecycle钩子" class="headerlink" title="Lifecycle钩子"></a>Lifecycle钩子</h2><p> Lifecycle 定义的是 Container Lifecycle Hooks。顾名思义，Container Lifecycle Hooks 的作用，是在容器状态发生变化时触发一系列“钩子”。我们来看这样一个例子：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: lifecycle-demo</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: lifecycle-demo-container</span><br><span class="line">    image: nginx</span><br><span class="line">    lifecycle:</span><br><span class="line">      postStart:</span><br><span class="line">        exec:</span><br><span class="line">          command: [&quot;&#x2F;bin&#x2F;sh&quot;, &quot;-c&quot;, &quot;echo Hello from the postStart handler &gt; &#x2F;usr&#x2F;share&#x2F;message&quot;]</span><br><span class="line">      preStop:</span><br><span class="line">        exec:</span><br><span class="line">          command: [&quot;&#x2F;usr&#x2F;sbin&#x2F;nginx&quot;,&quot;-s&quot;,&quot;quit&quot;]</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>postStart : 在容器启动后，立刻执行一个指定的操作。需要明确的是，postStart 定义的操作，虽然是在 Docker 容器 ENTRYPOINT 执行之后，但它并不严格保证顺序。也就是说，在 postStart 启动时，ENTRYPOINT 有可能还没有结束。</p>
+</li>
+<li><p>preStop: 发生的时机，则是容器被杀死之前（比如，收到了 SIGKILL 信号）。而需要明确的是，preStop 操作的执行，是同步的。所以，它会阻塞当前的容器杀死流程，直到这个 Hook 定义操作完成之后，才允许容器被杀死，这跟 postStart 不一样。</p>
+</li>
+</ul>
+<h2 id="Pod-对象在-Kubernetes-中的生命周期。"><a href="#Pod-对象在-Kubernetes-中的生命周期。" class="headerlink" title="Pod 对象在 Kubernetes 中的生命周期。"></a>Pod 对象在 Kubernetes 中的生命周期。</h2><p>Pod 生命周期的变化，主要体现在 Pod API 对象的 Status 部分，这是它除了 Metadata 和 Spec 之外的第三个重要字段。其中，pod.status.phase，就是 Pod 的当前状态，它有如下几种可能的情况：</p>
+<ol>
+<li><p>Pending。这个状态意味着，Pod 的  YAML 文件已经提交给了 Kubernetes，API 对象已经被创建并保存在 Etcd 当中。但是，这个 Pod  里有些容器因为某种原因而不能被顺利创建。比如，调度不成功。</p>
+</li>
+<li><p>Running。这个状态下，Pod  已经调度成功，跟一个具体的节点绑定。它包含的容器都已经创建成功，并且至少有一个正在运行中。</p>
+</li>
+<li><p>Succeeded。这个状态意味着，Pod  里的所有容器都正常运行完毕，并且已经退出了。这种情况在运行一次性任务时最为常见。</p>
+</li>
+<li><p>Failed。这个状态下，Pod  里至少有一个容器以不正常的状态（非 0 的返回码）退出。这个状态的出现，意味着你得想办法 Debug 这个容器的应用，比如查看 Pod 的  Events 和日志。</p>
+</li>
+<li><p>Unknown。这是一个异常状态，意味着 Pod 的状态不能持续地被 kubelet 汇报给  kube-apiserver，这很有可能是主从节点（Master 和 Kubelet）间的通信出现了问题。</p>
+</li>
+</ol>
+<p>更进一步地，Pod 对象的 Status 字段，还可以再细分出一组 Conditions。这些细分状态的值包括：PodScheduled、Ready、Initialized，以及 Unschedulable。它们主要用于描述造成当前 Status 的具体原因是什么。</p>
+<p>Ready 这个细分状态非常值得我们关注：它意味着 Pod 不仅已经正常启动（Running 状态），而且已经可以对外提供服务了。注意两者之间（Running 和 Ready）的区别。</p>
+<p>在学习完这篇文章后，我希望你能仔细阅读 $GOPATH/src/k8s.io/kubernetes/vendor/k8s.io/api/core/v1/types.go 里，type Pod struct ，尤其是 PodSpec 部分的内容。争取做到下次看到一个 Pod 的 YAML 文件时，不再需要查阅文档，就能做到把常用字段及其作用信手拈来。</p>
+<h1 id="15-深入解析Pod对象（二）：使用进阶"><a href="#15-深入解析Pod对象（二）：使用进阶" class="headerlink" title="15 | 深入解析Pod对象（二）：使用进阶"></a>15 | 深入解析Pod对象（二）：使用进阶</h1><h2 id="投射数据卷"><a href="#投射数据卷" class="headerlink" title="投射数据卷"></a>投射数据卷</h2><p>我们就先从一种特殊的 Volume 开始，来帮助你更加深入地理解 Pod 对象各个重要字段的含义。这种特殊的 Volume，叫作 Projected Volume，你可以把它翻译为“投射数据卷”。</p>
+<p>在 Kubernetes 中，有几种特殊的 Volume，它们存在的意义不是为了存放容器里的数据，也不是用来进行容器和宿主机之间的数据交换。这些特殊 Volume 的作用，是为容器提供预先定义好的数据。所以，从容器的角度来看，这些 Volume 里的信息就是仿佛是被 Kubernetes“投射”（Project）进入容器当中的。这正是 Projected Volume 的含义。</p>
+<p>到目前为止，Kubernetes 支持的 Projected Volume 一共有四种：</p>
+<ul>
+<li>Secret；</li>
+<li>ConfigMap；</li>
+<li>Downward API；</li>
+<li>ServiceAccountToken。</li>
+</ul>
+<h2 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h2><p>它的作用，是帮你把 Pod 想要访问的加密数据，存放到 Etcd 中。然后，你就可以通过在 Pod 的容器里挂载 Volume 的方式，访问到这些 Secret 里保存的信息了。</p>
+<p>通过命令行创建</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ kubectl create secret generic user --from-file&#x3D;.&#x2F;username.txt</span><br></pre></td></tr></table></figure>
+
+<p>通过yaml创建</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Secret</span><br><span class="line">metadata:</span><br><span class="line">  name: mysecret</span><br><span class="line">type: Opaque</span><br><span class="line">data:</span><br><span class="line">  user: YWRtaW4&#x3D;</span><br><span class="line">  pass: MWYyZDFlMmU2N2Rm</span><br></pre></td></tr></table></figure>
+
+<p>Secret 对象要求这些数据必须是经过 Base64 转码的</p>
+<p>更重要的是，像这样通过挂载方式进入到容器里的 Secret，一旦其对应的 Etcd 里的数据被更新，这些 Volume 里的文件内容，同样也会被更新。其实，这是 kubelet 组件在定时维护这些 Volume。</p>
+<p>需要注意的是，这个更新可能会有一定的延时。所以在编写应用程序时，在发起数据库连接的代码处写好重试和超时的逻辑，绝对是个好习惯。</p>
+<h2 id="ConfigMap"><a href="#ConfigMap" class="headerlink" title="ConfigMap"></a>ConfigMap</h2><p>与 Secret 类似的是 ConfigMap，它与 Secret 的区别在于，ConfigMap 保存的是不需要加密的、应用所需的配置信息。而 ConfigMap 的用法几乎与 Secret 完全相同：你可以使用 kubectl create configmap 从文件或者目录创建 ConfigMap，也可以直接编写 ConfigMap 对象的 YAML 文件。</p>
+<h2 id="Downward-API"><a href="#Downward-API" class="headerlink" title="Downward API"></a>Downward API</h2><p>它的作用是：让 Pod 里的容器能够直接获取到这个 Pod API 对象本身的信息。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">volumes:</span><br><span class="line">  - name: podinfo</span><br><span class="line">    projected:</span><br><span class="line">      sources:</span><br><span class="line">      - downwardAPI:</span><br><span class="line">          items:</span><br><span class="line">            - path: &quot;labels&quot;</span><br><span class="line">              fieldRef:</span><br><span class="line">                fieldPath: metadata.labels</span><br></pre></td></tr></table></figure>
+
+
+
+<p>目前，Downward API 支持的字段已经非常丰富了，比如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 使用fieldRef可以声明使用:</span><br><span class="line">spec.nodeName - 宿主机名字</span><br><span class="line">status.hostIP - 宿主机IP</span><br><span class="line">metadata.name - Pod的名字</span><br><span class="line">metadata.namespace - Pod的Namespace</span><br><span class="line">status.podIP - Pod的IP</span><br><span class="line">spec.serviceAccountName - Pod的Service Account的名字</span><br><span class="line">metadata.uid - Pod的UID</span><br><span class="line">metadata.labels[&#39;&lt;KEY&gt;&#39;] - 指定&lt;KEY&gt;的Label值</span><br><span class="line">metadata.annotations[&#39;&lt;KEY&gt;&#39;] - 指定&lt;KEY&gt;的Annotation值</span><br><span class="line">metadata.labels - Pod的所有Label</span><br><span class="line">metadata.annotations - Pod的所有Annotation</span><br><span class="line"></span><br><span class="line">2. 使用resourceFieldRef可以声明使用:</span><br><span class="line">容器的CPU limit</span><br><span class="line">容器的CPU request</span><br><span class="line">容器的memory limit</span><br><span class="line">容器的memory request</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Downward API 能够获取到的信息，一定是 Pod 里的容器进程启动之前就能够确定下来的信息。而如果你想要获取 Pod 容器运行后才会出现的信息，比如，容器进程的 PID，那就肯定不能使用 Downward API 了，而应该考虑在 Pod 里定义一个 sidecar 容器。</p>
+<p>Secret、ConfigMap，以及 Downward API 这三种 Projected Volume 定义的信息，大多还可以通过环境变量的方式出现在容器里。但是，通过环境变量获取这些信息的方式，不具备自动更新的能力。所以，一般情况下，我都建议你使用 Volume 文件的方式获取这些信息。</p>
+<h2 id="Service-Account服务账号"><a href="#Service-Account服务账号" class="headerlink" title="Service Account服务账号"></a>Service Account服务账号</h2><p>Service Account 的授权信息和文件，实际上保存在它所绑定的一个特殊的 Secret 对象里的。这个特殊的 Secret 对象，就叫作 ServiceAccountToken。任何运行在 Kubernetes 集群上的应用，都必须使用这个 ServiceAccountToken 里保存的授权信息，也就是 Token，才可以合法地访问 API Server。</p>
+<p>另外，为了方便使用，Kubernetes 已经为你提供了一个默认“服务账户”（default Service Account）。并且，任何一个运行在 Kubernetes 里的 Pod，都可以直接使用这个默认的 Service Account，而无需显示地声明挂载它。</p>
+<p>这个 Secret 类型的 Volume，正是默认 Service Account 对应的 ServiceAccountToken。所以说，Kubernetes 其实在每个 Pod 创建的时候，自动在它的 spec.volumes 部分添加上了默认 ServiceAccountToken 的定义，然后自动给每个容器加上了对应的 volumeMounts 字段。这个过程对于用户来说是完全透明的。</p>
+<p>这样，一旦 Pod 创建完成，容器里的应用就可以直接从这个默认 ServiceAccountToken 的挂载目录里访问到授权信息和文件。这个容器内的路径在 Kubernetes 里是固定的，即：/var/run/secrets/kubernetes.io/serviceaccount ，而这个 Secret 类型的 Volume 里面的内容如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ ls &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount </span><br><span class="line">ca.crt namespace  token</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这种把 Kubernetes 客户端以容器的方式运行在集群里，然后使用 default Service Account 自动授权的方式，被称作“InClusterConfig”，也是我最推荐的进行 Kubernetes API 编程的授权方式。</p>
+<h3 id="容器健康检查和恢复机制。"><a href="#容器健康检查和恢复机制。" class="headerlink" title="容器健康检查和恢复机制。"></a>容器健康检查和恢复机制。</h3><p>在 Kubernetes 中，你可以为 Pod 里的容器定义一个健康检查“探针”（Probe）。这样，kubelet 就会根据这个 Probe 的返回值决定这个容器的状态，而不是直接以容器进行是否运行（来自 Docker 返回的信息）作为依据。这种机制，是生产环境中保证应用健康存活的重要手段。</p>
+<p>Kubernetes 中并没有 Docker 的 Stop 语义。所以虽然是 Restart（重启），但实际却是重新创建了容器。</p>
+<p>这个功能就是 Kubernetes 里的 Pod 恢复机制，也叫 restartPolicy。它是 Pod 的 Spec 部分的一个标准字段（pod.spec.restartPolicy），默认值是 Always，即：任何时候这个容器发生了异常，它一定会被重新创建。</p>
+<p>但一定要强调的是，Pod 的恢复过程，永远都是发生在当前节点上，而不会跑到别的节点上去。事实上，一旦一个 Pod 与一个节点（Node）绑定，除非这个绑定发生了变化（pod.spec.node 字段被修改），否则它永远都不会离开这个节点。这也就意味着，如果这个宿主机宕机了，这个 Pod 也不会主动迁移到其他节点上去。</p>
+<p>而如果你想让 Pod 出现在其他的可用节点上，就必须使用 Deployment 这样的“控制器”来管理 Pod，</p>
+<p>你还可以通过设置 restartPolicy，改变 Pod 的恢复策略：</p>
+<ul>
+<li>Always：在任何情况下，只要容器不在运行状态，就自动重启容器；</li>
+<li>OnFailure: 只在容器 异常时才自动重启容器；</li>
+<li>Never: 从来不重启容器。</li>
+</ul>
+<p>deployment所创建的pod restart策略只支持aways。</p>
+<p>Kubernetes 的官方文档，把 restartPolicy 和 Pod 里容器的状态，以及 Pod 状态的对应关系</p>
+<p>只要 Pod 的 restartPolicy 指定的策略允许重启异常的容器（比如：Always），那么这个 Pod 就会保持 Running 状态，并进行容器重启。否则，Pod 就会进入 Failed 状态 </p>
+<p>对于包含多个容器的 Pod，只有它里面所有的容器都进入异常状态后，Pod 才会进入 Failed 状态。在此之前，Pod 都是 Running 状态。此时，Pod 的 READY 字段会显示正常容器的个数，比如：</p>
+<p>Pod通过健康检查是指里面所有的Container都通过</p>
+<p>service只会代理readiness检查返回正确的pod</p>
+<h2 id="PodPreset"><a href="#PodPreset" class="headerlink" title="PodPreset"></a>PodPreset</h2><p>PodPreset 里定义的内容，只会在 Pod API 对象被创建之前追加在这个对象本身上，而不会影响任何 Pod 的控制器的定义。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: settings.k8s.io&#x2F;v1alpha1</span><br><span class="line">kind: PodPreset</span><br><span class="line">metadata:</span><br><span class="line">  name: allow-database</span><br><span class="line">spec:</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      role: frontend</span><br><span class="line">  env:</span><br><span class="line">    - name: DB_PORT</span><br><span class="line">      value: &quot;6379&quot;</span><br><span class="line">  volumeMounts:</span><br><span class="line">    - mountPath: &#x2F;cache</span><br><span class="line">      name: cache-volume</span><br><span class="line">  volumes:</span><br><span class="line">    - name: cache-volume</span><br><span class="line">      emptyDir: &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>比如，我们现在提交的是一个 nginx-deployment，那么这个 Deployment 对象本身是永远不会被 PodPreset 改变的，被修改的只是这个 Deployment 创建出来的所有 Pod。这一点请务必区分清楚。</p>
+<p>实际上，Kubernetes 项目会帮你合并（Merge）这两个 PodPreset 要做的修改。而如果它们要做的修改有冲突的话，这些冲突字段就不会被修改。</p>
+<p>体会 Kubernetes“一切皆对象”的设计思想。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/09/11/13-15-%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90pod%E5%AF%B9%E8%B1%A1/">http://wang.ikongjian.com/2020/09/11/13-15-%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90pod%E5%AF%B9%E8%B1%A1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kuernetes/">深入剖析Kuernetes</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/09/16/16-17-%E6%8E%A7%E5%88%B6%E5%99%A8%E5%92%8Cdeployment/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">16-17.控制器和deployment</div></div></a></div><div class="next-post pull_right"><a href="/2020/09/09/%E7%9B%91%E6%8E%A7dell%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%A1%AC%E4%BB%B6%E4%BF%A1%E6%81%AF/"><img class="next_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">监控DELL服务器的硬件信息</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/09/01/00-04-深入剖析k8s课前必读/" title="00-04.深入剖析k8s课前必读"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-01</div><div class="relatedPosts_title">00-04.深入剖析k8s课前必读</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/06/05-09-容器技术概念入门篇/" title="05-09.容器技术概念入门篇"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-06</div><div class="relatedPosts_title">05-09.容器技术概念入门篇</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/09/10-12-kubernetest集群搭建与实践/" title="10-12.Kubernetest集群搭建与实践"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-09</div><div class="relatedPosts_title">10-12.Kubernetest集群搭建与实践</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/24/28-31-kubernetes容器持久化存储/" title="28-31.Kubernetes容器持久化存储"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-24</div><div class="relatedPosts_title">28-31.Kubernetes容器持久化存储</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/18/18-20-深入理解statefulset/" title="18-20.深入理解StatefulSet"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-18</div><div class="relatedPosts_title">18-20.深入理解StatefulSet</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/16/16-17-控制器和deployment/" title="16-17.控制器和deployment"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-16</div><div class="relatedPosts_title">16-17.控制器和deployment</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

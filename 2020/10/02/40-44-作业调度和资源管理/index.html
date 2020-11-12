@@ -1,0 +1,354 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>40-44.作业调度和资源管理 | 蚂蚁博客</title><meta name="description" content="极客时间课程张磊的 深入剖析Kuernetes  40 | Kubernetes的资源模型与资源管理资源模型所有跟调度和资源管理相关的属性都应该是属于 Pod 对象的字段。而这其中最重要的部分，就是 Pod 的 CPU 和内存配置，如下所示： apiVersion: v1kind: Podmetadata:  name: frontendspec:  containers:  - name: db"><meta name="keywords" content="kubernetes,深入剖析Kuernetes"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="40-44.作业调度和资源管理"><meta name="twitter:description" content="极客时间课程张磊的 深入剖析Kuernetes  40 | Kubernetes的资源模型与资源管理资源模型所有跟调度和资源管理相关的属性都应该是属于 Pod 对象的字段。而这其中最重要的部分，就是 Pod 的 CPU 和内存配置，如下所示： apiVersion: v1kind: Podmetadata:  name: frontendspec:  containers:  - name: db"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="40-44.作业调度和资源管理"><meta property="og:url" content="http://wang.ikongjian.com/2020/10/02/40-44-%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6%E5%92%8C%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="极客时间课程张磊的 深入剖析Kuernetes  40 | Kubernetes的资源模型与资源管理资源模型所有跟调度和资源管理相关的属性都应该是属于 Pod 对象的字段。而这其中最重要的部分，就是 Pod 的 CPU 和内存配置，如下所示： apiVersion: v1kind: Podmetadata:  name: frontendspec:  containers:  - name: db"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-10-02T08:00:00.000Z"><meta property="article:modified_time" content="2020-10-28T03:56:09.605Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/10/02/40-44-%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6%E5%92%8C%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/"><link rel="prev" title="45-47.容器运行时" href="http://wang.ikongjian.com/2020/10/04/45-47-%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6/"><link rel="next" title="linux常见日志" href="http://wang.ikongjian.com/2020/09/30/linux%E5%B8%B8%E8%A7%81%E6%97%A5%E5%BF%97/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#40-Kubernetes的资源模型与资源管理"><span class="toc-number">1.</span> <span class="toc-text">40 | Kubernetes的资源模型与资源管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#资源模型"><span class="toc-number">1.1.</span> <span class="toc-text">资源模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#QoS-模型"><span class="toc-number">1.2.</span> <span class="toc-text">QoS 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cpuset-的设置"><span class="toc-number">1.3.</span> <span class="toc-text">cpuset 的设置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#41-十字路口上的Kubernetes默认调度器"><span class="toc-number">2.</span> <span class="toc-text">41 | 十字路口上的Kubernetes默认调度器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#42-Kubernetes默认调度器调度策略解析"><span class="toc-number">3.</span> <span class="toc-text">42 | Kubernetes默认调度器调度策略解析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Predicates"><span class="toc-number">3.1.</span> <span class="toc-text">Predicates</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一种类型，叫作-GeneralPredicates。"><span class="toc-number">3.1.1.</span> <span class="toc-text">第一种类型，叫作 GeneralPredicates。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二种类型，是与-Volume-相关的过滤规则。"><span class="toc-number">3.1.2.</span> <span class="toc-text">第二种类型，是与 Volume 相关的过滤规则。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第三种类型，是宿主机相关的过滤规则。"><span class="toc-number">3.1.3.</span> <span class="toc-text">第三种类型，是宿主机相关的过滤规则。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第四种类型，是-Pod-相关的过滤规则。"><span class="toc-number">3.1.4.</span> <span class="toc-text">第四种类型，是 Pod 相关的过滤规则。</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Priorities"><span class="toc-number">3.2.</span> <span class="toc-text">Priorities</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#43-Kubernetes默认调度器的优先级与抢占机制"><span class="toc-number">4.</span> <span class="toc-text">43 | Kubernetes默认调度器的优先级与抢占机制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#优先级"><span class="toc-number">4.1.</span> <span class="toc-text">优先级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#抢占机制"><span class="toc-number">4.2.</span> <span class="toc-text">抢占机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#调度器里的抢占机制"><span class="toc-number">4.3.</span> <span class="toc-text">调度器里的抢占机制</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#44-Kubernetes-GPU管理与Device-Plugin机制"><span class="toc-number">5.</span> <span class="toc-text">44 | Kubernetes GPU管理与Device Plugin机制</span></a></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">40-44.作业调度和资源管理</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-10-02 16:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-10-02</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-10-28 11:56:09"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-10-28</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/">kubernetes</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kubernetes/">深入剖析Kubernetes</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">9.5k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 31 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>极客时间课程张磊的 <a href="https://time.geekbang.org/column/intro/116" target="_blank" rel="noopener">深入剖析Kuernetes</a> </p>
+<h1 id="40-Kubernetes的资源模型与资源管理"><a href="#40-Kubernetes的资源模型与资源管理" class="headerlink" title="40 | Kubernetes的资源模型与资源管理"></a>40 | Kubernetes的资源模型与资源管理</h1><h2 id="资源模型"><a href="#资源模型" class="headerlink" title="资源模型"></a>资源模型</h2><p>所有跟调度和资源管理相关的属性都应该是属于 Pod 对象的字段。而这其中最重要的部分，就是 Pod 的 CPU 和内存配置，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: frontend</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: db</span><br><span class="line">    image: mysql</span><br><span class="line">    env:</span><br><span class="line">    - name: MYSQL_ROOT_PASSWORD</span><br><span class="line">      value: &quot;password&quot;</span><br><span class="line">    resources:</span><br><span class="line">      requests:</span><br><span class="line">        memory: &quot;64Mi&quot;</span><br><span class="line">        cpu: &quot;250m&quot;</span><br><span class="line">      limits:</span><br><span class="line">        memory: &quot;128Mi&quot;</span><br><span class="line">        cpu: &quot;500m&quot;</span><br><span class="line">  - name: wp</span><br><span class="line">    image: wordpress</span><br><span class="line">    resources:</span><br><span class="line">      requests:</span><br><span class="line">        memory: &quot;64Mi&quot;</span><br><span class="line">        cpu: &quot;250m&quot;</span><br><span class="line">      limits:</span><br><span class="line">        memory: &quot;128Mi&quot;</span><br><span class="line">        cpu: &quot;500m&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>资源分类</strong></p>
+<ul>
+<li>可压缩资源：比如CPU；当可压缩资源不足时，Pod 只会“饥饿”，但不会退出。</li>
+<li>不可压缩资源：比如内存；当不可压缩资源不足时，Pod 就会因为 OOM（Out-Of-Memory）被内核杀掉。</li>
+</ul>
+<p>Kubernetes 允许你将 CPU 限额设置为分数，比如在我们的例子里，CPU limits 的值就是 500m。所谓 500m，指的就是 500 millicpu，也就是 0.5 个 CPU 。</p>
+<p>而对于内存资源来说，它的单位自然就是 bytes。Kubernetes 支持你使用 Ei、Pi、Ti、Gi、Mi、Ki（或者 E、P、T、G、M、K）的方式来作为 bytes 的值。</p>
+<blockquote>
+<p> 注意区分 MiB（mebibyte）和 MB（megabyte）的区别。1Mi=1024*1024；1M=1000*1000</p>
+</blockquote>
+<p>Kubernetes 里 Pod 的 CPU 和内存资源，实际上还要分为 limits 和 requests 两种情况，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">spec.containers[].resources.limits.cpu</span><br><span class="line">spec.containers[].resources.limits.memory</span><br><span class="line">spec.containers[].resources.requests.cpu</span><br><span class="line">spec.containers[].resources.requests.memory</span><br></pre></td></tr></table></figure>
+
+<p>在调度的时候，kube-scheduler 只会按照 requests 的值进行计算。而在真正设置 Cgroups 限制的时候，kubelet 则会按照 limits 的值来进行设置。</p>
+<h2 id="QoS-模型"><a href="#QoS-模型" class="headerlink" title="QoS 模型"></a>QoS 模型</h2><ul>
+<li><p>Guaranteed：当 Pod 里的每一个 Container 都同时设置了 requests 和 limits，并且 requests 和 limits 值相等的时候。</p>
+<p>当这个 Pod 创建之后，它的 qosClass 字段就会被 Kubernetes 自动设置为 Guaranteed。需要注意的是，当 Pod 仅设置了 limits 没有设置 requests 的时候，Kubernetes 会自动为它设置与 limits 相同的 requests 值，所以，这也属于 Guaranteed 情况。</p>
+</li>
+<li><p>Burstable：当 Pod 不满足 Guaranteed 的条件，但至少有一个 Container 设置了 requests。</p>
+</li>
+<li><p>BestEffort：一个 Pod 既没有设置 requests，也没有设置 limits</p>
+</li>
+</ul>
+<p>QoS 模型作用： QoS 划分的主要应用场景，是当宿主机资源紧张的时候，kubelet 对 Pod 进行 Eviction（即资源回收）时需要用到的。</p>
+<p>具体地说，当 Kubernetes 所管理的宿主机上不可压缩资源短缺时，就有可能触发 Eviction。比如，可用内存（memory.available）、可用的宿主机磁盘空间（nodefs.available），以及容器运行时镜像存储空间（imagefs.available）等等。</p>
+<p>目前，Kubernetes 为你设置的 Eviction 的默认阈值如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">memory.available&lt;100Mi</span><br><span class="line">nodefs.available&lt;10%</span><br><span class="line">nodefs.inodesFree&lt;5%</span><br><span class="line">imagefs.available&lt;15%</span><br></pre></td></tr></table></figure>
+
+
+
+<p>当然，上述各个触发条件在 kubelet 里都是可配置的。比如下面这个例子：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kubelet --eviction-hard&#x3D;imagefs.available&lt;10%,memory.available&lt;500Mi,nodefs.available&lt;5%,nodefs.inodesFree&lt;5% --eviction-soft&#x3D;imagefs.available&lt;30%,nodefs.available&lt;10% --eviction-soft-grace-period&#x3D;imagefs.available&#x3D;2m,nodefs.available&#x3D;2m --eviction-max-pod-grace-period&#x3D;600</span><br></pre></td></tr></table></figure>
+
+<p>Eviction 在 Kubernetes 里其实分为 Soft 和 Hard 两种模式。</p>
+<ul>
+<li>Soft Eviction：允许你为 Eviction 过程设置一段“优雅时间”，比如上面例子里的 imagefs.available=2m，就意味着当 imagefs 不足的阈值达到 2 分钟之后，kubelet 才会开始 Eviction 的过程。</li>
+<li>Hard Eviction：Eviction 过程就会在阈值达到之后立刻开始。</li>
+</ul>
+<p>当宿主机的 Eviction 阈值达到后，就会进入 MemoryPressure 或者 DiskPressure 状态（节点打上了污点），从而避免新的 Pod 被调度到这台宿主机上。</p>
+<p>而当 Eviction 发生的时候，kubelet 具体会挑选哪些 Pod 进行删除操作，就需要参考这些 Pod 的 QoS 类别了。</p>
+<p>BestEffort &gt; Burstable &gt; Guaranteed</p>
+<ul>
+<li>首当其冲的，自然是 BestEffort 类别的 Pod。</li>
+<li>其次，是属于 Burstable 类别、并且发生“饥饿”的资源使用量已经超出了 requests 的 Pod。</li>
+<li>最后，才是 Guaranteed 类别。并且，Kubernetes 会保证只有当 Guaranteed 类别的 Pod 的资源使用量超过了其 limits 的限制，或者宿主机本身正处于 Memory Pressure 状态时，Guaranteed 的 Pod 才可能被选中进行 Eviction 操作。</li>
+</ul>
+<p>当然，对于同 QoS 类别的 Pod 来说，Kubernetes 还会根据 Pod 的优先级来进行进一步地排序和选择。</p>
+<h2 id="cpuset-的设置"><a href="#cpuset-的设置" class="headerlink" title="cpuset 的设置"></a>cpuset 的设置</h2><p>在使用容器的时候，你可以通过设置 cpuset 把容器绑定到某个 CPU 的核上，而不是像 cpushare 那样共享 CPU 的计算能力。</p>
+<p>这种情况下，由于操作系统在 CPU 之间进行上下文切换的次数大大减少，容器里应用的性能会得到大幅提升。事实上，<strong>cpuset 方式，是生产环境里部署在线应用类型的 Pod 时，非常常用的一种方式。</strong></p>
+<p><strong>条件：</strong></p>
+<ul>
+<li>首先，你的 Pod 必须是 Guaranteed 的 QoS 类型；</li>
+<li>然后，你只需要将 Pod 的 CPU 资源的 requests 和 limits 设置为同一个相等的<strong>整数值</strong>即可。</li>
+</ul>
+<h1 id="41-十字路口上的Kubernetes默认调度器"><a href="#41-十字路口上的Kubernetes默认调度器" class="headerlink" title="41 | 十字路口上的Kubernetes默认调度器"></a>41 | 十字路口上的Kubernetes默认调度器</h1><p>在 Kubernetes 项目中，默认调度器的主要职责，就是为一个新创建出来的 Pod，寻找一个最合适的节点（Node）。</p>
+<p>而这里“最合适”的含义，包括两层：</p>
+<ol>
+<li>从集群所有的节点中，根据调度算法挑选出所有可以运行该 Pod 的节点；</li>
+<li>从第一步的结果中，再根据调度算法挑选一个最符合条件的节点作为最终结果。</li>
+</ol>
+<p>所以在具体的调度流程中，默认调度器会首先调用一组叫作 Predicate 的调度算法，来检查每个 Node。然后，再调用一组叫作 Priority 的调度算法，来给上一步得到的结果里的每个 Node 打分。最终的调度结果，就是得分最高的那个 Node。</p>
+<p>调度器对一个 Pod 调度成功，实际上就是将它的 spec.nodeName 字段填上调度结果的节点名字。</p>
+<p>上述调度机制的工作原理，可以用如下所示的一幅示意图来表示：</p>
+<img src="/img/body/jike/bb95a7d4962c95d703f7c69caf53ca53.jpg" alt="调度机制的工作原理" style="zoom:67%;max-width: 70%" />
+
+<p>可以看到，Kubernetes 的调度器的核心，实际上就是两个相互独立的控制循环。</p>
+<p>第一个控制循环，我们可以称之为 Informer Path。它的主要目的，是启动一系列 Informer，用来监听（Watch）Etcd 中 Pod、Node、Service 等与调度相关的 API 对象的变化。比如，当一个待调度 Pod（即：它的 nodeName 字段是空的）被创建出来之后，调度器就会通过 Pod Informer 的 Handler，将这个待调度 Pod 添加进调度队列。</p>
+<p>在默认情况下，Kubernetes 的调度队列是一个 PriorityQueue（优先级队列），并且当某些集群信息发生变化的时候，调度器还会对调度队列里的内容进行一些特殊操作。这里的设计，主要是出于调度优先级和抢占的考虑，</p>
+<p>此外，Kubernetes 的默认调度器还要负责对调度器缓存（即：scheduler cache）进行更新。事实上，Kubernetes 调度部分进行性能优化的一个最根本原则，就是尽最大可能将集群信息 Cache 化，以便从根本上提高 Predicate 和 Priority 调度算法的执行效率。</p>
+<p>第二个控制循环，是调度器负责 Pod 调度的主循环，我们可以称之为 Scheduling Path。</p>
+<p>Scheduling Path 的主要逻辑，就是不断地从调度队列里出队一个 Pod。然后，调用 Predicates 算法进行“过滤”。这一步“过滤”得到的一组 Node，就是所有可以运行这个 Pod 的宿主机列表。当然，Predicates 算法需要的 Node 信息，都是从 Scheduler Cache 里直接拿到的，这是调度器保证算法执行效率的主要手段之一。</p>
+<p>接下来，调度器就会再调用 Priorities 算法为上述列表里的 Node 打分，分数从 0 到 10。得分最高的 Node，就会作为这次调度的结果。</p>
+<p>调度算法执行完成后，调度器就需要将 Pod 对象的 nodeName 字段的值，修改为上述 Node 的名字。<strong>这个步骤在 Kubernetes 里面被称作 Bind。</strong></p>
+<p>但是，为了不在关键调度路径里远程访问 APIServer，Kubernetes 的默认调度器在 Bind 阶段，只会更新 Scheduler Cache 里的 Pod 和 Node 的信息。<strong>这种基于“乐观”假设的 API 对象更新方式，在 Kubernetes 里被称作 Assume。</strong></p>
+<p>Assume 之后，调度器才会创建一个 Goroutine 来异步地向 APIServer 发起更新 Pod 的请求，来真正完成 Bind 操作。如果这次异步的 Bind 过程失败了，其实也没有太大关系，等 Scheduler Cache 同步之后一切就会恢复正常。</p>
+<p><strong>除了上述的“Cache 化”和“乐观绑定”，Kubernetes 默认调度器还有一个重要的设计，那就是“无锁化”。</strong></p>
+<p>在 Scheduling Path 上，调度器会启动多个 Goroutine 以节点为粒度并发执行 Predicates 算法，从而提高这一阶段的执行效率。而与之类似的，Priorities 算法也会以 MapReduce 的方式并行计算然后再进行汇总。而在这些所有需要并发的路径上，调度器会避免设置任何全局的竞争资源，从而免去了使用锁进行同步带来的巨大的性能损耗。</p>
+<p>所以，在这种思想的指导下，如果你再去查看一下前面的调度器原理图，你就会发现，Kubernetes 调度器只有对调度队列和 Scheduler Cache 进行操作时，才需要加锁。而这两部分操作，都不在 Scheduling Path 的算法执行路径上。</p>
+<p>当然，Kubernetes 调度器的上述设计思想，也是在集群规模不断增长的演进过程中逐步实现的。尤其是 “Cache 化”，这个变化其实是最近几年 Kubernetes 调度器性能得以提升的一个关键演化。</p>
+<p>而 Kubernetes 默认调度器的可扩展性设计，可以用如下所示的一幅示意图来描述：</p>
+<img src="/img/body/jike/fd17097799fe17fcbc625bf178496acd.jpg" alt="默认调度器的可扩展性设计" style="zoom:67%;" />
+
+
+
+<p>可以看到，默认调度器的可扩展机制，在 Kubernetes 里面叫作 Scheduler Framework。顾名思义，这个设计的主要目的，就是在调度器生命周期的各个关键点上，为用户暴露出可以进行扩展和实现的接口，从而实现由用户自定义调度器的能力。</p>
+<p>需要注意的是，上述这些可插拔式逻辑，都是标准的 Go 语言插件机制（Go plugin 机制），也就是说，你需要在编译的时候选择把哪些插件编译进去。</p>
+<h1 id="42-Kubernetes默认调度器调度策略解析"><a href="#42-Kubernetes默认调度器调度策略解析" class="headerlink" title="42 | Kubernetes默认调度器调度策略解析"></a>42 | Kubernetes默认调度器调度策略解析</h1><h2 id="Predicates"><a href="#Predicates" class="headerlink" title="Predicates"></a>Predicates</h2><p><strong>Predicates 在调度过程中的作用，可以理解为 Filter，</strong>即：它按照调度策略，从当前集群的所有节点中，“过滤”出一系列符合条件的节点。这些节点，都是可以运行待调度 Pod 的宿主机。</p>
+<p>而在 Kubernetes 中，默认的调度策略有如下三种。</p>
+<h3 id="第一种类型，叫作-GeneralPredicates。"><a href="#第一种类型，叫作-GeneralPredicates。" class="headerlink" title="第一种类型，叫作 GeneralPredicates。"></a>第一种类型，叫作 GeneralPredicates。</h3><p>顾名思义，这一组过滤规则，负责的是最基础的调度策略。比如，PodFitsResources 计算的就是宿主机的 CPU 和内存资源等是否够用。</p>
+<p>当然，我在前面已经提到过，PodFitsResources 检查的只是 Pod 的 requests 字段。需要注意的是，Kubernetes 的调度器并没有为 GPU 等硬件资源定义具体的资源类型，而是统一用一种名叫 Extended Resource 的、Key-Value 格式的扩展字段来描述的。</p>
+<p>而 PodFitsHost 检查的是，宿主机的名字是否跟 Pod 的 spec.nodeName 一致。</p>
+<p>PodFitsHostPorts 检查的是，Pod 申请的宿主机端口（spec.nodePort）是不是跟已经被使用的端口有冲突。</p>
+<p>PodMatchNodeSelector 检查的是，Pod 的 nodeSelector 或者 nodeAffinity 指定的节点，是否与待考察节点匹配，等等。</p>
+<p>像上面这样一组 GeneralPredicates，正是 Kubernetes 考察一个 Pod 能不能运行在一个 Node 上最基本的过滤条件。所以，GeneralPredicates 也会被其他组件（比如 kubelet）直接调用。</p>
+<p>kubelet 在启动 Pod 前，会执行一个 Admit 操作来进行二次确认。这里二次确认的规则，就是执行一遍 GeneralPredicates。</p>
+<h3 id="第二种类型，是与-Volume-相关的过滤规则。"><a href="#第二种类型，是与-Volume-相关的过滤规则。" class="headerlink" title="第二种类型，是与 Volume 相关的过滤规则。"></a>第二种类型，是与 Volume 相关的过滤规则。</h3><p>这一组过滤规则，负责的是跟容器持久化 Volume 相关的调度策略。</p>
+<p>其中，NoDiskConflict 检查的条件，是多个 Pod 声明挂载的持久化 Volume 是否有冲突。</p>
+<p>而 MaxPDVolumeCountPredicate 检查的条件，则是一个节点上某种类型的持久化 Volume 是不是已经超过了一定数目，如果是的话，那么声明使用该类型持久化 Volume 的 Pod 就不能再调度到这个节点了。</p>
+<p>而 VolumeZonePredicate，则是检查持久化 Volume 的 Zone（高可用域）标签，是否与待考察节点的 Zone 标签相匹配。</p>
+<p>此外，这里还有一个叫作 VolumeBindingPredicate 的规则。它负责检查的，是该 Pod 对应的 PV 的 nodeAffinity 字段，是否跟某个节点的标签相匹配。</p>
+<p>在 Predicates 阶段，Kubernetes 就必须能够根据 Pod 的 Volume 属性来进行调度。此外，如果该 Pod 的 PVC 还没有跟具体的 PV 绑定的话，调度器还要负责检查所有待绑定 PV，当有可用的 PV 存在并且该 PV 的 nodeAffinity 与待考察节点一致时，这条规则才会返回“成功”。</p>
+<h3 id="第三种类型，是宿主机相关的过滤规则。"><a href="#第三种类型，是宿主机相关的过滤规则。" class="headerlink" title="第三种类型，是宿主机相关的过滤规则。"></a>第三种类型，是宿主机相关的过滤规则。</h3><p>这一组规则，主要考察待调度 Pod 是否满足 Node 本身的某些条件。</p>
+<p>比如，PodToleratesNodeTaints，负责检查的就是我们前面经常用到的 Node 的“污点”机制。只有当 Pod 的 Toleration 字段与 Node 的 Taint 字段能够匹配的时候，这个 Pod 才能被调度到该节点上。</p>
+<p>而 NodeMemoryPressurePredicate，检查的是当前节点的内存是不是已经不够充足，如果是的话，那么待调度 Pod 就不能被调度到该节点上。</p>
+<h3 id="第四种类型，是-Pod-相关的过滤规则。"><a href="#第四种类型，是-Pod-相关的过滤规则。" class="headerlink" title="第四种类型，是 Pod 相关的过滤规则。"></a>第四种类型，是 Pod 相关的过滤规则。</h3><p>这一组规则，跟 GeneralPredicates 大多数是重合的。而比较特殊的，是 PodAffinityPredicate。这个规则的作用，是检查待调度 Pod 与 Node 上的已有 Pod 之间的亲密（affinity）和反亲密（anti-affinity）关系。</p>
+<p>上面这四种类型的 Predicates，就构成了调度器确定一个 Node 可以运行待调度 Pod 的基本策略。</p>
+<p>在具体执行的时候， 当开始调度一个 Pod 时，Kubernetes 调度器会同时启动 16 个 Goroutine，来并发地为集群里的所有 Node 计算 Predicates，最后返回可以运行这个 Pod 的宿主机列表。</p>
+<h2 id="Priorities"><a href="#Priorities" class="headerlink" title="Priorities"></a>Priorities</h2><p>​    </p>
+<p>在 Predicates 阶段完成了节点的“过滤”之后，Priorities 阶段的工作就是为这些节点打分。这里打分的范围是 0-10 分，得分最高的节点就是最后被 Pod 绑定的最佳节点。</p>
+<p>Priorities 里最常用到的一个打分规则，是 LeastRequestedPriority。它的计算方法，可以简单地总结为如下所示的公式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">score &#x3D; (cpu((capacity-sum(requested))10&#x2F;capacity) + memory((capacity-sum(requested))10&#x2F;capacity))&#x2F;2</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这个算法实际上就是在选择空闲资源（CPU 和 Memory）最多的宿主机。</p>
+<p>而与 LeastRequestedPriority 一起发挥作用的，还有 BalancedResourceAllocation。它的计算公式如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">score &#x3D; 10 - variance(cpuFraction,memoryFraction,volumeFraction)*10</span><br></pre></td></tr></table></figure>
+
+
+
+<p>其中，每种资源的 Fraction 的定义是 ：Pod 请求的资源 / 节点上的可用资源。而 variance 算法的作用，则是计算每两种资源 Fraction 之间的“距离”。而最后选择的，则是资源 Fraction 差距最小的节点。</p>
+<p>所以说，BalancedResourceAllocation 选择的，其实是调度完成后，所有节点里各种资源分配最均衡的那个节点，从而避免一个节点上 CPU 被大量分配、而 Memory 大量剩余的情况。</p>
+<p>此外，还有 NodeAffinityPriority、TaintTolerationPriority 和 InterPodAffinityPriority 这三种 Priority。顾名思义，它们与前面的 PodMatchNodeSelector、PodToleratesNodeTaints 和 PodAffinityPredicate 这三个 Predicate 的含义和计算方法是类似的。但是作为 Priority，一个 Node 满足上述规则的字段数目越多，它的得分就会越高。</p>
+<p>在默认 Priorities 里，还有一个叫作 ImageLocalityPriority 的策略。它是在 Kubernetes v1.12 里新开启的调度规则，即：如果待调度 Pod 需要使用的镜像很大，并且已经存在于某些 Node 上，那么这些 Node 的得分就会比较高。</p>
+<p>当然，为了避免这个算法引发调度堆叠，调度器在计算得分的时候还会根据镜像的分布进行优化，即：如果大镜像分布的节点数目很少，那么这些节点的权重就会被调低，从而“对冲”掉引起调度堆叠的风险。</p>
+<p>以上，就是 Kubernetes 调度器的 Predicates 和 Priorities 里默认调度规则的主要工作原理了。</p>
+<p><strong>在实际的执行过程中，调度器里关于集群和 Pod 的信息都已经缓存化，所以这些算法的执行过程还是比较快的。</strong></p>
+<p>此外，对于比较复杂的调度算法来说，比如 PodAffinityPredicate，它们在计算的时候不只关注待调度 Pod 和待考察 Node，还需要关注整个集群的信息，比如，遍历所有节点，读取它们的 Labels。这时候，Kubernetes 调度器会在为每个待调度 Pod 执行该调度算法之前，先将算法需要的集群信息初步计算一遍，然后缓存起来。这样，在真正执行该算法的时候，调度器只需要读取缓存信息进行计算即可，从而避免了为每个 Node 计算 Predicates 的时候反复获取和计算整个集群的信息。</p>
+<h1 id="43-Kubernetes默认调度器的优先级与抢占机制"><a href="#43-Kubernetes默认调度器的优先级与抢占机制" class="headerlink" title="43 | Kubernetes默认调度器的优先级与抢占机制"></a>43 | Kubernetes默认调度器的优先级与抢占机制</h1><p>优先级（Priority ）和抢占（Preemption）机制。</p>
+<p>首先需要明确的是，优先级和抢占机制，解决的是 Pod 调度失败时该怎么办的问题。</p>
+<h2 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h2><p>正常情况下，当一个 Pod 调度失败后，它就会被暂时“搁置”起来，直到 Pod 被更新，或者集群状态发生变化，调度器才会对这个 Pod 进行重新调度。</p>
+<p>当一个高优先级的 Pod 调度失败后，该 Pod 并不会被“搁置”，而是会“挤走”某个 Node 上的一些低优先级的 Pod 。这样就可以保证这个高优先级 Pod 的调度成功。</p>
+<p>要使用这个机制，你首先需要在 Kubernetes 里提交一个 PriorityClass 的定义，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: scheduling.k8s.io&#x2F;v1beta1</span><br><span class="line">kind: PriorityClass</span><br><span class="line">metadata:</span><br><span class="line">  name: high-priority</span><br><span class="line">value: 1000000</span><br><span class="line">globalDefault: false</span><br><span class="line">description: &quot;This priority class should be used for high priority service pods only.&quot;</span><br></pre></td></tr></table></figure>
+
+<p>上面这个 YAML 文件，定义的是一个名叫 high-priority 的 PriorityClass，其中 value 的值是 1000000 （一百万）。</p>
+<p>Kubernetes 规定，优先级是一个 32 bit 的整数，最大值不超过 1000000000（10 亿，1 billion），并且值越大代表优先级越高。而超出 10 亿的值，其实是被 Kubernetes 保留下来分配给系统 Pod 使用的。显然，这样做的目的，就是保证系统 Pod 不会被用户抢占掉。</p>
+<p>而一旦上述 YAML 文件里的 globalDefault 被设置为 true 的话，那就意味着这个 PriorityClass 的值会成为系统的默认值。而如果这个值是 false，就表示我们只希望声明使用该 PriorityClass 的 Pod 拥有值为 1000000 的优先级，而对于没有声明 PriorityClass 的 Pod 来说，它们的优先级就是 0。</p>
+<p>在创建了 PriorityClass 对象之后，Pod 就可以声明使用它了，如下所示</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx</span><br><span class="line">  labels:</span><br><span class="line">    env: test</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: nginx</span><br><span class="line">    image: nginx</span><br><span class="line">    imagePullPolicy: IfNotPresent</span><br><span class="line">  priorityClassName: high-priority</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这个 Pod 通过 priorityClassName 字段，声明了要使用名叫 high-priority 的 PriorityClass。当这个 Pod 被提交给 Kubernetes 之后，Kubernetes 的 PriorityAdmissionController 就会自动将这个 Pod 的 spec.priority 字段设置为 1000000。</p>
+<p>调度器里维护着一个调度队列。所以，当 Pod 拥有了优先级之后，高优先级的 Pod 就可能会比低优先级的 Pod 提前出队，从而尽早完成调度过程。<strong>这个过程，就是“优先级”这个概念在 Kubernetes 里的主要体现。</strong></p>
+<h2 id="抢占机制"><a href="#抢占机制" class="headerlink" title="抢占机制"></a>抢占机制</h2><p>而当一个高优先级的 Pod 调度失败的时候，调度器的抢占能力就会被触发。这时，调度器就会试图从当前集群里寻找一个节点，使得当这个节点上的一个或者多个低优先级 Pod 被删除后，待调度的高优先级 Pod 就可以被调度到这个节点上。<strong>这个过程，就是“抢占”这个概念在 Kubernetes 里的主要体现。</strong></p>
+<p>当上述抢占过程发生时，抢占者并不会立刻被调度到被抢占的 Node 上。事实上，调度器只会将抢占者的 spec.nominatedNodeName 字段，设置为被抢占的 Node 的名字。然后，抢占者会重新进入下一个调度周期，然后在新的调度周期里来决定是不是要运行在被抢占的节点上。这当然也就意味着，即使在下一个调度周期，调度器也不会保证抢占者一定会运行在被抢占的节点上。</p>
+<p>这样设计的一个重要原因是，调度器只会通过标准的 DELETE API 来删除被抢占的 Pod，所以，这些 Pod 必然是有一定的“优雅退出”时间（默认是 30s）的。而在这段时间里，其他的节点也是有可能变成可调度的，或者直接有新的节点被添加到这个集群中来。所以，鉴于优雅退出期间，集群的可调度性可能会发生的变化，<strong>把抢占者交给下一个调度周期再处理，是一个非常合理的选择。</strong></p>
+<p>而在抢占者等待被调度的过程中，如果有其他更高优先级的 Pod 也要抢占同一个节点，那么调度器就会清空原抢占者的 spec.nominatedNodeName 字段，从而允许更高优先级的抢占者执行抢占，并且，这也就使得原抢占者本身，也有机会去重新抢占其他节点。这些，都是设置 nominatedNodeName 字段的主要目的。</p>
+<h2 id="调度器里的抢占机制"><a href="#调度器里的抢占机制" class="headerlink" title="调度器里的抢占机制"></a>调度器里的抢占机制</h2><p>抢占发生的原因，一定是一个高优先级的 Pod 调度失败。这一次，我们还是称这个 Pod 为“抢占者”，称被抢占的 Pod 为“牺牲者”（victims）。</p>
+<p>而 Kubernetes 调度器实现抢占算法的一个最重要的设计，就是在调度队列的实现里，使用了两个不同的队列。</p>
+<p><strong>第一个队列，叫作 activeQ。</strong>凡是在 activeQ 里的 Pod，都是下一个调度周期需要调度的对象。所以，当你在 Kubernetes 集群里新创建一个 Pod 的时候，调度器会将这个 Pod 入队到 activeQ 里面。而我在前面提到过的、调度器不断从队列里出队（Pop）一个 Pod 进行调度，实际上都是从 activeQ 里出队的。</p>
+<p><strong>第二个队列，叫作 unschedulableQ，</strong>专门用来存放调度失败的 Pod。</p>
+<p>而这里的一个关键点就在于，当一个 unschedulableQ 里的 Pod 被更新之后，调度器会自动把这个 Pod 移动到 activeQ 里，从而给这些调度失败的 Pod “重新做人”的机会。</p>
+<p>现在，回到我们的抢占者调度失败这个时间点上来。</p>
+<p>调度失败之后，抢占者就会被放进 unschedulableQ 里面。</p>
+<p>然后，这次失败事件就会触发调度器为抢占者寻找牺牲者的流程。</p>
+<ol>
+<li><p>第一步，调度器会检查这次失败事件的原因，来确认抢占是不是可以帮助抢占者找到一个新节点。这是因为有很多 Predicates 的失败是不能通过抢占来解决的。比如，PodFitsHost 算法（负责的是，检查 Pod 的 nodeSelector 与 Node 的名字是否匹配），这种情况下，除非 Node 的名字发生变化，否则你即使删除再多的 Pod，抢占者也不可能调度成功。</p>
+</li>
+<li><p>第二步，如果确定抢占可以发生，那么调度器就会把自己缓存的所有节点信息复制一份，然后使用这个副本来模拟抢占过程。</p>
+</li>
+</ol>
+<p>这里的抢占过程很容易理解。调度器会检查缓存副本里的每一个节点，然后从该节点上最低优先级的 Pod 开始，逐一“删除”这些 Pod。而每删除一个低优先级 Pod，调度器都会检查一下抢占者是否能够运行在该 Node 上。一旦可以运行，调度器就记录下这个 Node 的名字和被删除 Pod 的列表，这就是一次抢占过程的结果了。</p>
+<p>当遍历完所有的节点之后，调度器会在上述模拟产生的所有抢占结果里做一个选择，找出最佳结果。而这一步的判断原则，就是尽量减少抢占对整个系统的影响。比如，需要抢占的 Pod 越少越好，需要抢占的 Pod 的优先级越低越好，等等。</p>
+<p>在得到了最佳的抢占结果之后，这个结果里的 Node，就是即将被抢占的 Node；被删除的 Pod 列表，就是牺牲者。所以接下来，调度器就可以真正开始抢占的操作了，这个过程，可以分为三步。</p>
+<ol>
+<li>第一步，调度器会检查牺牲者列表，清理这些 Pod 所携带的 nominatedNodeName 字段。</li>
+<li>第二步，调度器会把抢占者的 nominatedNodeName，设置为被抢占的 Node 的名字。\</li>
+<li>第三步，调度器会开启一个 Goroutine，同步地删除牺牲者。</li>
+</ol>
+<p>而第二步对抢占者 Pod 的更新操作，就会触发到我前面提到的“重新做人”的流程，从而让抢占者在下一个调度周期重新进入调度流程。</p>
+<p>所以<strong>接下来，调度器就会通过正常的调度流程把抢占者调度成功。</strong>这也是为什么，我前面会说调度器并不保证抢占的结果：在这个正常的调度流程里，是一切皆有可能的。</p>
+<p>不过，对于任意一个待调度 Pod 来说，因为有上述抢占者的存在，它的调度过程，其实是有一些特殊情况需要特殊处理的。</p>
+<p>具体来说，在为某一对 Pod 和 Node 执行 Predicates 算法的时候，如果待检查的 Node 是一个即将被抢占的节点，即：调度队列里有 nominatedNodeName 字段值是该 Node 名字的 Pod 存在（可以称之为：“潜在的抢占者”）。那么，调度器就会对这个 Node ，将同样的 Predicates 算法运行两遍。</p>
+<p>第一遍， 调度器会假设上述“潜在的抢占者”已经运行在这个节点上，然后执行 Predicates 算法；</p>
+<p>第二遍， 调度器会正常执行 Predicates 算法，即：不考虑任何“潜在的抢占者”。</p>
+<p>而只有这两遍 Predicates 算法都能通过时，这个 Pod 和 Node 才会被认为是可以绑定（bind）的。</p>
+<p>不难想到，这里需要执行第一遍 Predicates 算法的原因，是由于 InterPodAntiAffinity 规则的存在。</p>
+<p>由于 InterPodAntiAffinity 规则关心待考察节点上所有 Pod 之间的互斥关系，所以我们在执行调度算法时必须考虑，如果抢占者已经存在于待考察 Node 上时，待调度 Pod 还能不能调度成功。</p>
+<p>当然，这也就意味着，我们在这一步只需要考虑那些优先级等于或者大于待调度 Pod 的抢占者。毕竟对于其他较低优先级 Pod 来说，待调度 Pod 总是可以通过抢占运行在待考察 Node 上。</p>
+<p>而我们需要执行第二遍 Predicates 算法的原因，则是因为“潜在的抢占者”最后不一定会运行在待考察的 Node 上。关于这一点，我在前面已经讲解过了：Kubernetes 调度器并不保证抢占者一定会运行在当初选定的被抢占的 Node 上。</p>
+<h1 id="44-Kubernetes-GPU管理与Device-Plugin机制"><a href="#44-Kubernetes-GPU管理与Device-Plugin机制" class="headerlink" title="44 | Kubernetes GPU管理与Device Plugin机制"></a>44 | Kubernetes GPU管理与Device Plugin机制</h1><p>首先需要解释CPU和GPU这两个缩写分别代表什么。CPU即中央处理器，GPU即图形处理器。其次，要解释两者的区别，要先明白两者的相同之处：两者都有总线和外界联系，有自己的缓存体系，以及数字和逻辑运算单元。一句话，两者都为了完成计算任务而设计。</p>
+<p>CPU和GPU之所以大不相同，是由于其设计目标的不同，它们分别针对了两种不同的应用场景。CPU需要很强的通用性来处理各种不同的数据类型，同时又要逻辑判断又会引入大量的分支跳转和中断的处理。这些都使得CPU的内部结构异常复杂。而GPU面对的则是类型高度统一的、相互无依赖的大规模数据和不需要被打断的纯净的计算环境。</p>
+<p>于是CPU和GPU就呈现出非常不同的架构（示意图）：</p>
+<p><img src="/img/body/jike/918367f36e34c18dc1f92bd16760dae1_1440w.jpg" alt="img"></p>
+<p>图片来自nVidia CUDA文档。其中绿色的是计算单元，橙红色的是存储单元，橙黄色的是控制单元。</p>
+<p>GPU采用了数量众多的计算单元和超长的流水线，但只有非常简单的控制逻辑并省去了Cache。而CPU不仅被Cache占据了大量空间，而且还有有复杂的控制逻辑和诸多优化电路，相比之下计算能力只是CPU很小的一部分</p>
+<p><strong>什么类型的程序适合在GPU上运行？</strong></p>
+<p>　　（1）计算密集型的程序。所谓计算密集型(Compute-intensive)的程序，就是其大部分运行时间花在了寄存器运算上，寄存器的速度和处理器的速度相当，从寄存器读写数据几乎没有延时。可以做一下对比，读内存的延迟大概是几百个时钟周期；读硬盘的速度就不说了，即便是SSD, 也实在是太慢了。</p>
+<p>　　（2）易于并行的程序。GPU其实是一种SIMD(Single Instruction Multiple Data)架构， 他有成百上千个核，每一个核在同一时间最好能做同样的事情。</p>
+<p>GPU 支持对于 Kubernetes 项目来说，其实也有着超过技术本身的考虑。所以，尽管在硬件加速器这个领域里，Kubernetes 上游有着不少来自 NVIDIA 和 Intel 等芯片厂商的工程师，但这个特性本身，却从一开始就是以 Google Cloud 的需求为主导来推进的。</p>
+<p>而对于云的用户来说，在 GPU 的支持上，他们最基本的诉求其实非常简单：我只要在 Pod 的 YAML 里面，声明某容器需要的 GPU 个数，那么 Kubernetes 为我创建的容器里就应该出现对应的 GPU 设备，以及它对应的驱动目录。</p>
+<p>以 NVIDIA 的 GPU 设备为例，上面的需求就意味着当用户的容器被创建之后，这个容器里必须出现如下两部分设备和目录：</p>
+<ol>
+<li>GPU 设备，比如 /dev/nvidia0；</li>
+<li>GPU 驱动目录，比如 /usr/local/nvidia/*。</li>
+</ol>
+<p>其中，GPU 设备路径，正是该容器启动时的 Devices 参数；而驱动目录，则是该容器启动时的 Volume 参数。所以，在 Kubernetes 的 GPU 支持的实现里，kubelet 实际上就是将上述两部分内容，设置在了创建该容器的 CRI （Container Runtime Interface）参数里面。这样，等到该容器启动之后，对应的容器里就会出现 GPU 设备和驱动的路径了。</p>
+<p>不过，Kubernetes 在 Pod 的 API 对象里，并没有为 GPU 专门设置一个资源类型字段，而是使用了一种叫作 Extended Resource（ER）的特殊字段来负责传递 GPU 的信息。比如下面这个例子：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: cuda-vector-add</span><br><span class="line">spec:</span><br><span class="line">  restartPolicy: OnFailure</span><br><span class="line">  containers:</span><br><span class="line">    - name: cuda-vector-add</span><br><span class="line">      image: &quot;k8s.gcr.io&#x2F;cuda-vector-add:v0.1&quot;</span><br><span class="line">      resources:</span><br><span class="line">        limits:</span><br><span class="line">          nvidia.com&#x2F;gpu: 1</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以看到，在上述 Pod 的 limits 字段里，这个资源的名称是nvidia.com/gpu，它的值是 1。也就是说，这个 Pod 声明了自己要使用一个 NVIDIA 类型的 GPU。</p>
+<p>而在 kube-scheduler 里面，它其实并不关心这个字段的具体含义，只会在计算的时候，一律将调度器里保存的该类型资源的可用量，直接减去 Pod 声明的数值即可。所以说，Extended Resource，其实是 Kubernetes 为用户设置的一种对自定义资源的支持。</p>
+<p>当然，为了能够让调度器知道这个自定义类型的资源在每台宿主机上的可用量，宿主机节点本身，就必须能够向 API Server 汇报该类型资源的可用数量。在 Kubernetes 里，各种类型的资源可用量，其实是 Node 对象 Status 字段的内容，比如下面这个例子：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Node</span><br><span class="line">metadata:</span><br><span class="line">  name: node-1</span><br><span class="line">...</span><br><span class="line">Status:</span><br><span class="line">  Capacity:</span><br><span class="line">   cpu:  2</span><br><span class="line">   memory:  2049008Ki</span><br></pre></td></tr></table></figure>
+
+
+
+<p>而为了能够在上述 Status 字段里添加自定义资源的数据，你就必须使用 PATCH API 来对该 Node 对象进行更新，加上你的自定义资源的数量。这个 PATCH 操作，可以简单地使用 curl 命令来发起，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 启动 Kubernetes 的客户端 proxy，这样你就可以直接使用 curl 来跟 Kubernetes  的API Server 进行交互了</span><br><span class="line">$ kubectl proxy</span><br><span class="line"></span><br><span class="line"># 执行 PACTH 操作</span><br><span class="line">$ curl --header &quot;Content-Type: application&#x2F;json-patch+json&quot; \</span><br><span class="line">--request PATCH \</span><br><span class="line">--data &#39;[&#123;&quot;op&quot;: &quot;add&quot;, &quot;path&quot;: &quot;&#x2F;status&#x2F;capacity&#x2F;nvidia.com&#x2F;gpu&quot;, &quot;value&quot;: &quot;1&quot;&#125;]&#39; \</span><br><span class="line">http:&#x2F;&#x2F;localhost:8001&#x2F;api&#x2F;v1&#x2F;nodes&#x2F;&lt;your-node-name&gt;&#x2F;status</span><br></pre></td></tr></table></figure>
+
+
+
+<p>PATCH 操作完成后，你就可以看到 Node 的 Status 变成了如下所示的内容：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Node</span><br><span class="line">...</span><br><span class="line">Status:</span><br><span class="line">  Capacity:</span><br><span class="line">   cpu:  2</span><br><span class="line">   memory:  2049008Ki</span><br><span class="line">   nvidia.com&#x2F;gpu: 1</span><br></pre></td></tr></table></figure>
+
+<p>这样在调度器里，它就能够在缓存里记录下 node-1 上的nvidia.com/gpu类型的资源的数量是 1。</p>
+<p>当然，在 Kubernetes 的 GPU 支持方案里，你并不需要真正去做上述关于 Extended Resource 的这些操作。在 Kubernetes 中，对所有硬件加速设备进行管理的功能，都是由一种叫作 Device Plugin 的插件来负责的。这其中，当然也就包括了对该硬件的 Extended Resource 进行汇报的逻辑。</p>
+<p>Kubernetes 的 Device Plugin 机制，我可以用如下所示的一幅示意图来和你解释清楚。</p>
+<img src="/img/body/jike/10a472b64f9daf24f63df4e3ae24cd10.jpg" alt="img" style="zoom:67%;" />
+
+
+
+<p>首先，对于每一种硬件设备，都需要有它所对应的 Device Plugin 进行管理，这些 Device Plugin，都通过 gRPC 的方式，同 kubelet 连接起来。以 NVIDIA GPU 为例，它对应的插件叫作NVIDIA GPU device plugin。</p>
+<p>这个 Device Plugin 会通过一个叫作 ListAndWatch 的 API，定期向 kubelet 汇报该 Node 上 GPU 的列表。比如，在我们的例子里，一共有三个 GPU（GPU0、GPU1 和 GPU2）。这样，kubelet 在拿到这个列表之后，就可以直接在它向 APIServer 发送的心跳里，以 Extended Resource 的方式，加上这些 GPU 的数量，比如nvidia.com/gpu=3。所以说，用户在这里是不需要关心 GPU 信息向上的汇报流程的。</p>
+<p>需要注意的是，ListAndWatch 向上汇报的信息，只有本机上 GPU 的 ID 列表，而不会有任何关于 GPU 设备本身的信息。而且 kubelet 在向 API Server 汇报的时候，只会汇报该 GPU 对应的 Extended Resource 的数量。当然，kubelet 本身，会将这个 GPU 的 ID 列表保存在自己的内存里，并通过 ListAndWatch API 定时更新。</p>
+<p>而当一个 Pod 想要使用一个 GPU 的时候，它只需要像我在本文一开始给出的例子一样，在 Pod 的 limits 字段声明nvidia.com/gpu: 1。那么接下来，Kubernetes 的调度器就会从它的缓存里，寻找 GPU 数量满足条件的 Node，然后将缓存里的 GPU 数量减 1，完成 Pod 与 Node 的绑定。</p>
+<p>这个调度成功后的 Pod 信息，自然就会被对应的 kubelet 拿来进行容器操作。而当 kubelet 发现这个 Pod 的容器请求一个 GPU 的时候，kubelet 就会从自己持有的 GPU 列表里，为这个容器分配一个 GPU。此时，kubelet 就会向本机的 Device Plugin 发起一个 Allocate() 请求。这个请求携带的参数，正是即将分配给该容器的设备 ID 列表。</p>
+<p>当 Device Plugin 收到 Allocate 请求之后，它就会根据 kubelet 传递过来的设备 ID，从 Device Plugin 里找到这些设备对应的设备路径和驱动目录。当然，这些信息，正是 Device Plugin 周期性的从本机查询到的。比如，在 NVIDIA Device Plugin 的实现里，它会定期访问 nvidia-docker 插件，从而获取到本机的 GPU 信息。</p>
+<p>而被分配 GPU 对应的设备路径和驱动目录信息被返回给 kubelet 之后，kubelet 就完成了为一个容器分配 GPU 的操作。接下来，kubelet 会把这些信息追加在创建该容器所对应的 CRI 请求当中。这样，当这个 CRI 请求发给 Docker 之后，Docker 为你创建出来的容器里，就会出现这个 GPU 设备，并把它所需要的驱动目录挂载进去。</p>
+<p>至此，Kubernetes 为一个 Pod 分配一个 GPU 的流程就完成了。</p>
+<p>GPU 等硬件设备的调度工作，实际上是由 kubelet 完成的。即，kubelet 会负责从它所持有的硬件设备列表中，为容器挑选一个硬件设备，然后调用 Device Plugin 的 Allocate API 来完成这个分配操作。可以看到，在整条链路中，调度器扮演的角色，仅仅是为 Pod 寻找到可用的、支持这种硬件设备的节点而已。</p>
+<p>这就使得，Kubernetes 里对硬件设备的管理，只能处理“设备个数”这唯一一种情况。一旦你的设备是异构的、不能简单地用“数目”去描述具体使用需求的时候，比如，“我的 Pod 想要运行在计算能力最强的那个 GPU 上”，Device Plugin 就完全不能处理了。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/10/02/40-44-%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6%E5%92%8C%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/">http://wang.ikongjian.com/2020/10/02/40-44-%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6%E5%92%8C%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kuernetes/">深入剖析Kuernetes</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/10/04/45-47-%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6/"><img class="prev_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">45-47.容器运行时</div></div></a></div><div class="next-post pull_right"><a href="/2020/09/30/linux%E5%B8%B8%E8%A7%81%E6%97%A5%E5%BF%97/"><img class="next_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">linux常见日志</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/09/01/00-04-深入剖析k8s课前必读/" title="00-04.深入剖析k8s课前必读"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-01</div><div class="relatedPosts_title">00-04.深入剖析k8s课前必读</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/06/05-09-容器技术概念入门篇/" title="05-09.容器技术概念入门篇"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-06</div><div class="relatedPosts_title">05-09.容器技术概念入门篇</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/09/10-12-kubernetest集群搭建与实践/" title="10-12.Kubernetest集群搭建与实践"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-09</div><div class="relatedPosts_title">10-12.Kubernetest集群搭建与实践</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/11/13-15-深入解析pod对象/" title="13-15.深入解析pod对象"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-11</div><div class="relatedPosts_title">13-15.深入解析pod对象</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/24/28-31-kubernetes容器持久化存储/" title="28-31.Kubernetes容器持久化存储"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-24</div><div class="relatedPosts_title">28-31.Kubernetes容器持久化存储</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/18/18-20-深入理解statefulset/" title="18-20.深入理解StatefulSet"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-18</div><div class="relatedPosts_title">18-20.深入理解StatefulSet</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

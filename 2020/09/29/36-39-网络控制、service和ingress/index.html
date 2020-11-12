@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>36-39.网络控制、service和ingress | 蚂蚁博客</title><meta name="description" content="极客时间课程张磊的 深入剖析Kuernetes  36 | 为什么说Kubernetes只有soft multi-tenancy？soft multi-tenancy（弱租户能力） Kubernetes 的网络模型，以及前面这些网络方案的实现，都只关注容器之间网络的“连通”，却并不关心容器之间网络的“隔离”。这跟传统的 IaaS 层的网络方案，区别非常明显。 在 Kubernetes 里，网络隔离"><meta name="keywords" content="kubernetes,深入剖析Kuernetes"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="36-39.网络控制、service和ingress"><meta name="twitter:description" content="极客时间课程张磊的 深入剖析Kuernetes  36 | 为什么说Kubernetes只有soft multi-tenancy？soft multi-tenancy（弱租户能力） Kubernetes 的网络模型，以及前面这些网络方案的实现，都只关注容器之间网络的“连通”，却并不关心容器之间网络的“隔离”。这跟传统的 IaaS 层的网络方案，区别非常明显。 在 Kubernetes 里，网络隔离"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="36-39.网络控制、service和ingress"><meta property="og:url" content="http://wang.ikongjian.com/2020/09/29/36-39-%E7%BD%91%E7%BB%9C%E6%8E%A7%E5%88%B6%E3%80%81service%E5%92%8Cingress/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="极客时间课程张磊的 深入剖析Kuernetes  36 | 为什么说Kubernetes只有soft multi-tenancy？soft multi-tenancy（弱租户能力） Kubernetes 的网络模型，以及前面这些网络方案的实现，都只关注容器之间网络的“连通”，却并不关心容器之间网络的“隔离”。这跟传统的 IaaS 层的网络方案，区别非常明显。 在 Kubernetes 里，网络隔离"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-09-29T08:00:00.000Z"><meta property="article:modified_time" content="2020-10-22T03:50:33.889Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/09/29/36-39-%E7%BD%91%E7%BB%9C%E6%8E%A7%E5%88%B6%E3%80%81service%E5%92%8Cingress/"><link rel="prev" title="linux常见日志" href="http://wang.ikongjian.com/2020/09/30/linux%E5%B8%B8%E8%A7%81%E6%97%A5%E5%BF%97/"><link rel="next" title="32-35.网络模型和网络方案" href="http://wang.ikongjian.com/2020/09/26/32-35-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B%E5%92%8C%E7%BD%91%E7%BB%9C%E6%96%B9%E6%A1%88/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#36-为什么说Kubernetes只有soft-multi-tenancy？"><span class="toc-number">1.</span> <span class="toc-text">36 | 为什么说Kubernetes只有soft multi-tenancy？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#iptable规则的具体实现"><span class="toc-number">1.1.</span> <span class="toc-text">iptable规则的具体实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#37-找到容器不容易：Service、DNS与服务发现"><span class="toc-number">1.2.</span> <span class="toc-text">37 | 找到容器不容易：Service、DNS与服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-原理"><span class="toc-number">1.3.</span> <span class="toc-text">Service 原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IPVS-的模式"><span class="toc-number">1.4.</span> <span class="toc-text">IPVS 的模式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#38-从外界连通Service与Service调试“三板斧”"><span class="toc-number">2.</span> <span class="toc-text">38 | 从外界连通Service与Service调试“三板斧”</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#service的类型"><span class="toc-number">2.1.</span> <span class="toc-text">service的类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NodePort类型的-Service"><span class="toc-number">2.2.</span> <span class="toc-text">NodePort类型的 Service</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#NodePort类型的源地址转换"><span class="toc-number">2.2.1.</span> <span class="toc-text">NodePort类型的源地址转换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LoadBalancer-类型的-Service"><span class="toc-number">2.3.</span> <span class="toc-text">LoadBalancer 类型的 Service</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ExternalName-类型的-Service"><span class="toc-number">2.4.</span> <span class="toc-text">ExternalName 类型的 Service</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Service问题解决思路"><span class="toc-number">2.5.</span> <span class="toc-text">Service问题解决思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Pod-没办法通过-Service-访问到自己？"><span class="toc-number">2.5.1.</span> <span class="toc-text">Pod 没办法通过 Service 访问到自己？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#39-谈谈Service与Ingress"><span class="toc-number">3.</span> <span class="toc-text">39 | 谈谈Service与Ingress</span></a></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">36-39.网络控制、service和ingress</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-09-29 16:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-09-29</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-10-22 11:50:33"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-10-22</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/">kubernetes</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kubernetes/">深入剖析Kubernetes</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">3.4k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 12 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>极客时间课程张磊的 <a href="https://time.geekbang.org/column/intro/116" target="_blank" rel="noopener">深入剖析Kuernetes</a> </p>
+<h1 id="36-为什么说Kubernetes只有soft-multi-tenancy？"><a href="#36-为什么说Kubernetes只有soft-multi-tenancy？" class="headerlink" title="36 | 为什么说Kubernetes只有soft multi-tenancy？"></a>36 | 为什么说Kubernetes只有soft multi-tenancy？</h1><p>soft multi-tenancy（弱租户能力）</p>
+<p>Kubernetes 的网络模型，以及前面这些网络方案的实现，都只关注容器之间网络的“连通”，却并不关心容器之间网络的“隔离”。这跟传统的 IaaS 层的网络方案，区别非常明显。</p>
+<p>在 Kubernetes 里，网络隔离能力的定义，是依靠一种专门的 API 对象来描述的，即：NetworkPolicy。</p>
+<p>一个完整的 NetworkPolicy 对象的示例，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: networking.k8s.io&#x2F;v1</span><br><span class="line">kind: NetworkPolicy</span><br><span class="line">metadata:</span><br><span class="line">  name: test-network-policy</span><br><span class="line">  namespace: default</span><br><span class="line">spec:</span><br><span class="line">  podSelector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      role: db</span><br><span class="line">  policyTypes:</span><br><span class="line">  - Ingress</span><br><span class="line">  - Egress</span><br><span class="line">  ingress:</span><br><span class="line">  - from:</span><br><span class="line">    - ipBlock:</span><br><span class="line">        cidr: 172.17.0.0&#x2F;16</span><br><span class="line">        except:</span><br><span class="line">        - 172.17.1.0&#x2F;24</span><br><span class="line">    - namespaceSelector:</span><br><span class="line">        matchLabels:</span><br><span class="line">          project: myproject</span><br><span class="line">    - podSelector:</span><br><span class="line">        matchLabels:</span><br><span class="line">          role: frontend</span><br><span class="line">    ports:</span><br><span class="line">    - protocol: TCP</span><br><span class="line">      port: 6379</span><br><span class="line">  egress:</span><br><span class="line">  - to:</span><br><span class="line">    - ipBlock:</span><br><span class="line">        cidr: 10.0.0.0&#x2F;24</span><br><span class="line">    ports:</span><br><span class="line">    - protocol: TCP</span><br><span class="line">      port: 5978</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Kubernetes 里的 Pod 默认都是“允许所有”（Accept All）的，即：Pod 可以接收来自任何发送方的请求；或者，向任何接收方发送请求。而如果你要对这个情况作出限制，就必须通过 NetworkPolicy 对象来指定。</p>
+<p>而如果你把 podSelector 字段留空：那么这个 NetworkPolicy 就会作用于当前 Namespace 下的所有 Pod。</p>
+<p>而一旦 Pod 被 NetworkPolicy 选中，那么这个 Pod 就会进入“拒绝所有”（Deny All）的状态，即：这个 Pod 既不允许被外界访问，也不允许对外界发起访问。而 NetworkPolicy 定义的规则，其实就是“白名单”。</p>
+<p>这个 NetworkPolicy 对象，指定的隔离规则如下所示：</p>
+<ol>
+<li>该隔离规则只对 default Namespace 下的，携带了 role=db 标签的 Pod 有效。限制的请求类型包括 ingress（流入）和 egress（流出）。</li>
+<li>Kubernetes 会拒绝任何访问被隔离 Pod 的请求，除非这个请求来自于以下“白名单”里的对象，并且访问的是被隔离 Pod 的 6379 端口。这些“白名单”对象包括：a. default Namespace 里的，携带了 role=fronted 标签的 Pod；b. 携带了 project=myproject 标签的 Namespace 里的任何 Pod；c. 任何源地址属于 172.17.0.0/16 网段，且不属于 172.17.1.0/24 网段的请求。</li>
+<li>Kubernetes 会拒绝被隔离 Pod 对外发起任何请求，除非请求的目的地址属于 10.0.0.0/24 网段，并且访问的是该网段地址的 5978 端口。</li>
+</ol>
+<p>如果要使上面定义的 NetworkPolicy 在 Kubernetes 集群里真正产生作用，你的 CNI 网络插件就必须是支持 Kubernetes 的 NetworkPolicy 的。</p>
+<p>以比较简单的 NetworkPolicy 对象为例</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: extensions&#x2F;v1beta1</span><br><span class="line">kind: NetworkPolicy</span><br><span class="line">metadata:</span><br><span class="line">  name: test-network-policy</span><br><span class="line">  namespace: default</span><br><span class="line">spec:</span><br><span class="line">  podSelector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      role: db</span><br><span class="line">  ingress:</span><br><span class="line">   - from:</span><br><span class="line">     - namespaceSelector:</span><br><span class="line">         matchLabels:</span><br><span class="line">           project: myproject</span><br><span class="line">     - podSelector:</span><br><span class="line">         matchLabels:</span><br><span class="line">           role: frontend</span><br><span class="line">     ports:</span><br><span class="line">       - protocol: tcp</span><br><span class="line">         port: 6379</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Kubernetes 网络插件对 Pod 进行隔离，其实是靠在宿主机上生成 NetworkPolicy 对应的 iptable 规则来实现的。</p>
+<h2 id="iptable规则的具体实现"><a href="#iptable规则的具体实现" class="headerlink" title="iptable规则的具体实现"></a>iptable规则的具体实现</h2><p>后续进一步研究</p>
+<h2 id="37-找到容器不容易：Service、DNS与服务发现"><a href="#37-找到容器不容易：Service、DNS与服务发现" class="headerlink" title="37 | 找到容器不容易：Service、DNS与服务发现"></a>37 | 找到容器不容易：Service、DNS与服务发现</h2><p>为什么需要 Service</p>
+<ul>
+<li>Pod 的 IP 不是固定的</li>
+<li>一组 Pod 实例之间有负载均衡的需求。</li>
+</ul>
+<p>service通过label标签选择pod,  被 selector 选中的 Pod，就称为 Service 的 Endpoints，你可以使用 kubectl get ep 命令看到它们，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ kubectl get endpoints hostnames</span><br><span class="line">NAME        ENDPOINTS</span><br><span class="line">hostnames   10.244.0.5:9376,10.244.0.6:9376,10.244.0.7:9376</span><br></pre></td></tr></table></figure>
+
+<p>只有处于 Running 状态，且 readinessProbe 检查通过的 Pod，才会出现在 Service 的 Endpoints 列表里。并且，当某一个 Pod 出现问题时，Kubernetes 会自动把它从 Service 里摘除掉。</p>
+<h2 id="Service-原理"><a href="#Service-原理" class="headerlink" title="Service 原理"></a>Service 原理</h2><p>service 是由 kube-proxy 组件，加上 iptables 来共同实现的。Service 提供的是 Round Robin （rr）方式的负载均衡。</p>
+<p>一个 Service 对象被提交给 Kubernetes，那么 kube-proxy 就可以通过 Service 的 Informer 感知到这样一个 Service 对象的添加，这时它就会在宿主机上创建这样一条 iptables 规则（你可以通过 iptables-save 看到它），如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-A KUBE-SERVICES -d 10.0.1.175&#x2F;32 -p tcp -m comment --comment &quot;default&#x2F;hostnames: cluster IP&quot; -m tcp --dport 80 -j KUBE-SVC-NWV5X2332I4OT4T3</span><br></pre></td></tr></table></figure>
+
+<p>而KUBE-SVC-NWV5X2332I4OT4T3 规则，是一组随机模式（–mode random）的 iptables 链，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-A KUBE-SVC-NWV5X2332I4OT4T3 -m comment --comment &quot;default&#x2F;hostnames:&quot; -m statistic --mode random --probability 0.33332999982 -j KUBE-SEP-WNBA2IHDGP2BOBGZ</span><br><span class="line">-A KUBE-SVC-NWV5X2332I4OT4T3 -m comment --comment &quot;default&#x2F;hostnames:&quot; -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-X3P2623AGDH6CDF3</span><br><span class="line">-A KUBE-SVC-NWV5X2332I4OT4T3 -m comment --comment &quot;default&#x2F;hostnames:&quot; -j KUBE-SEP-57KPRZ3JQVENLNBR</span><br></pre></td></tr></table></figure>
+
+
+
+<p>访问 Service VIP 的 IP 包经过上述 iptables 处理之后，就已经变成了访问具体某一个后端 Pod 的 IP 包了。这些 Endpoints 对应的 iptables 规则，正是 kube-proxy 通过监听 Pod 的变化事件，在宿主机上生成并维护的。</p>
+<h2 id="IPVS-的模式"><a href="#IPVS-的模式" class="headerlink" title="IPVS 的模式"></a>IPVS 的模式</h2><p>kube-proxy 通过 iptables 处理 Service 的过程，其实需要在宿主机上设置相当多的 iptables 规则。而且，kube-proxy 还需要在控制循环里不断地刷新这些规则来确保它们始终是正确的。</p>
+<p>当你的宿主机上有大量 Pod 的时候，成百上千条 iptables 规则不断地被刷新，会大量占用该宿主机的 CPU 资源，甚至会让宿主机“卡”在这个过程中。所以说，一直以来，基于 iptables 的 Service 实现，都是制约 Kubernetes 项目承载更多量级的 Pod 的主要障碍。</p>
+<p>IPVS 模式的工作原理，其实跟 iptables 模式类似。当我们创建了前面的 Service 之后，kube-proxy 首先会在宿主机上创建一个虚拟网卡（叫作：kube-ipvs0），并为它分配 Service VIP 作为 IP 地址</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># ip addr</span><br><span class="line">  ...</span><br><span class="line">  73：kube-ipvs0：&lt;BROADCAST,NOARP&gt;  mtu 1500 qdisc noop state DOWN qlen 1000</span><br><span class="line">  link&#x2F;ether  1a:ce:f5:5f:c1:4d brd ff:ff:ff:ff:ff:ff</span><br><span class="line">  inet 10.0.1.175&#x2F;32  scope global kube-ipvs0</span><br><span class="line">  valid_lft forever  preferred_lft forever</span><br></pre></td></tr></table></figure>
+
+
+
+<p>而接下来，kube-proxy 就会通过 Linux 的 IPVS 模块，为这个 IP 地址设置三个 IPVS 虚拟主机，并设置这三个虚拟主机之间使用轮询模式 (rr) 来作为负载均衡策略。我们可以通过 ipvsadm 查看到这个设置，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># ipvsadm -ln</span><br><span class="line"> IP Virtual Server version 1.2.1 (size&#x3D;4096)</span><br><span class="line">  Prot LocalAddress:Port Scheduler Flags</span><br><span class="line">    -&gt;  RemoteAddress:Port           Forward  Weight ActiveConn InActConn     </span><br><span class="line">  TCP  10.102.128.4:80 rr</span><br><span class="line">    -&gt;  10.244.3.6:9376    Masq    1       0          0         </span><br><span class="line">    -&gt;  10.244.1.7:9376    Masq    1       0          0</span><br><span class="line">    -&gt;  10.244.2.3:9376    Masq    1       0          0</span><br></pre></td></tr></table></figure>
+
+
+
+<p>而相比于 iptables，IPVS 在内核中的实现其实也是基于 Netfilter 的 NAT 模式，所以在转发这一层上，理论上 IPVS 并没有显著的性能提升。但是，IPVS 并不需要在宿主机上为每个 Pod 设置 iptables 规则，而是把对这些“规则”的处理放到了内核态，从而极大地降低了维护这些规则的代价。所以“将重要操作放入内核态”是提高性能的重要手段。</p>
+<p>IPVS 模块只负责上述的负载均衡和代理功能。而一个完整的 Service 流程正常工作所需要的包过滤、SNAT 等操作，还是要靠 iptables 来实现。只不过，这些辅助性的 iptables 规则数量有限，也不会随着 Pod 数量的增加而增加。</p>
+<p>Service 通过 DNS解析，域名格式为  <strong>jenkins.infra.svc.cluster.local</strong> </p>
+<p>在 Kubernetes 里，/etc/hosts 文件是单独挂载的，这也是为什么 kubelet 能够对 hostname 进行修改并且 Pod 重建后依然有效的原因。这跟 Docker 的 Init 层是一个原理。</p>
+<h1 id="38-从外界连通Service与Service调试“三板斧”"><a href="#38-从外界连通Service与Service调试“三板斧”" class="headerlink" title="38 | 从外界连通Service与Service调试“三板斧”"></a>38 | 从外界连通Service与Service调试“三板斧”</h1><h2 id="service的类型"><a href="#service的类型" class="headerlink" title="service的类型"></a>service的类型</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># kubectl explain service.spec.type</span><br><span class="line">Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer.</span><br><span class="line">默认类型为ClusterIP，有效选项包括ExternalName, ClusterIP, NodePort, and LoadBalancer.</span><br><span class="line"></span><br><span class="line">If clusterIP is &quot;None&quot;, no virtual IP is allocated and the endpoints are published as a set of endpoints rather than a stable IP.</span><br><span class="line">如果clusterIP类型是&quot;None&quot;，将没有虚拟IP地址被赋予， 端点被发布为一组端点，而不是一个稳定的IP。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="NodePort类型的-Service"><a href="#NodePort类型的-Service" class="headerlink" title="NodePort类型的 Service"></a>NodePort类型的 Service</h2><p>示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: my-nginx</span><br><span class="line">  labels:</span><br><span class="line">    run: my-nginx</span><br><span class="line">spec:</span><br><span class="line">  type: NodePort</span><br><span class="line">  ports:</span><br><span class="line">  - nodePort: 8080</span><br><span class="line">    targetPort: 80</span><br><span class="line">    protocol: TCP</span><br><span class="line">    name: http</span><br><span class="line">  - nodePort: 443</span><br><span class="line">    protocol: TCP</span><br><span class="line">    name: https</span><br><span class="line">  selector:</span><br><span class="line">    run: my-nginx</span><br></pre></td></tr></table></figure>
+
+<p>在这个 Service 的定义里，我们声明它的类型是，type=NodePort。然后，我在 ports 字段里声明了 Service 的 8080 端口代理 Pod 的 80 端口，Service 的 443 端口代理 Pod 的 443 端口。</p>
+<p>当然，如果你不显式地声明 nodePort 字段，Kubernetes 就会为你分配随机的可用端口来设置代理。这个端口的范围默认是 30000-32767，你可以通过 kube-apiserver 的–service-node-port-range 参数来修改它。</p>
+<p>访问这个 Service，你只需要访问 <strong>&lt;任何一台宿主机的IP地址&gt;:8080</strong></p>
+<p>kube-proxy 要做的，就是在每台宿主机上生成这样一条 iptables 规则：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-A KUBE-NODEPORTS -p tcp -m comment --comment &quot;default&#x2F;my-nginx: nodePort&quot; -m tcp --dport 8080 -j KUBE-SVC-67RL4FN6JRUPOJYM</span><br></pre></td></tr></table></figure>
+
+
+
+<p>KUBE-SVC-67RL4FN6JRUPOJYM 其实就是一组随机模式的 iptables 规则。所以接下来的流程，就跟 ClusterIP 模式完全一样了。</p>
+<h3 id="NodePort类型的源地址转换"><a href="#NodePort类型的源地址转换" class="headerlink" title="NodePort类型的源地址转换"></a>NodePort类型的源地址转换</h3><p>需要注意的是，在 NodePort 方式下，Kubernetes 会在 IP 包离开宿主机发往目的 Pod 时，对这个 IP 包做一次 SNAT 操作，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-A KUBE-POSTROUTING -m comment --comment &quot;kubernetes service traffic requiring SNAT&quot; -m mark --mark 0x4000&#x2F;0x4000 -j MASQUERADE</span><br></pre></td></tr></table></figure>
+
+
+
+<p>它给即将离开这台主机的 IP 包，进行了一次 SNAT 操作，将这个 IP 包的源地址替换成了这台宿主机上的 CNI 网桥地址，或者宿主机本身的 IP 地址（如果 CNI 网桥不存在的话）。</p>
+<p>当然，这个 SNAT 操作只需要对 Service 转发出来的 IP 包进行（否则普通的 IP 包就被影响了）。而 iptables 做这个判断的依据，就是查看该 IP 包是否有一个“0x4000”的“标志”。你应该还记得，这个标志正是在 IP 包被执行 DNAT 操作之前被打上去的。</p>
+<p>为什么一定要对流出的包做 SNAT操作呢？client 可能有目的地址限制</p>
+<p>所以这时候，你就可以将 Service 的 spec.externalTrafficPolicy 字段设置为 local，这就保证了所有 Pod 通过 Service 收到请求之后，一定可以看到真正的、外部 client 的源地址。</p>
+<p>而这个机制的实现原理也非常简单：这时候，一台宿主机上的 iptables 规则，会设置为只将 IP 包转发给运行在这台宿主机上的 Pod。所以这时候，Pod 就可以直接使用源地址将回复包发出，不需要事先进行 SNAT 了。</p>
+<p>当然，这也就意味着如果在一台宿主机上，没有任何一个被代理的 Pod 存在，那么你使用 node 2 的 IP 地址访问这个 Service，就是无效的。此时，你的请求会直接被 DROP 掉。</p>
+<h2 id="LoadBalancer-类型的-Service"><a href="#LoadBalancer-类型的-Service" class="headerlink" title="LoadBalancer 类型的 Service"></a>LoadBalancer 类型的 Service</h2><p>适用于公有云上的 Kubernetes 服务。如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">kind: Service</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: example-service</span><br><span class="line">spec:</span><br><span class="line">  ports:</span><br><span class="line">  - port: 8765</span><br><span class="line">    targetPort: 9376</span><br><span class="line">  selector:</span><br><span class="line">    app: example</span><br><span class="line">  type: LoadBalancer</span><br></pre></td></tr></table></figure>
+
+<p>在公有云提供的 Kubernetes 服务里，都使用了一个叫作 CloudProvider 的转接层，来跟公有云本身的 API 进行对接。所以，在上述 LoadBalancer 类型的 Service 被提交后，Kubernetes 就会调用 CloudProvider 在公有云上为你创建一个负载均衡服务，并且把被代理的 Pod 的 IP 地址配置给负载均衡服务做后端。</p>
+<h2 id="ExternalName-类型的-Service"><a href="#ExternalName-类型的-Service" class="headerlink" title="ExternalName 类型的 Service"></a>ExternalName 类型的 Service</h2><p>示例如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kind: Service</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: my-service</span><br><span class="line">spec:</span><br><span class="line">  type: ExternalName</span><br><span class="line">  externalName: my.database.example.com</span><br></pre></td></tr></table></figure>
+
+<p>当你通过 Service 的 DNS 名字访问它的时候，比如访问：my-service.default.svc.cluster.local。那么，Kubernetes 为你返回的就是my.database.example.com。所以说，ExternalName 类型的 Service，其实是在 kube-dns 里为你添加了一条 CNAME 记录。这时，访问 my-service.default.svc.cluster.local 就和访问 my.database.example.com 这个域名是一个效果了。</p>
+<p>此外，Kubernetes 的 Service 还允许你为 Service 分配公有 IP 地址，比如下面这个例子：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kind: Service</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: my-service</span><br><span class="line">spec:</span><br><span class="line">  selector:</span><br><span class="line">    app: MyApp</span><br><span class="line">  ports:</span><br><span class="line">  - name: http</span><br><span class="line">    protocol: TCP</span><br><span class="line">    port: 80</span><br><span class="line">    targetPort: 9376</span><br><span class="line">  externalIPs:</span><br><span class="line">  - 80.11.12.10</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Service问题解决思路"><a href="#Service问题解决思路" class="headerlink" title="Service问题解决思路"></a>Service问题解决思路</h2><ol>
+<li>检查集群的 DNS是否正常。</li>
+<li>这个 Service 是否有 Endpoints。如果你的 Pod 的 readniessProbe 没通过，它也不会出现在 Endpoints 列表里。 </li>
+<li>确认 kube-proxy 是否在正确运行。可以查看 kube-proxy 输出的日志。</li>
+<li>查看宿主机上的 iptables。</li>
+</ol>
+<h3 id="Pod-没办法通过-Service-访问到自己？"><a href="#Pod-没办法通过-Service-访问到自己？" class="headerlink" title="Pod 没办法通过 Service 访问到自己？"></a>Pod 没办法通过 Service 访问到自己？</h3><p>这往往就是因为 kubelet 的 hairpin-mode 没有被正确设置。关于 Hairpin 的原理我在前面已经介绍过，这里就不再赘述了。你只需要确保将 kubelet 的 hairpin-mode 设置为 hairpin-veth 或者 promiscuous-bridge 即可。（我没看懂这段话）</p>
+<h1 id="39-谈谈Service与Ingress"><a href="#39-谈谈Service与Ingress" class="headerlink" title="39 | 谈谈Service与Ingress"></a>39 | 谈谈Service与Ingress</h1><p>这种全局的、为了代理不同后端 Service 而设置的负载均衡服务，就是 Kubernetes 里的 Ingress 服务。</p>
+<p>所以，Ingress 的功能其实很容易理解：所谓 Ingress，就是 Service 的“Service”。</p>
+<p>Ingress 对象，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: extensions&#x2F;v1beta1</span><br><span class="line">kind: Ingress</span><br><span class="line">metadata:</span><br><span class="line">  name: cafe-ingress</span><br><span class="line">spec:</span><br><span class="line">  tls:</span><br><span class="line">  - hosts:</span><br><span class="line">    - cafe.example.com</span><br><span class="line">    secretName: cafe-secret</span><br><span class="line">  rules:</span><br><span class="line">  - host: cafe.example.com</span><br><span class="line">    http:</span><br><span class="line">      paths:</span><br><span class="line">      - path: &#x2F;tea</span><br><span class="line">        backend:</span><br><span class="line">          serviceName: tea-svc</span><br><span class="line">          servicePort: 80</span><br><span class="line">      - path: &#x2F;coffee</span><br><span class="line">        backend:</span><br><span class="line">          serviceName: coffee-svc</span><br><span class="line">          servicePort: 80</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>通过上面的讲解，不难看到，所谓 Ingress 对象，其实就是 Kubernetes 项目对“反向代理”的一种抽象。</p>
+<p>如果我的请求没有匹配到任何一条 IngressRule，会为你返回一个 Nginx 的 404 页面。</p>
+<p>不过，Ingress Controller 也允许你通过 Pod 启动命令里的–default-backend-service 参数，设置一条默认规则，比如：–default-backend-service=nginx-default-backend。这样，任何匹配失败的请求，就都会被转发到这个名叫 nginx-default-backend 的 Service。所以，你就可以通过部署一个专门的 Pod，来为用户返回自定义的 404 页面了。</p>
+<p>目前，Ingress 只能工作在七层，而 Service 只能工作在四层。所以当你想要在 Kubernetes 里为应用进行 TLS 配置等 HTTP 相关的操作时，都必须通过 Ingress 来进行。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/09/29/36-39-%E7%BD%91%E7%BB%9C%E6%8E%A7%E5%88%B6%E3%80%81service%E5%92%8Cingress/">http://wang.ikongjian.com/2020/09/29/36-39-%E7%BD%91%E7%BB%9C%E6%8E%A7%E5%88%B6%E3%80%81service%E5%92%8Cingress/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kuernetes/">深入剖析Kuernetes</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/09/30/linux%E5%B8%B8%E8%A7%81%E6%97%A5%E5%BF%97/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">linux常见日志</div></div></a></div><div class="next-post pull_right"><a href="/2020/09/26/32-35-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B%E5%92%8C%E7%BD%91%E7%BB%9C%E6%96%B9%E6%A1%88/"><img class="next_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">32-35.网络模型和网络方案</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/09/01/00-04-深入剖析k8s课前必读/" title="00-04.深入剖析k8s课前必读"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-01</div><div class="relatedPosts_title">00-04.深入剖析k8s课前必读</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/06/05-09-容器技术概念入门篇/" title="05-09.容器技术概念入门篇"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-06</div><div class="relatedPosts_title">05-09.容器技术概念入门篇</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/09/10-12-kubernetest集群搭建与实践/" title="10-12.Kubernetest集群搭建与实践"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-09</div><div class="relatedPosts_title">10-12.Kubernetest集群搭建与实践</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/11/13-15-深入解析pod对象/" title="13-15.深入解析pod对象"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-11</div><div class="relatedPosts_title">13-15.深入解析pod对象</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/24/28-31-kubernetes容器持久化存储/" title="28-31.Kubernetes容器持久化存储"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-24</div><div class="relatedPosts_title">28-31.Kubernetes容器持久化存储</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/18/18-20-深入理解statefulset/" title="18-20.深入理解StatefulSet"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-18</div><div class="relatedPosts_title">18-20.深入理解StatefulSet</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

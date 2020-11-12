@@ -1,0 +1,308 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>docker-compost的安装和使用 | 蚂蚁博客</title><meta name="description" content="Docker Compose介绍Docker Compose是Docker官方编排（Orchestration）项目之一，负责快速的部署分布式应用。其代码目前在https:&#x2F;&#x2F;github.com&#x2F;docker&#x2F;compose上开源。Compose 定位是 「定义和运行多个 Docker 容器的应用（Defining and running multi-container Docker appli"><meta name="keywords" content="docker"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="docker-compost的安装和使用"><meta name="twitter:description" content="Docker Compose介绍Docker Compose是Docker官方编排（Orchestration）项目之一，负责快速的部署分布式应用。其代码目前在https:&#x2F;&#x2F;github.com&#x2F;docker&#x2F;compose上开源。Compose 定位是 「定义和运行多个 Docker 容器的应用（Defining and running multi-container Docker appli"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="docker-compost的安装和使用"><meta property="og:url" content="http://wang.ikongjian.com/2020/11/02/docker-compost%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="Docker Compose介绍Docker Compose是Docker官方编排（Orchestration）项目之一，负责快速的部署分布式应用。其代码目前在https:&#x2F;&#x2F;github.com&#x2F;docker&#x2F;compose上开源。Compose 定位是 「定义和运行多个 Docker 容器的应用（Defining and running multi-container Docker appli"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-11-02T07:00:00.000Z"><meta property="article:modified_time" content="2020-11-02T07:51:05.401Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/11/02/docker-compost%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/"><link rel="prev" title="数据盘存储" href="http://wang.ikongjian.com/2020/11/03/%E6%95%B0%E6%8D%AE%E7%9B%98%E5%AD%98%E5%82%A8/"><link rel="next" title="Deployment实现应用部署" href="http://wang.ikongjian.com/2020/11/02/deployment%E5%AE%9E%E7%8E%B0%E5%BA%94%E7%94%A8%E9%83%A8%E7%BD%B2/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-Compose介绍"><span class="toc-number">1.</span> <span class="toc-text">Docker Compose介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-Compose-的安装"><span class="toc-number">2.</span> <span class="toc-text">Docker Compose 的安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用"><span class="toc-number">3.</span> <span class="toc-text">使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Compose-命令"><span class="toc-number">3.1.</span> <span class="toc-text">Compose 命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Compose-命令演示"><span class="toc-number">4.</span> <span class="toc-text">Compose 命令演示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#报错"><span class="toc-number">5.</span> <span class="toc-text">报错</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#报错：service-‘build’-must-be-a-mapping-not-a-string"><span class="toc-number">5.1.</span> <span class="toc-text">报错：service ‘build’ must be a mapping not a string</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文档"><span class="toc-number">6.</span> <span class="toc-text">参考文档</span></a></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">docker-compost的安装和使用</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-11-02 15:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-11-02</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-11-02 15:51:05"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-11-02</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/docker/">docker</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">3k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 11 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="Docker-Compose介绍"><a href="#Docker-Compose介绍" class="headerlink" title="Docker Compose介绍"></a>Docker Compose介绍</h2><p><code>Docker Compose</code>是<code>Docker</code>官方编排（Orchestration）项目之一，负责快速的部署分布式应用。其代码目前在<a href="https://github.com/docker/compose上开源。Compose" target="_blank" rel="noopener">https://github.com/docker/compose上开源。Compose</a> 定位是 「定义和运行多个 Docker 容器的应用（Defining and running multi-container Docker applications）」，其前身是开源项目<code>Fig</code>。</p>
+<p>它允许用户通过一个单独的 <code>docker-compose.yml</code>模板文件（YAML 格式）来定义一组相关联的应用容器为一个项目（project）。</p>
+<p>Compose 中有两个重要的概念：</p>
+<ul>
+<li>服务 (service)：一个应用的容器，实际上可以包括若干运行相同镜像的容器实例。</li>
+<li>项目 (project)：由一组关联的应用容器组成的一个完整业务单元，在 docker-compose.yml 文件中定义。</li>
+</ul>
+<p>Compose 的默认管理对象是项目，通过子命令对项目中的一组容器进行便捷地生命周期管理。Compose 项目由 Python  编写，实现上调用了 Docker 服务提供的 API 来对容器进行管理。所以只要所操作的平台支持 Docker API，就可以在其上利用  Compose 来进行编排管理。</p>
+<h2 id="Docker-Compose-的安装"><a href="#Docker-Compose-的安装" class="headerlink" title="Docker Compose 的安装"></a>Docker Compose 的安装</h2><p>在 Linux 上的也安装十分简单，从 官方 GitHub Release 处直接下载编译好的二进制文件即可。例如，在 Linux 64 位系统上直接下载对应的二进制包。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo curl -L https:&#x2F;&#x2F;github.com&#x2F;docker&#x2F;compose&#x2F;releases&#x2F;download&#x2F;1.17.1&#x2F;docker-compose-&#96;uname -s&#96;-&#96;uname -m&#96; &gt; &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-compose</span><br><span class="line">$ sudo chmod +x &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-compose</span><br><span class="line">$ &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-compose version</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>下面我们用 Python 来建立一个能够记录页面访问次数的 web 网站。 新建文件夹，在该目录中编写<code>app.py</code>文件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import time</span><br><span class="line">import redis</span><br><span class="line">from flask import Flask</span><br><span class="line"></span><br><span class="line">app &#x3D; Flask(__name__)</span><br><span class="line">cache &#x3D; redis.Redis(host&#x3D;&#39;redis&#39;, port&#x3D;6379)</span><br><span class="line"></span><br><span class="line">def get_hit_count():</span><br><span class="line">    retries &#x3D; 5</span><br><span class="line">    while True:</span><br><span class="line">        try:</span><br><span class="line">            return cache.incr(&#39;hits&#39;)</span><br><span class="line">        except redis.exceptions.ConnectionError as exc:</span><br><span class="line">            if retries &#x3D;&#x3D; 0:</span><br><span class="line">                raise exc</span><br><span class="line">            retries -&#x3D; 1</span><br><span class="line">            time.sleep(0.5)</span><br><span class="line"></span><br><span class="line">@app.route(&#39;&#x2F;&#39;)</span><br><span class="line">def hello():</span><br><span class="line">    count &#x3D; get_hit_count()</span><br><span class="line">    return &#39;Hello World! I have been seen &#123;&#125; times.\n&#39;.format(count)</span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &quot;__main__&quot;:</span><br><span class="line">    app.run(host&#x3D;&quot;0.0.0.0&quot;, debug&#x3D;True)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>接着编写<code>Dockerfile</code>文件，内容为:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FROM python:3.6-alpine</span><br><span class="line">ADD . &#x2F;code</span><br><span class="line">WORKDIR &#x2F;code</span><br><span class="line">RUN pip install redis flask</span><br><span class="line">CMD [&quot;python&quot;, &quot;app.py&quot;]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>然后是编写<code>docker-compose.yml</code>文件，这个是 Compose 使用的主模板文件。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">version: &#39;3&#39;</span><br><span class="line">services:</span><br><span class="line">  web:    </span><br><span class="line">    build: .    </span><br><span class="line">    ports:    </span><br><span class="line">    - &quot;5000:5000&quot;</span><br><span class="line">    volumes:</span><br><span class="line">         - .:&#x2F;code</span><br><span class="line">  redis:    </span><br><span class="line">    image: &quot;redis:alpine&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>运行 compose 项目:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker-compose up</span><br></pre></td></tr></table></figure>
+
+<p>此时访问本地 5000 端口，每次刷新页面，计数就会加 1。</p>
+<h3 id="Compose-命令"><a href="#Compose-命令" class="headerlink" title="Compose 命令"></a>Compose 命令</h3><p>对于 Compose 来说，大部分命令的对象既可以是项目本身，也可以指定为项目中的服务或者容器。如果没有特别的说明，命令对象将是项目，这意味着项目中所有的服务都会受到命令影响。</p>
+<p>执行<strong>docker-compose [COMMAND] –help</strong>或者<strong>docker-compose help [COMMAND]</strong>可以查看具体某个命令的使用格式。</p>
+<p>docker-compose 命令的基本的使用格式是:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker-compose [-f&#x3D;&lt;arg&gt;...] [options] [COMMAND] [ARGS...]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>命令选项：</p>
+<ul>
+<li>-f, –file FILE 指定使用的 Compose 模板文件，默认为 docker-compose.yml，可以多次指定。</li>
+<li>-p, –project-name NAME 指定项目名称，默认将使用所在目录名称作为项目名。</li>
+<li>–x-networking 使用 Docker 的可拔插网络后端特性</li>
+<li>–x-network-driver DRIVER 指定网络后端的驱动，默认为 bridge</li>
+<li>–verbose 输出更多调试信息。</li>
+<li>-v, –version 打印版本并退出。</li>
+</ul>
+<p>build 格式为<strong>docker-compose build [options] [SERVICE…]</strong>。 构建（重新构建）项目中的服务容器。服务容器一旦构建后，将会带上一个标记名，例如对于 web 项目中的一个 db 容器，可能是 web_db。可以随时在项目目录下运行<code>docker-compose build</code>来重新构建服务。选项包括：</p>
+<ul>
+<li>–force-rm 删除构建过程中的临时容器。</li>
+<li>–no-cache 构建镜像过程中不使用 cache（这将加长构建过程）。</li>
+<li>–pull 始终尝试通过 pull 来获取更新版本的镜像。</li>
+</ul>
+<p>config: 验证 Compose 文件格式是否正确，若正确则显示配置，若格式错误显示错误原因。</p>
+<p>down：此命令将会停止 up 命令所启动的容器，并移除网络</p>
+<p>exec：进入指定的容器。</p>
+<p>help：获得一个命令的帮助。</p>
+<p>images：列出 Compose 文件中包含的镜像。</p>
+<p>kill：格式为<strong>docker-compose kill [options] [SERVICE…]</strong>。通过发送<code>SIGKILL</code>信号来强制停止服务容器。支持通过<code>-s</code>参数来指定发送的信号，例如通过如下指令发送<code>SIGINT</code>信号。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ docker-compose kill -s SIGINT</span><br></pre></td></tr></table></figure>
+
+<p>logs：格式为<strong>docker-compose logs [options] [SERVICE…]</strong>，查看服务容器的输出。默认情况下，docker-compose 将对不同的服务输出使用不同的颜色来区分。可以通过 <code>--no-color</code>来关闭颜色。该命令在调试问题的时候十分有用。</p>
+<p>pause：格式为<strong>docker-compose pause [SERVICE…]</strong>，暂停一个服务容器。</p>
+<p>port：格式为<strong>docker-compose port [options] SERVICE PRIVATE_PORT</strong>，打印某个容器端口所映射的公共端口。选项：</p>
+<ul>
+<li>–protocol=proto 指定端口协议，tcp（默认值）或者 udp。</li>
+<li>–index=index 如果同一服务存在多个容器，指定命令对象容器的序号（默认为 1）。</li>
+</ul>
+<p>ps：格式为<strong>docker-compose ps [options] [SERVICE…]</strong>，列出项目中目前的所有容器。选项：</p>
+<ul>
+<li><code>-q</code>只打印容器的 ID 信息。</li>
+</ul>
+<p>pull：格式为<code>docker-compose pull [options] [SERVICE...]</code>，拉取服务依赖的镜像。选项：</p>
+<ul>
+<li>–ignore-pull-failures 忽略拉取镜像过程中的错误。</li>
+</ul>
+<p>push：推送服务依赖的镜像到 Docker 镜像仓库。</p>
+<p>restart：格式为<strong>docker-compose restart [options] [SERVICE…]</strong>，重启项目中的服务。选项：</p>
+<ul>
+<li>-t, –timeout TIMEOUT 指定重启前停止容器的超时（默认为 10 秒）。</li>
+</ul>
+<p>rm：格式为<strong>docker-compose rm [options] [SERVICE…]</strong>,删除所有（停止状态的）服务容器。推荐先执行 <code>docker-compose stop</code>命令来停止容器。选项：</p>
+<ul>
+<li>-f, –force 强制直接删除，包括非停止状态的容器。一般尽量不要使用该选项。</li>
+<li>-v 删除容器所挂载的数据卷。</li>
+</ul>
+<p>run：格式为<strong>docker-compose run [options] [-p PORT…] [-e KEY=VAL…] SERVICE [COMMAND] [ARGS…]</strong>，在指定服务上执行一个命令。例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ docker-compose run ubuntu ping docker.com</span><br></pre></td></tr></table></figure>
+
+<p>将会启动一个 ubuntu 服务容器，并执行 ping docker.com 命令。默认情况下，如果存在关联，则所有关联的服务将会自动被启动，除非这些服务已经在运行中。</p>
+<p>该命令类似启动容器后运行指定的命令，相关卷、链接等等都将会按照配置自动创建。</p>
+<p>给定命令将会覆盖原有的自动运行命令； 不会自动创建端口，以避免冲突。</p>
+<p>如果不希望自动启动关联的容器，可以使用<code>--no-deps</code>选项，例如:</p>
+<ul>
+<li>-d 后台运行容器。</li>
+<li>–name NAME 为容器指定一个名字。</li>
+<li>–entrypoint CMD 覆盖默认的容器启动指令。</li>
+<li>-e KEY=VAL 设置环境变量值，可多次使用选项来设置多个环境变量。</li>
+<li>-u, –user=”” 指定运行容器的用户名或者 uid。</li>
+<li>–no-deps 不自动启动关联的服务容器。</li>
+<li>–rm 运行命令后自动删除容器，d 模式下将忽略。</li>
+<li>-p, –publish=[] 映射容器端口到本地主机。</li>
+<li>–service-ports 配置服务端口并映射到本地主机。</li>
+<li>-T 不分配伪 tty，意味着依赖 tty 的指令将无法运行。</li>
+</ul>
+<p>scale：格式为<strong>docker-compose scale [options] [SERVICE=NUM…]</strong>，设置指定服务运行的容器个数。 通过 service=num 的参数来设置数量。例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ docker-compose scale web&#x3D;3 db&#x3D;2</span><br></pre></td></tr></table></figure>
+
+<p>将启动 3 个容器运行 web 服务，2 个容器运行 db 服务。</p>
+<p>一般的，当指定数目多于该服务当前实际运行容器，将新创建并启动容器；反之，将停止容器。选项：</p>
+<ul>
+<li>-t, –timeout TIMEOUT 停止容器时候的超时（默认为 10 秒）。</li>
+</ul>
+<p>start：格式为<strong>docker-compose start [SERVICE…]</strong>，启动已经存在的服务容器。</p>
+<p>stop：格式为<strong>docker-compose stop [options] [SERVICE…]</strong>, 停止已经处于运行状态的容器，但不删除它。通过<code>docker-compose start</code>可以再次启动这些容器。选项：</p>
+<ul>
+<li>-t, –timeout TIMEOUT 停止容器时候的超时（默认为 10 秒）。</li>
+</ul>
+<p>top：查看各个服务容器内运行的进程。</p>
+<p>unpause：格式为<strong>docker-compose unpause [SERVICE…]</strong>，恢复处于暂停状态中的服务。</p>
+<p>up：格式为<strong>docker-compose up [options] [SERVICE…]</strong>，该命令十分强大，它将尝试自动完成包括构建镜像，（重新）创建服务，启动服务，并关联服务相关容器的一系列操作。链接的服务都将会被自动启动，除非已经处于运行状态。 可以说，大部分时候都可以直接通过该命令来启动一个项目。</p>
+<p>默认情况，<code>docker-compose up</code>启动的容器都在前台，控制台将会同时打印所有容器的输出信息，可以很方便进行调试。 当通过 Ctrl-C 停止命令时，所有容器将会停止。</p>
+<p>如果使用<code>docker-compose up -d</code>，将会在后台启动并运行所有的容器。一般推荐生产环境下使用该选项。</p>
+<p>默认情况，如果服务容器已经存在，<code>docker-compose up</code>将会尝试停止容器，然后重新创建（保持使用 volumes-from 挂载的卷），以保证新启动的服务匹配 docker-compose.yml 文件的最新内容。如果用户不希望容器被停止并重新创建，可以使用 <code>docker-compose up --no-recreate</code>。这样将只会启动处于停止状态的容器，而忽略已经运行的服务。</p>
+<p>如果用户只想重新部署某个服务，可以使用<code>docker-compose up --no-deps -d &lt;SERVICE_NAME&gt;</code>来重新创建服务并后台停止旧服务，启动新服务，并不会影响到其所依赖的服务。选项：</p>
+<ul>
+<li>-d 在后台运行服务容器。</li>
+<li>–no-color 不使用颜色来区分不同的服务的控制台输出。</li>
+<li>–no-deps 不启动服务所链接的容器。</li>
+<li>–force-recreate 强制重新创建容器，不能与<code>--no-recreate</code>同时使用。 <code>--no-recreate</code>如果容器已经存在了，则不重新创建，不能与 <code>--force-recreate</code>同时使用。 <code>--no-build</code>不自动构建缺失的服务镜像。</li>
+<li>-t, –timeout TIMEOUT 停止容器时候的超时（默认为 10 秒）。</li>
+</ul>
+<h2 id="Compose-命令演示"><a href="#Compose-命令演示" class="headerlink" title="Compose 命令演示"></a>Compose 命令演示</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose config</span><br><span class="line">services:</span><br><span class="line">  redis:</span><br><span class="line">    image: redis:alpine</span><br><span class="line">  web:</span><br><span class="line">    build:</span><br><span class="line">      context: &#x2F;root&#x2F;compose</span><br><span class="line">    ports:</span><br><span class="line">    - 5000:5000&#x2F;tcp</span><br><span class="line">    volumes:</span><br><span class="line">    - &#x2F;root&#x2F;compose:&#x2F;code:rw</span><br><span class="line">version: &#39;3.0&#39;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose up -d</span><br><span class="line">Starting compose_web_1 ... </span><br><span class="line">Starting compose_redis_1 ... </span><br><span class="line">Starting compose_web_1</span><br><span class="line">Starting compose_redis_1 ... done</span><br><span class="line"></span><br><span class="line">[root@wang-18 compose]# docker-compose down</span><br><span class="line">Stopping compose_web_1   ... done</span><br><span class="line">Stopping compose_redis_1 ... done</span><br><span class="line">Removing compose_web_1   ... done</span><br><span class="line">Removing compose_redis_1 ... done</span><br><span class="line">Removing network compose_default</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose exec web &#x2F;bin&#x2F;sh  </span><br><span class="line">&#x2F;code #</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose images</span><br><span class="line">   Container      Repository     Tag       Image Id      Size  </span><br><span class="line">---------------------------------------------------------------</span><br><span class="line">compose_redis_1   redis         alpine   8d1b562adb1c   29.7 MB</span><br><span class="line">compose_web_1     compose_web   latest   692a2d143d9e   49.1 MB</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose kill -s 1</span><br><span class="line">Killing compose_redis_1 ... done</span><br><span class="line">Killing compose_web_1   ... done</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose logs -f web</span><br><span class="line">Attaching to compose_web_1</span><br><span class="line">web_1    |  * Serving Flask app &quot;app&quot; (lazy loading)</span><br><span class="line">web_1    |  * Environment: production</span><br><span class="line">web_1    |    WARNING: This is a development server. Do not use it in a production deployment.</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose pause web</span><br><span class="line">Pausing compose_web_1 ... done</span><br><span class="line">[root@wang-18 compose]# docker-compose unpause web</span><br><span class="line">Unpausing compose_web_1 ... done</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose port web 5000</span><br><span class="line">0.0.0.0:5000</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose ps</span><br><span class="line">     Name                    Command               State           Ports         </span><br><span class="line">---------------------------------------------------------------------------------</span><br><span class="line">compose_redis_1   docker-entrypoint.sh redis ...   Up      6379&#x2F;tcp              </span><br><span class="line">compose_web_1     python app.py                    Up      0.0.0.0:5000-&gt;5000&#x2F;tcp</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose pull redis</span><br><span class="line">Pulling redis (redis:alpine)...</span><br><span class="line">alpine: Pulling from library&#x2F;redis</span><br><span class="line">Digest: sha256:cac5bbb2a6dd455e503951d296e11966060bdc6e3be1eadc5551adde58052700</span><br><span class="line">Status: Image is up to date for redis:alpine</span><br><span class="line"></span><br><span class="line">[root@wang-18 compose]# docker-compose push redis</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose restart </span><br><span class="line">Restarting compose_redis_1 ... done</span><br><span class="line">Restarting compose_web_1   ... done</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 compose]# docker-compose rm web</span><br><span class="line">No stopped containers</span><br><span class="line">[root@wang-18 compose]# docker-compose stop web</span><br><span class="line">Stopping compose_web_1 ... done</span><br><span class="line">[root@wang-18 compose]# docker-compose rm web  </span><br><span class="line">Going to remove compose_web_1</span><br><span class="line">Are you sure? [yN] y</span><br><span class="line">Removing compose_web_1 ... done</span><br><span class="line">[root@wang-18 compose]# docker-compose rm redis</span><br><span class="line">No stopped containers</span><br><span class="line">[root@wang-18 compose]# docker-compose rm -f redis</span><br><span class="line">No stopped containers</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="报错"><a href="#报错" class="headerlink" title="报错"></a>报错</h2><h3 id="报错：service-‘build’-must-be-a-mapping-not-a-string"><a href="#报错：service-‘build’-must-be-a-mapping-not-a-string" class="headerlink" title="报错：service ‘build’ must be a mapping not a string"></a>报错：service ‘build’ must be a mapping not a string</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 test1]# docker-compose config</span><br><span class="line">ERROR: In file &#39;.&#x2F;docker-compose.yml&#39;, service &#39;build&#39; must be a mapping not a string.</span><br></pre></td></tr></table></figure>
+
+<p>因为docker-compose.yml中格式错了，请看看再看看格式。</p>
+<p>我一开始复制粘贴，结果如下，web后的下一列，没有缩紧。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">version: &#39;3&#39;</span><br><span class="line">services:</span><br><span class="line">  web:    </span><br><span class="line">  build: .    </span><br><span class="line">  ports:    </span><br><span class="line">  - &quot;5000:5000&quot;</span><br><span class="line">  volumes:</span><br><span class="line">       - .:&#x2F;code</span><br><span class="line">  redis:    </span><br><span class="line">  image: &quot;redis:alpine&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>阳明的 <a href="https://www.qikqiak.com/k8s-book/docs/8.Docker%20Compose.html" target="_blank" rel="noopener">Docker compose</a></li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/11/02/docker-compost%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/">http://wang.ikongjian.com/2020/11/02/docker-compost%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/docker/">docker</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/11/03/%E6%95%B0%E6%8D%AE%E7%9B%98%E5%AD%98%E5%82%A8/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">数据盘存储</div></div></a></div><div class="next-post pull_right"><a href="/2020/11/02/deployment%E5%AE%9E%E7%8E%B0%E5%BA%94%E7%94%A8%E9%83%A8%E7%BD%B2/"><img class="next_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Deployment实现应用部署</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/07/30/dockerfile的使用/" title="dockerfile的使用"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-30</div><div class="relatedPosts_title">dockerfile的使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/24/docker的安装和使用/" title="docker的安装和使用"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-24</div><div class="relatedPosts_title">docker的安装和使用</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

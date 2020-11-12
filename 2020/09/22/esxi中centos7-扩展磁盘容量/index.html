@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Esxi中CentOS7 扩展磁盘容量 | 蚂蚁博客</title><meta name="description" content="Esxi中CentOS7 扩展磁盘容量磁盘容量使用了100%, 给磁盘空间扩充空间 查看挂载点信息[root@localhost]# df -h 显示如下： 文件系统 容量 已用 可用 已用% 挂载点 &#x2F;dev&#x2F;mapper&#x2F;centos-root 36G 36G 20K 100% &#x2F; ……  可见可用只剩20K，使用已经100%。 2. 扩展VMWare硬"><meta name="keywords" content="Linux,lvm"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Esxi中CentOS7 扩展磁盘容量"><meta name="twitter:description" content="Esxi中CentOS7 扩展磁盘容量磁盘容量使用了100%, 给磁盘空间扩充空间 查看挂载点信息[root@localhost]# df -h 显示如下： 文件系统 容量 已用 可用 已用% 挂载点 &#x2F;dev&#x2F;mapper&#x2F;centos-root 36G 36G 20K 100% &#x2F; ……  可见可用只剩20K，使用已经100%。 2. 扩展VMWare硬"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="Esxi中CentOS7 扩展磁盘容量"><meta property="og:url" content="http://wang.ikongjian.com/2020/09/22/esxi%E4%B8%ADcentos7-%E6%89%A9%E5%B1%95%E7%A3%81%E7%9B%98%E5%AE%B9%E9%87%8F/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="Esxi中CentOS7 扩展磁盘容量磁盘容量使用了100%, 给磁盘空间扩充空间 查看挂载点信息[root@localhost]# df -h 显示如下： 文件系统 容量 已用 可用 已用% 挂载点 &#x2F;dev&#x2F;mapper&#x2F;centos-root 36G 36G 20K 100% &#x2F; ……  可见可用只剩20K，使用已经100%。 2. 扩展VMWare硬"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-09-22T08:00:00.000Z"><meta property="article:modified_time" content="2020-09-24T06:59:27.863Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/09/22/esxi%E4%B8%ADcentos7-%E6%89%A9%E5%B1%95%E7%A3%81%E7%9B%98%E5%AE%B9%E9%87%8F/"><link rel="prev" title="部署zookeeper3.6.1集群" href="http://wang.ikongjian.com/2020/09/23/%E9%83%A8%E7%BD%B2zookeeper3-6-1%E9%9B%86%E7%BE%A4/"><link rel="next" title="23-27.声明式API、RBAC和Opertator" href="http://wang.ikongjian.com/2020/09/21/23-27-%E5%A3%B0%E6%98%8E%E5%BC%8Fapi%E3%80%81rbac%E5%92%8Copertator/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Esxi中CentOS7-扩展磁盘容量"><span class="toc-number">1.</span> <span class="toc-text">Esxi中CentOS7 扩展磁盘容量</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#查看挂载点信息"><span class="toc-number">1.1.</span> <span class="toc-text">查看挂载点信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-扩展VMWare硬盘空间"><span class="toc-number">1.2.</span> <span class="toc-text">2. 扩展VMWare硬盘空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对新增加的硬盘进行分区、格式化"><span class="toc-number">1.3.</span> <span class="toc-text">对新增加的硬盘进行分区、格式化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-查看一下调整后的磁盘状态"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. 查看一下调整后的磁盘状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-磁盘分区"><span class="toc-number">1.3.2.</span> <span class="toc-text">2. 磁盘分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-格式化分区"><span class="toc-number">1.3.3.</span> <span class="toc-text">3. 格式化分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-添加新LVM到已有的LVM组，实现扩容"><span class="toc-number">1.3.4.</span> <span class="toc-text">4. 添加新LVM到已有的LVM组，实现扩容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-文件系统扩容"><span class="toc-number">1.3.5.</span> <span class="toc-text">5. 文件系统扩容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-查看新的磁盘空间"><span class="toc-number">1.3.6.</span> <span class="toc-text">6. 查看新的磁盘空间</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他常用操作"><span class="toc-number">1.4.</span> <span class="toc-text">其他常用操作</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">Esxi中CentOS7 扩展磁盘容量</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-09-22 16:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-09-22</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-09-24 14:59:27"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-09-24</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/linux/">linux</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/linux/lvm/">lvm</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">1.6k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 7 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Esxi中CentOS7-扩展磁盘容量"><a href="#Esxi中CentOS7-扩展磁盘容量" class="headerlink" title="Esxi中CentOS7 扩展磁盘容量"></a>Esxi中CentOS7 扩展磁盘容量</h1><p>磁盘容量使用了100%, 给磁盘空间扩充空间</p>
+<h2 id="查看挂载点信息"><a href="#查看挂载点信息" class="headerlink" title="查看挂载点信息"></a>查看挂载点信息</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost]# df -h </span><br><span class="line">显示如下： </span><br><span class="line">文件系统 容量 已用 可用 已用% 挂载点 </span><br><span class="line">&#x2F;dev&#x2F;mapper&#x2F;centos-root 36G 36G 20K 100% &#x2F; </span><br><span class="line">……</span><br></pre></td></tr></table></figure>
+
+<p>可见可用只剩20K，使用已经100%。</p>
+<h2 id="2-扩展VMWare硬盘空间"><a href="#2-扩展VMWare硬盘空间" class="headerlink" title="2. 扩展VMWare硬盘空间"></a>2. 扩展VMWare硬盘空间</h2><p>首先需要关闭操作系统，然后在设置中将磁盘调整到需要的容量。 </p>
+<p>如果选项是灰色的，说明虚拟机有快照，将其快照删除再操作。</p>
+<h2 id="对新增加的硬盘进行分区、格式化"><a href="#对新增加的硬盘进行分区、格式化" class="headerlink" title="对新增加的硬盘进行分区、格式化"></a>对新增加的硬盘进行分区、格式化</h2><h3 id="1-查看一下调整后的磁盘状态"><a href="#1-查看一下调整后的磁盘状态" class="headerlink" title="1. 查看一下调整后的磁盘状态"></a>1. 查看一下调整后的磁盘状态</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost]# fdisk -l</span><br><span class="line"></span><br><span class="line">磁盘 &#x2F;dev&#x2F;sda：322.1 GB, 322122547200 字节，629145600 个扇区</span><br><span class="line">Units &#x3D; 扇区 of 1 * 512 &#x3D; 512 bytes</span><br><span class="line">扇区大小(逻辑&#x2F;物理)：512 字节 &#x2F; 512 字节</span><br><span class="line">I&#x2F;O 大小(最小&#x2F;最佳)：512 字节 &#x2F; 512 字节</span><br><span class="line">磁盘标签类型：dos</span><br><span class="line">磁盘标识符：0x000af019</span><br><span class="line"></span><br><span class="line">   设备 Boot      Start         End      Blocks   Id  System</span><br><span class="line">&#x2F;dev&#x2F;sda1   *        2048     2099199     1048576   83  Linux</span><br><span class="line">&#x2F;dev&#x2F;sda2         2099200   209715199   103808000   8e  Linux LVM</span><br></pre></td></tr></table></figure>
+
+<p>显示信息： 磁盘 /dev/sda：322.1 GB, 322122547200 字节，629145600 个扇区</p>
+<p>说明增加了空间的磁盘是/dev/sda </p>
+<h3 id="2-磁盘分区"><a href="#2-磁盘分区" class="headerlink" title="2. 磁盘分区"></a>2. 磁盘分区</h3><p><strong>添加新的磁盘分区</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost]# fdisk &#x2F;dev&#x2F;sda</span><br><span class="line">分别键入以下参数：</span><br><span class="line">p       查看已分区数量（我看到有两个 &#x2F;dev&#x2F;sda1 和&#x2F;dev&#x2F;sda2） </span><br><span class="line">n       新增加一个分区 </span><br><span class="line">p       分区类型，选择主分区 </span><br><span class="line">        分区号选3（1和2已占用，见上） </span><br><span class="line">回车     默认选择（起始扇区） </span><br><span class="line">回车     默认选择（结束扇区） </span><br><span class="line">t       修改分区类型 </span><br><span class="line">       选分区3 </span><br><span class="line">8e     修改为LVM（8e就是LVM） </span><br><span class="line">w       写分区表，完成后退出fdisk命令</span><br><span class="line"></span><br><span class="line">使用partprobe重新读取分区表，或者重启机器。</span><br><span class="line">[root@localhost]# partprobe</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>实际操作过程</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost]# fdisk &#x2F;dev&#x2F;sda </span><br><span class="line">欢迎使用 fdisk (util-linux 2.23.2)。</span><br><span class="line"></span><br><span class="line">更改将停留在内存中，直到您决定将更改写入磁盘。</span><br><span class="line">使用写入命令前请三思。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">命令(输入 m 获取帮助)：p</span><br><span class="line"></span><br><span class="line">磁盘 &#x2F;dev&#x2F;sda：322.1 GB, 322122547200 字节，629145600 个扇区</span><br><span class="line">Units &#x3D; 扇区 of 1 * 512 &#x3D; 512 bytes</span><br><span class="line">扇区大小(逻辑&#x2F;物理)：512 字节 &#x2F; 512 字节</span><br><span class="line">I&#x2F;O 大小(最小&#x2F;最佳)：512 字节 &#x2F; 512 字节</span><br><span class="line">磁盘标签类型：dos</span><br><span class="line">磁盘标识符：0x000af019</span><br><span class="line"></span><br><span class="line">   设备 Boot      Start         End      Blocks   Id  System</span><br><span class="line">&#x2F;dev&#x2F;sda1   *        2048     2099199     1048576   83  Linux</span><br><span class="line">&#x2F;dev&#x2F;sda2         2099200   209715199   103808000   8e  Linux LVM</span><br><span class="line"></span><br><span class="line">命令(输入 m 获取帮助)：n</span><br><span class="line">Partition type:</span><br><span class="line">   p   primary (2 primary, 0 extended, 2 free)</span><br><span class="line">   e   extended</span><br><span class="line">Select (default p): p</span><br><span class="line">分区号 (3,4，默认 3)：</span><br><span class="line">起始 扇区 (209715200-629145599，默认为 209715200)：</span><br><span class="line">将使用默认值 209715200</span><br><span class="line">Last 扇区, +扇区 or +size&#123;K,M,G&#125; (209715200-629145599，默认为 629145599)：</span><br><span class="line">将使用默认值 629145599</span><br><span class="line">分区 3 已设置为 Linux 类型，大小设为 200 GiB</span><br><span class="line"></span><br><span class="line">命令(输入 m 获取帮助)：t</span><br><span class="line">分区号 (1-3，默认 3)：3</span><br><span class="line">Hex 代码(输入 L 列出所有代码)：8e</span><br><span class="line">已将分区“Linux”的类型更改为“Linux LVM”</span><br><span class="line"></span><br><span class="line">命令(输入 m 获取帮助)：w</span><br><span class="line">The partition table has been altered!</span><br><span class="line"></span><br><span class="line">Calling ioctl() to re-read partition table.</span><br><span class="line"></span><br><span class="line">WARNING: Re-reading the partition table failed with error 16: 设备或资源忙.</span><br><span class="line">The kernel still uses the old table. The new table will be used at</span><br><span class="line">the next reboot or after you run partprobe(8) or kpartx(8)</span><br><span class="line">正在同步磁盘。</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-格式化分区"><a href="#3-格式化分区" class="headerlink" title="3. 格式化分区"></a>3. 格式化分区</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost]# mkfs.ext3 &#x2F;dev&#x2F;sda3</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-添加新LVM到已有的LVM组，实现扩容"><a href="#4-添加新LVM到已有的LVM组，实现扩容" class="headerlink" title="4. 添加新LVM到已有的LVM组，实现扩容"></a>4. 添加新LVM到已有的LVM组，实现扩容</h3><p>进入lvm管理</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost]# lvm</span><br></pre></td></tr></table></figure>
+
+<p>关于lvm的一些基础知识可以参考这里：<a href="http://blog.csdn.net/wuweilong/article/details/7565530" target="_blank" rel="noopener">http://blog.csdn.net/wuweilong/article/details/7565530</a> </p>
+<p><strong>以下命令都是在lvm&gt;下</strong> </p>
+<p>（1）初始化刚才的分区</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pvcreate &#x2F;dev&#x2F;sda3</span><br></pre></td></tr></table></figure>
+
+<p>（2）查看卷组名称</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vgdisplay</span><br></pre></td></tr></table></figure>
+
+<p>记下”VG Name”，这里为centos</p>
+<p>（3）将初始化过的分区加入到虚拟卷组</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vgextend centos &#x2F;dev&#x2F;sda3</span><br></pre></td></tr></table></figure>
+
+<p>（4）扩展已有卷的容量。</p>
+<p>查看卷组剩余空间。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vgdisplay</span><br></pre></td></tr></table></figure>
+
+<p> 记下”Free PE/Size”的大小，例如这里为21513，然后扩展已有卷的容量</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">lvextend -l +21513 &#x2F;dev&#x2F;mapper&#x2F;centos-root</span><br></pre></td></tr></table></figure>
+
+<p>lvextend指令用于在线扩展逻辑卷的空间大小，而不中断应用程序对逻辑卷的访问。其后有两个选项</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-L</td>
+<td>指定逻辑卷的大小，单位为“kKmMgGtT”字节，也就是Size</td>
+</tr>
+<tr>
+<td>-l</td>
+<td>指定逻辑卷的大小，单位为PE数</td>
+</tr>
+</tbody></table>
+<p>其余两个参数：21513 是上边通过vgdisplay查看的free的大小，后边的目录参数/dev/mapper/centos-root可以通过df命令查看 </p>
+<p>（5）查看卷容量</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pvdisplay</span><br></pre></td></tr></table></figure>
+
+<p>（6）退出</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">quit</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>实际执行过程</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost]# lvm</span><br><span class="line">lvm&gt; pvcreate &#x2F;dev&#x2F;sda3</span><br><span class="line">WARNING: ext3 signature detected on &#x2F;dev&#x2F;sda3 at offset 1080. Wipe it? [y&#x2F;n]: y</span><br><span class="line">  Wiping ext3 signature on &#x2F;dev&#x2F;sda3.</span><br><span class="line">  Physical volume &quot;&#x2F;dev&#x2F;sda3&quot; successfully created.</span><br><span class="line">lvm&gt; vgdisplay</span><br><span class="line">  --- Volume group ---</span><br><span class="line">  VG Name               centos</span><br><span class="line">  System ID             </span><br><span class="line">  Format                lvm2</span><br><span class="line">  Metadata Areas        1</span><br><span class="line">  Metadata Sequence No  6</span><br><span class="line">  VG Access             read&#x2F;write</span><br><span class="line">  VG Status             resizable</span><br><span class="line">  MAX LV                0</span><br><span class="line">  Cur LV                2</span><br><span class="line">  Open LV               2</span><br><span class="line">  Max PV                0</span><br><span class="line">  Cur PV                1</span><br><span class="line">  Act PV                1</span><br><span class="line">  VG Size               &lt;99.00 GiB</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              25343</span><br><span class="line">  Alloc PE &#x2F; Size       25343 &#x2F; &lt;99.00 GiB</span><br><span class="line">  Free  PE &#x2F; Size       0 &#x2F; 0   </span><br><span class="line">  VG UUID               1xe96x-uhNM-fO1d-xWgY-z0ol-KoD3-YvhHxL</span><br><span class="line">   </span><br><span class="line">lvm&gt; vgextend centos &#x2F;dev&#x2F;sda3</span><br><span class="line">  Volume group &quot;centos&quot; successfully extended</span><br><span class="line">lvm&gt; vgdisplay </span><br><span class="line">  --- Volume group ---</span><br><span class="line">  VG Name               centos</span><br><span class="line">  System ID             </span><br><span class="line">  Format                lvm2</span><br><span class="line">  Metadata Areas        2</span><br><span class="line">  Metadata Sequence No  7</span><br><span class="line">  VG Access             read&#x2F;write</span><br><span class="line">  VG Status             resizable</span><br><span class="line">  MAX LV                0</span><br><span class="line">  Cur LV                2</span><br><span class="line">  Open LV               2</span><br><span class="line">  Max PV                0</span><br><span class="line">  Cur PV                2</span><br><span class="line">  Act PV                2</span><br><span class="line">  VG Size               298.99 GiB</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              76542</span><br><span class="line">  Alloc PE &#x2F; Size       25343 &#x2F; &lt;99.00 GiB</span><br><span class="line">  Free  PE &#x2F; Size       51199 &#x2F; &lt;200.00 GiB</span><br><span class="line">  VG UUID               1xe96x-uhNM-fO1d-xWgY-z0ol-KoD3-YvhHxL</span><br><span class="line">   </span><br><span class="line">lvm&gt; lvextend -l +51199 &#x2F;dev&#x2F;mapper&#x2F;centos-root</span><br><span class="line">  Size of logical volume centos&#x2F;root changed from &lt;91.25 GiB (23359 extents) to 291.24 GiB (74558 extents).</span><br><span class="line">  Logical volume centos&#x2F;root successfully resized.</span><br><span class="line">lvm&gt; pvdisplay </span><br><span class="line">  --- Physical volume ---</span><br><span class="line">  PV Name               &#x2F;dev&#x2F;sda2</span><br><span class="line">  VG Name               centos</span><br><span class="line">  PV Size               &lt;99.00 GiB &#x2F; not usable 3.00 MiB</span><br><span class="line">  Allocatable           yes (but full)</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              25343</span><br><span class="line">  Free PE               0</span><br><span class="line">  Allocated PE          25343</span><br><span class="line">  PV UUID               OJ7fYf-PFGE-0x89-nn1Q-MU4P-IMz2-CWdoCU</span><br><span class="line">   </span><br><span class="line">  --- Physical volume ---</span><br><span class="line">  PV Name               &#x2F;dev&#x2F;sda3</span><br><span class="line">  VG Name               centos</span><br><span class="line">  PV Size               200.00 GiB &#x2F; not usable 4.00 MiB</span><br><span class="line">  Allocatable           yes (but full)</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              51199</span><br><span class="line">  Free PE               0</span><br><span class="line">  Allocated PE          51199</span><br><span class="line">  PV UUID               oeXoGA-XA9o-evIn-i0bt-kWn8-Mnnw-5f105Z</span><br><span class="line">   </span><br><span class="line">lvm&gt; quit</span><br><span class="line">  Exiting.</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-文件系统扩容"><a href="#5-文件系统扩容" class="headerlink" title="5. 文件系统扩容"></a>5. 文件系统扩容</h3><p>以上只是卷扩容了，还要对文件系统实现真正扩容 </p>
+<p><strong>CentOS 7 下面 由于使用的是 XFS，所以要用</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">xfs_growfs &#x2F;dev&#x2F;mapper&#x2F;centos-root</span><br></pre></td></tr></table></figure>
+
+<p><strong>CentOS 6 下面 要用</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">resize2fs &#x2F;dev&#x2F;mapper&#x2F;centos-root</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-查看新的磁盘空间"><a href="#6-查看新的磁盘空间" class="headerlink" title="6. 查看新的磁盘空间"></a>6. 查看新的磁盘空间</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">df -h</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="其他常用操作"><a href="#其他常用操作" class="headerlink" title="其他常用操作"></a>其他常用操作</h2><p>删除/home家目录，磁盘容量合并到 根/ 下</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">umount &#x2F;home</span><br><span class="line">lvremove &#x2F;dev&#x2F;mapper&#x2F;centos-home</span><br><span class="line">lvextend -l +10559 &#x2F;dev&#x2F;mapper&#x2F;centos-root</span><br><span class="line">xfs_growfs &#x2F;dev&#x2F;mapper&#x2F;centos-root</span><br><span class="line">修改 &#x2F;etc&#x2F;fstab</span><br></pre></td></tr></table></figure>
+
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/09/22/esxi%E4%B8%ADcentos7-%E6%89%A9%E5%B1%95%E7%A3%81%E7%9B%98%E5%AE%B9%E9%87%8F/">http://wang.ikongjian.com/2020/09/22/esxi%E4%B8%ADcentos7-%E6%89%A9%E5%B1%95%E7%A3%81%E7%9B%98%E5%AE%B9%E9%87%8F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/lvm/">lvm</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/09/23/%E9%83%A8%E7%BD%B2zookeeper3-6-1%E9%9B%86%E7%BE%A4/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">部署zookeeper3.6.1集群</div></div></a></div><div class="next-post pull_right"><a href="/2020/09/21/23-27-%E5%A3%B0%E6%98%8E%E5%BC%8Fapi%E3%80%81rbac%E5%92%8Copertator/"><img class="next_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">23-27.声明式API、RBAC和Opertator</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/07/13/四、git使用/" title="四、git使用"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-13</div><div class="relatedPosts_title">四、git使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/16/常用软件-nexus私服/" title="常用软件-nexus私服"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-16</div><div class="relatedPosts_title">常用软件-nexus私服</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/17/常用软件-elkf-kafka集群/" title="常用软件-ELKF+kafka集群"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-17</div><div class="relatedPosts_title">常用软件-ELKF+kafka集群</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/16/常用软件-部署activemq/" title="常用软件-部署activemq"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-16</div><div class="relatedPosts_title">常用软件-部署activemq</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/30/二、shell经验收集/" title="二、shell经验收集"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-30</div><div class="relatedPosts_title">二、shell经验收集</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/14/maven仓库/" title="maven仓库"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-14</div><div class="relatedPosts_title">maven仓库</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

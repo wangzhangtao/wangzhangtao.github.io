@@ -1,0 +1,341 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>32-35.网络模型和网络方案 | 蚂蚁博客</title><meta name="description" content="极客时间课程张磊的 深入剖析Kuernetes  32 | 浅谈容器网络“网络栈”，包括了网卡（Network Interface）、回环设备（Loopback Device）、路由表（Routing Table）和 iptables 规则。这些要素，构成了一个进程发起和响应网络请求的基本环境。 在大多数情况下，我们希望容器进程能使用自己 Network Namespace 里的网络栈，即：拥有属"><meta name="keywords" content="kubernetes,深入剖析Kuernetes"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="32-35.网络模型和网络方案"><meta name="twitter:description" content="极客时间课程张磊的 深入剖析Kuernetes  32 | 浅谈容器网络“网络栈”，包括了网卡（Network Interface）、回环设备（Loopback Device）、路由表（Routing Table）和 iptables 规则。这些要素，构成了一个进程发起和响应网络请求的基本环境。 在大多数情况下，我们希望容器进程能使用自己 Network Namespace 里的网络栈，即：拥有属"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="32-35.网络模型和网络方案"><meta property="og:url" content="http://wang.ikongjian.com/2020/09/26/32-35-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B%E5%92%8C%E7%BD%91%E7%BB%9C%E6%96%B9%E6%A1%88/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="极客时间课程张磊的 深入剖析Kuernetes  32 | 浅谈容器网络“网络栈”，包括了网卡（Network Interface）、回环设备（Loopback Device）、路由表（Routing Table）和 iptables 规则。这些要素，构成了一个进程发起和响应网络请求的基本环境。 在大多数情况下，我们希望容器进程能使用自己 Network Namespace 里的网络栈，即：拥有属"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-09-26T08:00:00.000Z"><meta property="article:modified_time" content="2020-10-22T00:58:57.806Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/09/26/32-35-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B%E5%92%8C%E7%BD%91%E7%BB%9C%E6%96%B9%E6%A1%88/"><link rel="prev" title="36-39.网络控制、service和ingress" href="http://wang.ikongjian.com/2020/09/29/36-39-%E7%BD%91%E7%BB%9C%E6%8E%A7%E5%88%B6%E3%80%81service%E5%92%8Cingress/"><link rel="next" title="28-31.Kubernetes容器持久化存储" href="http://wang.ikongjian.com/2020/09/24/28-31-kubernetes%E5%AE%B9%E5%99%A8%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#32-浅谈容器网络"><span class="toc-number">1.</span> <span class="toc-text">32 | 浅谈容器网络</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#宿主机上的容器间通信"><span class="toc-number">1.1.</span> <span class="toc-text">宿主机上的容器间通信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#容器的跨主机通信"><span class="toc-number">1.2.</span> <span class="toc-text">容器的跨主机通信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#扩展"><span class="toc-number">1.3.</span> <span class="toc-text">扩展</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#33-深入解析容器跨主机网络"><span class="toc-number">2.</span> <span class="toc-text">33 | 深入解析容器跨主机网络</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#UDP-模式"><span class="toc-number">2.1.</span> <span class="toc-text">UDP 模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VXLAN模式"><span class="toc-number">2.2.</span> <span class="toc-text">VXLAN模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VXLAN模式的跨主机通信过程"><span class="toc-number">2.3.</span> <span class="toc-text">VXLAN模式的跨主机通信过程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#34-Kubernetes网络模型与CNI网络插件"><span class="toc-number">3.</span> <span class="toc-text">34 | Kubernetes网络模型与CNI网络插件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CNI-网桥"><span class="toc-number">3.1.</span> <span class="toc-text">CNI 网桥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kubernetes-的容器网络方案"><span class="toc-number">3.2.</span> <span class="toc-text">Kubernetes 的容器网络方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CNI-插件的工作原理"><span class="toc-number">3.3.</span> <span class="toc-text">CNI 插件的工作原理</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#35-解读Kubernetes三层网络方案"><span class="toc-number">4.</span> <span class="toc-text">35 | 解读Kubernetes三层网络方案</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#host-gw-模式"><span class="toc-number">4.1.</span> <span class="toc-text">host-gw 模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BGP协议"><span class="toc-number">4.2.</span> <span class="toc-text">BGP协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Calico-项目"><span class="toc-number">4.3.</span> <span class="toc-text">Calico 项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Route-Reflector-的模式"><span class="toc-number">4.4.</span> <span class="toc-text">Route Reflector 的模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Calico的IPIP-模式"><span class="toc-number">4.5.</span> <span class="toc-text">Calico的IPIP 模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IPIP-模式替代方案"><span class="toc-number">4.6.</span> <span class="toc-text">IPIP 模式替代方案</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">32-35.网络模型和网络方案</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-09-26 16:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-09-26</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-10-22 08:58:57"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-10-22</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/">kubernetes</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/kubernetes/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kubernetes/">深入剖析Kubernetes</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">7.6k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 24 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>极客时间课程张磊的 <a href="https://time.geekbang.org/column/intro/116" target="_blank" rel="noopener">深入剖析Kuernetes</a> </p>
+<h1 id="32-浅谈容器网络"><a href="#32-浅谈容器网络" class="headerlink" title="32 | 浅谈容器网络"></a>32 | 浅谈容器网络</h1><p>“网络栈”，包括了网卡（Network Interface）、回环设备（Loopback Device）、路由表（Routing Table）和 iptables 规则。这些要素，构成了一个进程发起和响应网络请求的基本环境。</p>
+<p>在大多数情况下，我们希望容器进程能使用自己 Network Namespace 里的网络栈，即：拥有属于自己的 IP 地址和端口。</p>
+<h2 id="宿主机上的容器间通信"><a href="#宿主机上的容器间通信" class="headerlink" title="宿主机上的容器间通信"></a>宿主机上的容器间通信</h2><p>在 Linux 中，能够起到虚拟交换机作用的网络设备，是网桥（Bridge）。它是一个工作在数据链路层（Data Link）的设备，主要功能是根据 MAC 地址学习来将数据包转发到网桥的不同端口（Port）上。</p>
+<p>Docker 会默认在宿主机上创建一个名叫 docker0 的网桥，容器通过Veth Pair 的虚拟设备“连接”到 docker0 网桥上, 并通过 docker0 网桥进行通信。</p>
+<p>Veth Pair 设备的特点是：它被创建出来后，总是以两张虚拟网卡（Veth Peer）的形式成对出现的。并且，从其中一个“网卡”发出的数据包，可以直接出现在与它对应的另一张“网卡”上，哪怕这两个“网卡”在不同的 Network Namespace 里。</p>
+<p>容器里的eth0 网卡，是一个 Veth Pair，它的一端在这个 nginx-1 容器的 Network Namespace 里，而另一端则位于宿主机上（Host Namespace），并且被“插”在了宿主机的 docker0 网桥上。</p>
+<p>通过 brctl show 的输出，你可以看到这张网卡被“插”在了 docker0 上。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-18 ~]# brctl show </span><br><span class="line">bridge name     bridge id               STP enabled     interfaces</span><br><span class="line">docker0         8000.0242887e6be6       no              veth7999bd1</span><br></pre></td></tr></table></figure>
+
+
+
+<p>一旦一张虚拟网卡被“插”在网桥上，它就会变成该网桥的“从设备”。从设备会被“剥夺”调用网络协议栈处理数据包的资格，从而“降级”成为网桥上的一个端口。而这个端口唯一的作用，就是接收流入的数据包，然后把这些数据包的处理全部交给对应的网桥。</p>
+<p>路由规则的网关（Gateway）是 0.0.0.0，这就意味着这是一条直连规则，即：凡是匹配到这条规则的 IP 包，应该经过本机的 eth0 网卡，通过二层网络直接发往目的主机</p>
+<p><strong>docker0 处理转发的过程，扮演二层交换机的角色。</strong></p>
+<img src="/img/body/jike/e0d28e0371f93af619e91a86eda99a66.png" alt="img" style="zoom:67%;max-width:70%" />
+
+<p>被限制在 Network Namespace 里的容器进程，实际上是通过 Veth Pair 设备 + 宿主机网桥的方式，实现了跟同其他容器的数据交换。</p>
+<p>在宿主机上访问它上面的容器，或者它上面的容器访问外网，都是通过docker0 网桥。当你遇到容器连不通“外网”的时候，</p>
+<ul>
+<li>a.先试试 docker0 网桥能不能 ping 通；</li>
+<li>b.查看一下跟 docker0 和 Veth Pair 设备相关的 iptables 规则是不是有异常。</li>
+</ul>
+<h2 id="容器的跨主机通信"><a href="#容器的跨主机通信" class="headerlink" title="容器的跨主机通信"></a>容器的跨主机通信</h2><p>在Docker 的默认配置下，一台宿主机上的 docker0 网桥，和其他宿主机上的 docker0 网桥，没办法直接连通。</p>
+<p><strong>Overlay Network（覆盖网络）</strong></p>
+<img src="https://static001.geekbang.org/resource/image/b4/3d/b4387a992352109398a66d1dbe6e413d.png" alt="img" style="zoom:80%;max-width:70%" />
+
+
+
+<p>在已有的宿主机网络上，通过软件构建一个覆盖在已有宿主机网络之上的、可以把所有容器连通在一起的虚拟网络。这种技术就被称为：Overlay Network（覆盖网络）。</p>
+<h2 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h2><p>Linux 内核中 Netfilter 是什么，都有哪些作用？ iptable防火墙主要通过Netfilter实现。</p>
+<h1 id="33-深入解析容器跨主机网络"><a href="#33-深入解析容器跨主机网络" class="headerlink" title="33 | 深入解析容器跨主机网络"></a>33 | 深入解析容器跨主机网络</h1><p>通过Flannel 这个项目，讲解容器“跨主通信”的原理。</p>
+<p>Flannel 项目本身只是一个框架，真正为我们提供容器网络功能的，是 Flannel 的后端实现。目前，Flannel 支持三种后端实现，分别是：</p>
+<ol>
+<li>VXLAN；</li>
+<li>host-gw；</li>
+<li>UDP。</li>
+</ol>
+<h2 id="UDP-模式"><a href="#UDP-模式" class="headerlink" title="UDP 模式"></a>UDP 模式</h2><p>UDP 模式，是 Flannel 最早支持的一种方式，却也是性能最差的一种方式。所以，这个模式目前已经被弃用。这种模式是最直接、也是最容易理解的容器跨主网络实现。</p>
+<p>网卡flannel0 是一个 TUN 设备（Tunnel 设备）。在 Linux 中，TUN 设备是一种工作在三层（Network Layer）的虚拟网络设备。TUN 设备的功能非常简单，即：在操作系统内核和用户应用程序之间传递 IP 包。</p>
+<p>当 IP 包从容器经过 docker0 出现在宿主机，然后又根据路由表进入 flannel0 设备后，宿主机上的 flanneld 进程（Flannel 项目在每个宿主机上的主进程），就会收到这个 IP 包。然后，flanneld 看到了这个 IP 包的目的地址，就把它发送给了 Node 2 宿主机flanneld监听的 8285 端口，这样包就到了另一台机器。</p>
+<p>Flannel 项目里一个非常重要的概念：子网（Subnet）。</p>
+<p>子网与宿主机的对应关系，正是保存在 Etcd 当中。示例图如下</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ etcdctl ls &#x2F;coreos.com&#x2F;network&#x2F;subnets</span><br><span class="line">&#x2F;coreos.com&#x2F;network&#x2F;subnets&#x2F;100.96.1.0-24</span><br><span class="line">&#x2F;coreos.com&#x2F;network&#x2F;subnets&#x2F;100.96.2.0-24</span><br><span class="line">&#x2F;coreos.com&#x2F;network&#x2F;subnets&#x2F;100.96.3.0-24</span><br></pre></td></tr></table></figure>
+
+<p>flanneld 进程从 Etcd 中找到这个子网对应的宿主机的 IP 地址是 10.168.0.3</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ etcdctl get &#x2F;coreos.com&#x2F;network&#x2F;subnets&#x2F;100.96.2.0-24</span><br><span class="line">&#123;&quot;PublicIP&quot;:&quot;10.168.0.3&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>Flannel UDP 模式的跨主通信流程图</strong></p>
+<img src="/img/body/jike/8332564c0547bf46d1fbba2a1e0e166c.jpg" alt="基于Flannel UDP模式的跨主通信的基本原理" style="zoom:67%;max-width: 80%" />
+
+<p>Flannel UDP 模式提供的其实是一个三层的 Overlay 网络，即：它首先对发出端的 IP 包进行 UDP 封装，然后在接收端进行解封装拿到原始的 IP 包，进而把这个 IP 包转发给目标容器。这就好比，Flannel 在不同宿主机上的两个容器之间打通了一条“隧道”，使得这两个容器可以直接使用 IP 地址进行通信，而无需关心容器和宿主机的分布情况。</p>
+<p>相比于两台宿主机之间的直接通信，基于 Flannel UDP 模式的容器通信多了一个额外的步骤，即 flanneld 的处理过程。而这个过程，由于使用到了 flannel0 这个 TUN 设备，仅在发出 IP 包的过程中，就需要经过三次用户态与内核态之间的数据拷贝，如下所示：</p>
+<img src="/img/body/jike/84caa6dc3f9dcdf8b88b56bd2e22138d.png" alt="TUN设备示意图" style="zoom:80%;max-width: 40%" />
+
+<ul>
+<li>第一次，用户态的容器进程发出的 IP 包经过 docker0 网桥进入内核态；</li>
+<li>第二次，IP 包根据路由表进入 TUN（flannel0）设备，从而回到用户态的 flanneld 进程；</li>
+<li>第三次，flanneld 进行 UDP 封包之后重新进入内核态，将 UDP 包通过宿主机的 eth0 发出去。</li>
+</ul>
+<p>Flannel 进行 UDP 封装（Encapsulation）和解封装（Decapsulation）的过程，也都是在用户态完成的。在 Linux 操作系统中，上述这些上下文切换和用户态操作的代价其实是比较高的，这也正是造成 Flannel UDP 模式性能不好的主要原因。</p>
+<p>所以我们在进行系统级编程的时候，有一个非常重要的优化原则，就是要减少用户态到内核态的切换次数，并且把核心的处理逻辑都放在内核态进行。</p>
+<h2 id="VXLAN模式"><a href="#VXLAN模式" class="headerlink" title="VXLAN模式"></a>VXLAN模式</h2><p>VXLAN，即 Virtual Extensible LAN（虚拟可扩展局域网），是 Linux 内核本身就支持的一种网络虚似化技术。所以说，VXLAN 可以完全在内核态实现上述封装和解封装的工作，从而通过与前面相似的“隧道”机制，构建出覆盖网络（Overlay Network）。</p>
+<p>为何需要Vxlan：</p>
+<ol>
+<li>虚拟机规模受到网络规格的限制，大L2网络里，报文通过查询MAC地址转发，MAC表容量限制了虚拟机的数量。</li>
+<li>网络隔离的限制，普通的vlan和VPN配置无法满足动态网络调整的需求，同时配置复杂</li>
+<li>虚拟器搬迁受到限制，虚拟机启动后假如在业务不中断基础上将该虚拟机迁移到另外一台物理机上去，需要保持虚拟机的IP地址和MAC地址等参数保持不变，这就要求业务网络是一个二层的网络。</li>
+</ol>
+<p>VXLAN 的覆盖网络的设计思想是：在现有的三层网络之上，“覆盖”一层虚拟的、由内核 VXLAN 模块负责维护的二层网络，使得连接在这个 VXLAN 二层网络上的“主机”（虚拟机或者容器都可以）之间，可以像在同一个局域网（LAN）里那样自由通信。</p>
+<h2 id="VXLAN模式的跨主机通信过程"><a href="#VXLAN模式的跨主机通信过程" class="headerlink" title="VXLAN模式的跨主机通信过程"></a>VXLAN模式的跨主机通信过程</h2><p>为了能够在二层网络上打通“隧道”，VXLAN 会在宿主机上设置一个特殊的网络设备作为“隧道”的两端。这个设备就叫作 VTEP，即：VXLAN Tunnel End Point（虚拟隧道端点）。VTEP 设备的作用，其实跟前面的 flanneld 进程非常相似。只不过，它进行封装和解封装的对象，是二层数据帧（Ethernet frame）；而且这个工作的执行流程，全部是在内核里完成的（因为 VXLAN 本身就是 Linux 内核中的一个模块）。</p>
+<p>基于Flannel VXLAN模式的跨主通信的基本原理</p>
+<img src="/img/body/jike/03185fab251a833fef7ed6665d5049f5.jpg" alt="基于Flannel VXLAN模式的跨主通信的基本原理" style="zoom:80%;max-width: 80%" />
+
+
+
+<p>当 container-1 发出请求之后，这个目的地址是 10.1.16.3 的 IP 包，会先出现在 docker0 网桥，然后被路由到本机 flannel.1 设备进行处理。</p>
+<p>为了能够将“原始 IP 包”封装并且发送到正确的宿主机，VXLAN 就需要找到目的宿主机的 VTEP 设备。而这个设备的信息，正是每台宿主机上的 flanneld 进程负责维护的。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ route -n</span><br><span class="line">Kernel IP routing table</span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">...</span><br><span class="line">10.1.16.0       10.1.16.0       255.255.255.0   UG    0      0        0 flannel.1</span><br></pre></td></tr></table></figure>
+
+<p>这条规则的意思是：凡是发往 10.1.16.0/24 网段的 IP 包，都需要经过 flannel.1 设备发出，并且，它最后被发往的网关地址是：10.1.16.0。</p>
+<p>“源 VTEP 设备”收到“原始 IP 包”后，就要想办法把“原始 IP 包”加上一个目的 MAC 地址，封装成一个二层数据帧，然后发送给“目的 VTEP 设备”</p>
+<p>ARP 记录，也是 flanneld 进程在 Node 2 节点启动时，自动添加在 Node 1 上的。我们可以通过 ip 命令看到它，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 在Node 1上</span><br><span class="line">$ ip neigh show dev flannel.1</span><br><span class="line">10.1.16.0 lladdr 5e:f8:4f:00:e3:37 PERMANENT</span><br></pre></td></tr></table></figure>
+
+
+
+<p>有了这个“目的 VTEP 设备”的 MAC 地址，Linux 内核就可以开始二层封包工作了。这个二层帧的格式，如下所示：</p>
+<img src="https://static001.geekbang.org/resource/image/f2/55/f208fba66d2b58405864882342b23255.jpg" alt="img" style="zoom:80%;" />
+
+
+
+<p>Linux 内核会把“目的 VTEP 设备”的 MAC 地址，填写在图中的 Inner Ethernet Header 字段，得到一个二层数据帧。上述封包过程只是加一个二层头，不会改变“原始 IP 包”的内容。</p>
+<p>上面提到的这些 VTEP 设备的 MAC 地址，对于宿主机网络来说并没有什么实际意义。所以上面封装出来的这个数据帧，并不能在我们的宿主机二层网络里传输。为了方便叙述，我们把它称为“内部数据帧”（Inner Ethernet Frame）。</p>
+<p>所以接下来，Linux 内核还需要再把“内部数据帧”进一步封装成为宿主机网络里的一个普通的数据帧，好让它“载着”“内部数据帧”，通过宿主机的 eth0 网卡进行传输。我们把这次要封装出来的、宿主机对应的数据帧称为“外部数据帧”（Outer Ethernet Frame）。</p>
+<p>Linux 内核会在“内部数据帧”前面，加上一个特殊的 VXLAN 头，而这个 VXLAN 头里有一个重要的标志叫作 VNI，它是 VTEP 设备识别某个数据帧是不是应该归自己处理的重要标识。而在 Flannel 中，VNI 的默认值是 1，这也是为何，宿主机上的 VTEP 设备都叫作 flannel.1 的原因，这里的“1”，其实就是 VNI 的值。</p>
+<p>然后，Linux 内核会把这个数据帧封装进一个 UDP 包里发出去。</p>
+<p>在宿主机看来，它会以为自己的 flannel.1 设备只是在向另外一台宿主机的 flannel.1 设备，发起了一次普通的 UDP 链接。这个 UDP 包里面，其实是一个完整的二层数据帧。</p>
+<p>封装出来的“外部数据帧”的格式，如下所示：</p>
+<img src="https://static001.geekbang.org/resource/image/8c/85/8cede8f74a57617494027ba137383f85.jpg" alt="图5 Flannel VXLAN模式的外部帧" style="zoom:80%;" />
+
+
+
+<p>Node 2 的内核网络栈会发现这个数据帧里有 VXLAN Header，并且 VNI=1。所以 Linux 内核会对它进行拆包，拿到里面的内部数据帧，然后根据 VNI 的值，把它交给 Node 2 上的 flannel.1 设备。</p>
+<p>而 flannel.1 设备则会进一步拆包，取出“原始 IP 包”。接下来就回到了我在上一篇文章中分享的单机容器网络的处理流程。最终，IP 包就进入到了 container-2 容器的 Network Namespace 里。</p>
+<h1 id="34-Kubernetes网络模型与CNI网络插件"><a href="#34-Kubernetes网络模型与CNI网络插件" class="headerlink" title="34 | Kubernetes网络模型与CNI网络插件"></a>34 | Kubernetes网络模型与CNI网络插件</h1><p>用户的容器都连接在 docker0 网桥上。而网络插件则在宿主机上创建了一个特殊的设备（UDP 模式创建的是 TUN 设备，VXLAN 模式创建的则是 VTEP 设备），docker0 与这个设备之间，通过 IP 转发（路由表）进行协作。</p>
+<p>网络插件真正要做的事情，则是通过某种方法，把不同宿主机上的特殊设备连通，从而达到容器跨主机通信的目的。</p>
+<p>实际上，上面这个流程，也正是 Kubernetes 对容器网络的主要处理方法。只不过，Kubernetes 是通过一个叫作 CNI 的接口，维护了一个单独的网桥来代替 docker0。这个网桥的名字就叫作：CNI 网桥，它在宿主机上的设备名称默认是：cni0。</p>
+<p>以 Flannel 的 VXLAN 模式为例，在 Kubernetes 环境里，它的工作方式跟我们在上一篇文章中讲解的没有任何不同。只不过，docker0 网桥被替换成了 CNI 网桥而已，如下所示：</p>
+<img src="/img/body/jike/9f11d8716f6d895ff6d1c813d460488c.jpg" alt="img" style="zoom:67%;max-width: 80%" />
+
+
+
+<p>在这里，Kubernetes 为 Flannel 分配的子网范围是 10.244.0.0/16。这个参数可以在部署的时候指定，比如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ kubeadm init --pod-network-cidr&#x3D;10.244.0.0&#x2F;16</span><br></pre></td></tr></table></figure>
+
+<p>也可以在部署完成后，通过修改 kube-controller-manager 的配置文件来指定。</p>
+<h2 id="CNI-网桥"><a href="#CNI-网桥" class="headerlink" title="CNI 网桥"></a>CNI 网桥</h2><p>CNI 网桥只是接管所有 CNI 插件负责的、即 Kubernetes 创建的容器（Pod）。而此时，如果你用 docker run 单独启动一个容器，那么 Docker 项目还是会把这个容器连接到 docker0 网桥上。所以这个容器的 IP 地址，一定是属于 docker0 网桥的 172.17.0.0/16 网段。</p>
+<p>Kubernetes 之所以要设置这样一个与 docker0 网桥功能几乎一样的 CNI 网桥，主要原因包括两个方面：</p>
+<ul>
+<li>一方面，Kubernetes 项目并没有使用 Docker 的网络模型（CNM），所以它并不希望、也不具备配置 docker0 网桥的能力；</li>
+<li>另一方面，这还与 Kubernetes 如何配置 Pod，也就是 Infra 容器的 Network Namespace 密切相关。</li>
+</ul>
+<p>Kubernetes 创建一个 Pod 的第一步，就是创建并启动一个 Infra 容器，用来创建这个 Pod 的 Network Namespace。 CNI 的设计思想，就是：Kubernetes 在启动 Infra 容器之后，就可以直接调用 CNI 网络插件，为这个 Infra 容器的 Network Namespace，配置符合预期的网络栈。</p>
+<p>CNI 的基础可执行文件，按照功能可以分为三类：</p>
+<p>第一类，叫作 Main 插件，它是用来创建具体网络设备的二进制文件。比如，bridge（网桥设备）、ipvlan。</p>
+<p>第二类，叫作 IPAM（IP Address Management）插件，它是负责分配 IP 地址的二进制文件。比如，dhcp，这个文件会向 DHCP 服务器发起请求；host-local，则会使用预先配置的 IP 地址段来进行分配。</p>
+<p>第三类，是由 CNI 社区维护的内置 CNI 插件。比如：flannel，就是专门为 Flannel 项目提供的 CNI 插件。</p>
+<h2 id="Kubernetes-的容器网络方案"><a href="#Kubernetes-的容器网络方案" class="headerlink" title="Kubernetes 的容器网络方案"></a>Kubernetes 的容器网络方案</h2><p>如果要实现一个给 Kubernetes 用的容器网络方案，其实需要做两部分工作，以 Flannel 项目为例：</p>
+<p>首先，实现这个网络方案本身。主要就是 flanneld 进程里的主要逻辑。比如，创建和配置 flannel.1 设备、配置宿主机路由、配置 ARP 和 FDB 表里的信息等等。</p>
+<p>然后，实现该网络方案对应的 CNI 插件。主要需要做的，就是配置 Infra 容器里面的网络栈，并把它连接在 CNI 网桥上。</p>
+<p>需要注意的是，在 Kubernetes 中，处理容器网络相关的逻辑并不会在 kubelet 主干代码里执行，而是会在具体的 CRI（Container Runtime Interface，容器运行时接口）实现里完成。对于 Docker 项目来说，它的 CRI 实现叫作 dockershim，你可以在 kubelet 的代码里找到它。</p>
+<p>所以，接下来 dockershim 会加载上述的 CNI 配置文件。需要注意，Kubernetes 目前不支持多个 CNI 插件混用。如果你在 CNI 配置目录（/etc/cni/net.d）里放置了多个 CNI 配置文件的话，dockershim 只会加载按字母顺序排序的第一个插件。</p>
+<p>这时候，dockershim 会把这个 CNI 配置文件加载起来，并且把列表里的第一个插件、也就是 flannel 插件，设置为默认插件。而在后面的执行过程中，flannel 和 portmap 插件会按照定义顺序被调用，从而依次完成“配置容器网络”和“配置端口映射”这两步操作。</p>
+<h2 id="CNI-插件的工作原理"><a href="#CNI-插件的工作原理" class="headerlink" title="CNI 插件的工作原理"></a>CNI 插件的工作原理</h2><p>当 kubelet 组件需要创建 Pod 的时候，它第一个创建的是 Infra 容器。所以在这一步，dockershim 就会先调用 Docker API 创建并启动 Infra 容器，紧接着执行一个叫作 SetUpPod 的方法。这个方法的作用就是：为 CNI 插件准备参数，然后调用 CNI 插件为 Infra 容器配置网络。</p>
+<p>这里要调用的 CNI 插件，就是 /opt/cni/bin/flannel；而调用它所需要的参数，分为两部分。</p>
+<p>第一部分，是由 dockershim 设置的一组 CNI 环境变量。</p>
+<p>其中，最重要的环境变量参数叫作：CNI_COMMAND。它的取值只有两种：ADD 和 DEL。这个 ADD 和 DEL 操作，就是 CNI 插件唯一需要实现的两个方法。其中 ADD 操作的含义是：把容器添加到 CNI 网络里；DEL 操作的含义则是：把容器从 CNI 网络里移除掉。而对于网桥类型的 CNI 插件来说，这两个操作意味着把容器以 Veth Pair 的方式“插”到 CNI 网桥上，或者从网桥上“拔”掉。</p>
+<p>第二部分，则是 dockershim 从 CNI 配置文件里加载到的、默认插件的配置信息。</p>
+<p>而有了这两部分参数，Flannel CNI 插件实现 ADD 操作的过程就非常简单了。</p>
+<h1 id="35-解读Kubernetes三层网络方案"><a href="#35-解读Kubernetes三层网络方案" class="headerlink" title="35 | 解读Kubernetes三层网络方案"></a>35 | 解读Kubernetes三层网络方案</h1><h2 id="host-gw-模式"><a href="#host-gw-模式" class="headerlink" title="host-gw 模式"></a>host-gw 模式</h2><p><strong>Flannel 的 host-gw 模式示例图</strong></p>
+<img src="/img/body/jike/3d8b08411eeb49be2658eb4352206d25.png" alt="图1 Flannel host-gw示意图" style="zoom:67%;max-width: 80%" />
+
+
+
+<p>Node 1 上的 Infra-container-1，需要访问 Node 2 上的 Infra-container-2。</p>
+<p>当你设置 Flannel 使用 host-gw 模式之后，flanneld 会在宿主机上创建这样一条规则，以 Node 1 为例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ ip route</span><br><span class="line">...</span><br><span class="line">10.244.1.0&#x2F;24 via 10.168.0.3 dev eth0</span><br></pre></td></tr></table></figure>
+
+<p>这条路由规则的含义是：目的 IP 地址属于 10.244.1.0/24 网段的 IP 包，应该经过本机的 eth0 设备发出去（即：dev eth0）；并且，它下一跳地址（next-hop）是 10.168.0.3（即：via 10.168.0.3）。从 host-gw 示意图中可以看到，这个下一跳地址是我们的目的宿主机 Node 2。</p>
+<p>配置了下一跳地址，那么接下来，当 IP 包从网络层进入链路层封装成帧的时候，eth0 设备就会使用下一跳地址对应的 MAC 地址，作为该数据帧的目的 MAC 地址。显然，这个 MAC 地址，正是 Node 2 的 MAC 地址。这样，这个数据帧就会从 Node 1 通过宿主机的二层网络顺利到达 Node 2 上。</p>
+<p>而 Node 2 的内核网络栈从二层数据帧里拿到 IP 包后，会看到这个 IP 包的目的 IP 地址是 10.244.1.3，即 Infra-container-2 的 IP 地址。这时候，根据 Node 2 上的路由表，该目的地址会匹配到第二条路由规则（也就是 10.244.1.0 对应的路由规则），从而进入 cni0 网桥，进而进入到 Infra-container-2 当中。</p>
+<blockquote>
+<p>​    <strong>host-gw 模式的工作原理，其实就是将每个 Flannel 子网（Flannel Subnet，比如：10.244.1.0/24）的“下一跳”，设置成了该子网对应的宿主机的 IP 地址。</strong></p>
+</blockquote>
+<p>Flannel host-gw 模式会使用路由表里的“下一跳”来设置目的 MAC 地址,所以必须要求集群宿主机之间是二层连通的。</p>
+<p>Flannel 子网和主机的信息，都是保存在 Etcd 当中的。flanneld 只需要 WACTH 这些数据的变化，然后实时更新路由表即可。</p>
+<p>Flannel host-gw 模式下，容器通信的过程就免除了额外的封包和解包带来的性能损耗。根据实际的测试，host-gw 的性能损失大约在 10% 左右，而其他所有基于 VXLAN“隧道”机制的网络方案，性能损失都在 20%~30% 左右。</p>
+<h2 id="BGP协议"><a href="#BGP协议" class="headerlink" title="BGP协议"></a>BGP协议</h2><p>BGP 的全称是 Border Gateway Protocol，即：边界网关协议。它是一个 Linux 内核原生就支持的、专门用在大规模数据中心里维护不同的“自治系统”之间路由信息的、无中心的路由协议。</p>
+<img src="https://static001.geekbang.org/resource/image/2e/9b/2e4b3bee1d924f4ae25e2c1fd115379b.jpg" alt="img" style="zoom:80%;max-width: 60%" />
+
+<p>在这个图中，我们有两个自治系统（Autonomous System，简称为 AS）：AS 1 和 AS 2。而所谓的一个自治系统，指的是一个组织管辖下的所有 IP 网络和路由器的全体。你可以把它想象成一个小公司里的所有主机和路由器。在正常情况下，自治系统之间不会有任何“来往”。</p>
+<p>但是，如果这样两个自治系统里的主机，要通过 IP 地址直接进行通信，我们就必须使用路由器把这两个自治系统连接起来。</p>
+<p>像上面这样负责把自治系统连接在一起的路由器，我们就把它形象地称为：边界网关。它跟普通路由器的不同之处在于，它的路由表里拥有其他自治系统里的主机路由信息。</p>
+<p>在使用了 BGP 之后，你可以认为，在每个边界网关上都会运行着一个小程序，它们会将各自的路由表信息，通过 TCP 传输给其他的边界网关。而其他边界网关上的这个小程序，则会对收到的这些数据进行分析，然后将需要的信息添加到自己的路由表里。</p>
+<p>所以 BGP，就是在大规模网络中实现节点路由信息共享的一种协议。</p>
+<h2 id="Calico-项目"><a href="#Calico-项目" class="headerlink" title="Calico 项目"></a>Calico 项目</h2><p>Calico 项目提供的网络解决方案，与 Flannel 的 host-gw 模式，几乎是完全一样的。Calico 也会在每台宿主机上，添加一个格式如下所示的路由规则：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;目的容器IP地址段&gt; via &lt;网关的IP地址&gt; dev eth0</span><br></pre></td></tr></table></figure>
+
+
+
+<p>不同于 Flannel 通过 Etcd 和宿主机上的 flanneld 来维护路由信息的做法，Calico 项目使用了BGP来自动地在整个集群中分发路由信息。BGP 取代了 Flannel 维护主机上路由表的功能。而且，BGP 这种原生就是为大规模网络环境而实现的协议，其可靠性和可扩展性，远非 Flannel 自己的方案可比。</p>
+<p>Calico 项目的架构由三个部分组成：</p>
+<ol>
+<li>Calico 的 CNI 插件。这是 Calico 与 Kubernetes 对接的部分。</li>
+<li>Felix。它是一个 DaemonSet，负责在宿主机上插入路由规则（即：写入 Linux 内核的 FIB 转发信息库），以及维护 Calico 所需的网络设备等工作。</li>
+<li>BIRD。它就是 BGP 的客户端，专门负责在集群里分发路由规则信息。</li>
+</ol>
+<p>除了对路由信息的维护方式之外，Calico 项目与 Flannel 的 host-gw 模式的另一个不同之处，就是它不会在宿主机上创建任何网桥设备。这时候，Calico 的工作方式，可以用一幅示意图来描述，如下所示（下面我会统一用“BGP 示意图”来指代它）：</p>
+<img src="https://static001.geekbang.org/resource/image/8d/1b/8db6dee96c4242738ae2878e58cecd1b.jpg" alt="图3 Calico工作原理" style="zoom:67%;max-width: 60%" />
+
+<p>Calico 的 CNI 插件会为每个容器设置一个 Veth Pair 设备，然后把其中的一端放置在宿主机上（它的名字以 cali 前缀开头）。</p>
+<p>此外，由于 Calico 没有使用 CNI 的网桥模式，Calico 的 CNI 插件还需要在宿主机上为每个容器的 Veth Pair 设备配置一条路由规则，用于接收传入的 IP 包。比如，宿主机 Node 2 上的 Container 4 对应的路由规则，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10.233.2.3 dev cali5863f3 scope link</span><br></pre></td></tr></table></figure>
+
+<p>即：发往 10.233.2.3 的 IP 包，应该进入 cali5863f3 设备。</p>
+<blockquote>
+<p>基于上述原因，Calico  项目在宿主机上设置的路由规则，肯定要比 Flannel 项目多得多。不过，Flannel host-gw 模式使用 CNI  网桥的主要原因，其实是为了跟 VXLAN 模式保持一致。否则的话，Flannel 就需要维护两套 CNI 插件了。</p>
+</blockquote>
+<p>有了这样的 Veth Pair 设备之后，容器发出的 IP 包就会经过 Veth Pair 设备出现在宿主机上。然后，宿主机网络栈就会根据路由规则的下一跳 IP 地址，把它们转发给正确的网关。接下来的流程就跟 Flannel host-gw 模式完全一致了。</p>
+<p>其中，这里最核心的“下一跳”路由规则，就是由 Calico 的 Felix 进程负责维护的。这些路由规则信息，则是通过 BGP Client 也就是 BIRD 组件，使用 BGP 协议传输而来的。</p>
+<p>而这些通过 BGP 协议传输的消息，你可以简单地理解为如下格式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[BGP消息]</span><br><span class="line">我是宿主机192.168.1.3</span><br><span class="line">10.233.2.0&#x2F;24网段的容器都在我这里</span><br><span class="line">这些容器的下一跳地址是我</span><br></pre></td></tr></table></figure>
+
+<p>不难发现，Calico 项目实际上将集群里的所有节点，都当作是边界路由器来处理，它们一起组成了一个全连通的网络，互相之间通过 BGP 协议交换路由规则。这些节点，我们称为 BGP Peer。</p>
+<h2 id="Route-Reflector-的模式"><a href="#Route-Reflector-的模式" class="headerlink" title="Route Reflector 的模式"></a>Route Reflector 的模式</h2><p>Calico 维护的网络在默认配置下，是一个被称为“Node-to-Node Mesh”的模式。这时候，每台宿主机上的 BGP Client 都需要跟其他所有节点的 BGP Client 进行通信以便交换路由信息。但是，随着节点数量 N 的增加，这些连接的数量就会以 N²的规模快速增长，从而给集群本身的网络带来巨大的压力。</p>
+<p>所以，Node-to-Node Mesh 模式一般推荐用在少于 100 个节点的集群里。而在更大规模的集群中，你需要用到的是一个叫作 Route Reflector 的模式。</p>
+<p>在这种模式下，Calico 会指定一个或者几个专门的节点，来负责跟所有节点建立 BGP 连接从而学习到全局的路由规则。而其他节点，只需要跟这几个专门的节点交换路由信息，就可以获得整个集群的路由规则信息了。</p>
+<p>这些专门的节点，就是所谓的 Route Reflector 节点，它们实际上扮演了“中间代理”的角色，从而把 BGP 连接的规模控制在 N 的数量级上。</p>
+<h2 id="Calico的IPIP-模式"><a href="#Calico的IPIP-模式" class="headerlink" title="Calico的IPIP 模式"></a>Calico的IPIP 模式</h2><p>Flannel host-gw 模式最主要的限制，就是要求集群宿主机之间是二层连通的。而这个限制对于 Calico 来说，也同样存在。</p>
+<p>如果二层网络不通，你就需要为 Calico 打开 IPIP 模式。</p>
+<p>这个模式下容器通信的原理，如图所示</p>
+<img src="/img/body/jike/4dd9ad6415caf68da81562d9542049c9.jpg" alt="图4 Calico IPIP模式工作原理" style="zoom:67%; max-width: 60%" />
+
+
+
+<p>在 Calico 的 IPIP 模式下，Felix 进程在 Node 1 上添加的路由规则，会稍微不同，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10.233.2.0&#x2F;24 via 192.168.2.2 tunl0</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，尽管这条规则的下一跳地址仍然是 Node 2 的 IP 地址，但这一次，要负责将 IP 包发出去的设备，变成了 tunl0。注意，是 T-U-N-L-0，而不是 Flannel UDP 模式使用的 T-U-N-0（tun0），这两种设备的功能是完全不一样的。Calico 使用的这个 tunl0 设备，是一个 IP 隧道（IP tunnel）设备。</p>
+<p>IP 包进入 IP 隧道设备之后，就会被 Linux 内核的 IPIP 驱动接管。IPIP 驱动会将这个 IP 包直接封装在一个宿主机网络的 IP 包中，</p>
+<img src="/img/body/jike/fc2b4173782b7a993f4a43a2cb966f90.jpg" alt="图 5 IPIP 封包方式" style="zoom:67%; max-width: 50%" />
+
+
+
+<p>而原 IP 包本身，则会被直接封装成新 IP 包的 Payload。这样，原先从容器到 Node 2 的 IP 包，就被伪装成了一个从 Node 1 到 Node 2 的 IP 包。</p>
+<p>以上就是 Calico 项目主要的工作原理了。</p>
+<h2 id="IPIP-模式替代方案"><a href="#IPIP-模式替代方案" class="headerlink" title="IPIP 模式替代方案"></a>IPIP 模式替代方案</h2><p>当 Calico 使用 IPIP 模式的时候，集群的网络性能会因为额外的封包和解包工作而下降。在实际测试中，Calico IPIP 模式与 Flannel VXLAN 模式的性能大致相当。所以，在实际使用时，如非硬性需求，我建议你将所有宿主机节点放在一个子网里，避免使用 IPIP。</p>
+<p>在 Calico 项目中，它已经为你提供了两种将宿主机网关设置成 BGP Peer 的解决方案。</p>
+<p>第一种方案，就是所有宿主机都跟宿主机网关建立 BGP Peer 关系。</p>
+<p>第二种方案，是使用一个或多个独立组件负责搜集整个集群里的所有路由信息，然后通过 BGP 协议同步给网关。而我们前面提到，在大规模集群中，Calico 本身就推荐使用 Route Reflector 节点的方式进行组网。所以，这里负责跟宿主机网关进行沟通的独立组件，直接由 Route Reflector 兼任即可。</p>
+<p>更重要的是，这种情况下网关的 BGP Peer 个数是有限并且固定的。所以我们就可以直接把这些独立组件配置成路由器的 BGP Peer，而无需 Dynamic Neighbors 的支持。</p>
+<p>当然，这些独立组件的工作原理也很简单：它们只需要 WATCH Etcd 里的宿主机和对应网段的变化信息，然后把这些信息通过 BGP 协议分发给网关即可。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/09/26/32-35-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B%E5%92%8C%E7%BD%91%E7%BB%9C%E6%96%B9%E6%A1%88/">http://wang.ikongjian.com/2020/09/26/32-35-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B%E5%92%8C%E7%BD%91%E7%BB%9C%E6%96%B9%E6%A1%88/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Kuernetes/">深入剖析Kuernetes</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/09/29/36-39-%E7%BD%91%E7%BB%9C%E6%8E%A7%E5%88%B6%E3%80%81service%E5%92%8Cingress/"><img class="prev_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">36-39.网络控制、service和ingress</div></div></a></div><div class="next-post pull_right"><a href="/2020/09/24/28-31-kubernetes%E5%AE%B9%E5%99%A8%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8/"><img class="next_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">28-31.Kubernetes容器持久化存储</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/09/01/00-04-深入剖析k8s课前必读/" title="00-04.深入剖析k8s课前必读"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-01</div><div class="relatedPosts_title">00-04.深入剖析k8s课前必读</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/06/05-09-容器技术概念入门篇/" title="05-09.容器技术概念入门篇"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-06</div><div class="relatedPosts_title">05-09.容器技术概念入门篇</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/09/10-12-kubernetest集群搭建与实践/" title="10-12.Kubernetest集群搭建与实践"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-09</div><div class="relatedPosts_title">10-12.Kubernetest集群搭建与实践</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/11/13-15-深入解析pod对象/" title="13-15.深入解析pod对象"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-11</div><div class="relatedPosts_title">13-15.深入解析pod对象</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/24/28-31-kubernetes容器持久化存储/" title="28-31.Kubernetes容器持久化存储"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-24</div><div class="relatedPosts_title">28-31.Kubernetes容器持久化存储</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/18/18-20-深入理解statefulset/" title="18-20.深入理解StatefulSet"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-18</div><div class="relatedPosts_title">18-20.深入理解StatefulSet</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

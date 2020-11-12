@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>一、前端经验收集 | 蚂蚁博客</title><meta name="description" content="前端经验收集问题1: npm run build时报错：Failed to launch chrome​    在mac上npm run build成功，但是在centos7上构建却失败，报错日志如下，为什么会这样？ [root@wang-200 wang-web]# npm run build&gt; wang@0.1.0 build &#x2F;data&#x2F;app&#x2F;wang-"><meta name="keywords" content="其他,前端"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="一、前端经验收集"><meta name="twitter:description" content="前端经验收集问题1: npm run build时报错：Failed to launch chrome​    在mac上npm run build成功，但是在centos7上构建却失败，报错日志如下，为什么会这样？ [root@wang-200 wang-web]# npm run build&gt; wang@0.1.0 build &#x2F;data&#x2F;app&#x2F;wang-"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="一、前端经验收集"><meta property="og:url" content="http://wang.ikongjian.com/2020/07/01/%E4%B8%80%E3%80%81%E5%89%8D%E7%AB%AF%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="前端经验收集问题1: npm run build时报错：Failed to launch chrome​    在mac上npm run build成功，但是在centos7上构建却失败，报错日志如下，为什么会这样？ [root@wang-200 wang-web]# npm run build&gt; wang@0.1.0 build &#x2F;data&#x2F;app&#x2F;wang-"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-07-01T01:30:00.000Z"><meta property="article:modified_time" content="2020-09-21T09:21:06.850Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/07/01/%E4%B8%80%E3%80%81%E5%89%8D%E7%AB%AF%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/"><link rel="prev" title="about" href="http://wang.ikongjian.com/2020/07/01/about/"><link rel="next" title="二、shell经验收集" href="http://wang.ikongjian.com/2020/06/30/%E4%BA%8C%E3%80%81shell%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前端经验收集"><span class="toc-number">1.</span> <span class="toc-text">前端经验收集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题1-npm-run-build时报错：Failed-to-launch-chrome"><span class="toc-number">1.1.</span> <span class="toc-text">问题1: npm run build时报错：Failed to launch chrome</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#参考文档"><span class="toc-number">1.1.1.</span> <span class="toc-text">参考文档</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问题-gyp-ERR-stack-Error-EACCES-permission-denied-mkdir"><span class="toc-number">1.2.</span> <span class="toc-text">问题:  gyp ERR! stack Error: EACCES: permission denied, mkdir</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#参考文档-1"><span class="toc-number">1.2.1.</span> <span class="toc-text">参考文档</span></a></li></ol></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">一、前端经验收集</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-07-01 09:30:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-07-01</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-09-21 17:21:06"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-09-21</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E5%85%B6%E4%BB%96/">其他</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E5%85%B6%E4%BB%96/%E5%89%8D%E7%AB%AF/">前端</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">1.2k</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 5 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="前端经验收集"><a href="#前端经验收集" class="headerlink" title="前端经验收集"></a>前端经验收集</h2><h3 id="问题1-npm-run-build时报错：Failed-to-launch-chrome"><a href="#问题1-npm-run-build时报错：Failed-to-launch-chrome" class="headerlink" title="问题1: npm run build时报错：Failed to launch chrome"></a>问题1: npm run build时报错：Failed to launch chrome</h3><p>​    在mac上npm run build成功，但是在centos7上构建却失败，报错日志如下，为什么会这样？</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-200 wang-web]# npm run build</span><br><span class="line"></span><br><span class="line">&gt; wang@0.1.0 build &#x2F;data&#x2F;app&#x2F;wang-web</span><br><span class="line">&gt; icejs build</span><br><span class="line"></span><br><span class="line">ice.js 1.6.0</span><br><span class="line">                                         98% after emittingError: Failed to launch chrome!</span><br><span class="line">&#x2F;data&#x2F;app&#x2F;wang-web&#x2F;node_modules&#x2F;_puppeteer@1.20.0@puppeteer&#x2F;.local-chromium&#x2F;linux-686378&#x2F;chrome-linux&#x2F;chrome: error while loading shared libraries: libXss.so.1: cannot open shared object file: No such file or directory</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">TROUBLESHOOTING: https:&#x2F;&#x2F;github.com&#x2F;GoogleChrome&#x2F;puppeteer&#x2F;blob&#x2F;master&#x2F;docs&#x2F;troubleshooting.md</span><br><span class="line"></span><br><span class="line">    at onClose (&#x2F;data&#x2F;app&#x2F;wang-web&#x2F;node_modules&#x2F;_puppeteer@1.20.0@puppeteer&#x2F;lib&#x2F;Launcher.js:348:14)</span><br><span class="line">    at Interface.&lt;anonymous&gt; (&#x2F;data&#x2F;app&#x2F;wang-web&#x2F;node_modules&#x2F;_puppeteer@1.20.0@puppeteer&#x2F;lib&#x2F;Launcher.js:337:50)</span><br><span class="line">    at Interface.emit (events.js:322:22)</span><br><span class="line">    at Interface.close (readline.js:409:8)</span><br><span class="line">    at Socket.onend (readline.js:187:10)</span><br><span class="line">    at Socket.emit (events.js:322:22)</span><br><span class="line">    at endReadableNT (_stream_readable.js:1187:12)</span><br><span class="line">    at processTicksAndRejections (internal&#x2F;process&#x2F;task_queues.js:84:21)</span><br><span class="line">[Prerenderer - PuppeteerRenderer] Unable to start Puppeteer</span><br><span class="line">(node:1688) UnhandledPromiseRejectionWarning: TypeError: Cannot read property &#39;close&#39; of null</span><br><span class="line">    at PuppeteerRenderer.destroy (&#x2F;data&#x2F;app&#x2F;wang-web&#x2F;node_modules&#x2F;_@prerenderer_renderer-puppeteer@0.2.0@@prerenderer&#x2F;renderer-puppeteer&#x2F;es6&#x2F;renderer.js:140:21)</span><br><span class="line">    at Prerenderer.destroy (&#x2F;data&#x2F;app&#x2F;wang-web&#x2F;node_modules&#x2F;_@prerenderer_prerenderer@0.7.2@@prerenderer&#x2F;prerenderer&#x2F;es6&#x2F;index.js:87:20)</span><br><span class="line">    at &#x2F;data&#x2F;app&#x2F;wang-web&#x2F;node_modules&#x2F;_prerender-spa-plugin@3.4.0@prerender-spa-plugin&#x2F;es6&#x2F;index.js:144:29</span><br><span class="line">    at processTicksAndRejections (internal&#x2F;process&#x2F;task_queues.js:97:5)</span><br><span class="line">(node:1688) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag &#96;--unhandled-rejections&#x3D;strict&#96; (see https:&#x2F;&#x2F;nodejs.org&#x2F;api&#x2F;cli.html#cli_unhandled_rejections_mode). (rejection id: 1)</span><br><span class="line">(node:1688) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决方案：</strong></p>
+<p>因为你缺少依赖包。</p>
+<p>在centos上的问题，puppeteer含有两个包puppeteer VS  puppeteer-core,什么区别呢？简单来说就是puppeteer = api+chromeium（最新），puppeteer-core = only Api,官方是这么说的：</p>
+<blockquote>
+<p><code>puppeteer-core</code> 与 <code>puppeteer</code> 不同的地方：</p>
+<ul>
+<li><code>puppeteer-core</code> 在安装时不会自动下载 Chromium。</li>
+<li><code>puppeteer-core</code>忽略所有的 <code>PUPPETEER_*</code> env 变量.</li>
+</ul>
+</blockquote>
+<p>当你自己安装chromeium的时候，在启动（puppeteer.launch()）的时候需要指定chromeium的启动路径，当然自己安装存在更新的问题，可能由于更新不及时导致与puppeteer的api不匹配的情况，所以我们推荐直接安装puppeteer。然后呢，当你在centos上安装的时候毫无疑问的会报错。因为缺少chromeium启动的依赖，本人在centos6和7上都遇到了坑，下面是官方列举的centos上的所需依赖：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install pango.x86_64 libXcomposite.x86_64 libXcursor.x86_64 libXdamage.x86_64 libXext.x86_64 libXi.x86_64 libXtst.x86_64 cups-libs.x86_64 libXScrnSaver.x86_64 libXrandr.x86_64 GConf2.x86_64 alsa-lib.x86_64 atk.x86_64 gtk3.x86_64 ipa-gothic-fonts xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc</span><br></pre></td></tr></table></figure>
+
+<p>当你启动chromeium时（推荐在服务器上测试的时候先进入到node_modules/puppeteer/.local-chromium/linux-496140/chrome-linux/chrome目录下执行./chrome进行测试，能成功运行代表通过puppeteer的api调用也能成功）你可能会遇到例如：</p>
+<blockquote>
+<p>error while loading shared libraries: libpangocairo-1.0.so.0: cannot open shared object file: No such file or directory 这样的错误，提示你缺少的是一个so文件，你可以在执行文件目录下执行这个命令进行查看缺少哪些依赖： ldd chrome | grep not 命令执行后会显示你当前缺少的依赖，当你不知道对应的.so在哪个包中的时候执行这个命令： yum provides | grep xx.so.0</p>
+</blockquote>
+<p>找到对应的包进行yum install 安装，注意32还是64位的，不要装错。    </p>
+<p>如果你启动也有问题，可以看看参考文档，看看和你的报错一样吗。</p>
+<h4 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h4><ul>
+<li>一个懒癌程序员 <a href="https://zhangzippo.github.io/posts/2019/04/25/_25puppteererror.html" target="_blank" rel="noopener">puppeteer填坑指南</a></li>
+</ul>
+<h3 id="问题-gyp-ERR-stack-Error-EACCES-permission-denied-mkdir"><a href="#问题-gyp-ERR-stack-Error-EACCES-permission-denied-mkdir" class="headerlink" title="问题:  gyp ERR! stack Error: EACCES: permission denied, mkdir"></a>问题:  gyp ERR! stack Error: EACCES: permission denied, mkdir</h3><p>解决方案：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo npm i --unsafe-perm</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因：权限问题</strong></p>
+<p>就是说 npm 出于安全考虑不支持以 root 用户运行，即使你用 root 用户身份运行了，npm 会自动转成一个叫 nobody  的用户来运行，而这个用户几乎没有任何权限。这样的话如果你脚本里有一些需要权限的操作，比如写文件（尤其是写  /root/.node-gyp），就会崩掉了。</p>
+<p>为了避免这种情况，要么按照 npm 的规矩来，专门建一个用于运行 npm 的高权限用户；要么加 –unsafe-perm 参数，这样就不会切换到 nobody 上，运行时是哪个用户就是哪个用户，即是 root。</p>
+<h4 id="参考文档-1"><a href="#参考文档-1" class="headerlink" title="参考文档"></a>参考文档</h4><ul>
+<li><a href="https://blog.csdn.net/qq_31325079/article/details/102565223" target="_blank" rel="noopener">gyp ERR! stack Error: EACCES: permission denied, mkdir问题解决方案</a></li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/07/01/%E4%B8%80%E3%80%81%E5%89%8D%E7%AB%AF%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/">http://wang.ikongjian.com/2020/07/01/%E4%B8%80%E3%80%81%E5%89%8D%E7%AB%AF%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%85%B6%E4%BB%96/">其他</a><a class="post-meta__tags" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/07/01/about/"><img class="prev_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">about</div></div></a></div><div class="next-post pull_right"><a href="/2020/06/30/%E4%BA%8C%E3%80%81shell%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/"><img class="next_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">二、shell经验收集</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/06/24/操作系统vmware-esxi安装/" title="操作系统VMware-esxi安装"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-24</div><div class="relatedPosts_title">操作系统VMware-esxi安装</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/13/一、typora更换主题详细步骤/" title="一、Typora更换主题详细步骤"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-13</div><div class="relatedPosts_title">一、Typora更换主题详细步骤</div></div></a></div><div class="relatedPosts_item"><a href="/2020/08/24/gitlab的使用/" title="gitlab的使用"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-08-24</div><div class="relatedPosts_title">gitlab的使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/09/vcenterserver的部署和使用/" title="vCenterServer的部署和使用"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-09</div><div class="relatedPosts_title">vCenterServer的部署和使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/09/监控dell服务器的硬件信息/" title="监控DELL服务器的硬件信息"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-09-09</div><div class="relatedPosts_title">监控DELL服务器的硬件信息</div></div></a></div><div class="relatedPosts_item"><a href="/2021/01/02/linux-tmp2/" title="linux-tmp2"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2021-01-02</div><div class="relatedPosts_title">linux-tmp2</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>

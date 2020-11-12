@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>linux常见问题2 | 蚂蚁博客</title><meta name="description" content="linux常见问题2文件由windows格式转为unix查看文本文件格式:set ff  # 末行模式   修改文件文件格式:set ff&#x3D;unix    更改为unix格式，如果改为windows,则设置 ff&#x3D;dos 报错：libpcre.so.0: cannot open shared object file[root@wang-41 etc]# &#x2F;data&#x2F;zabbix"><meta name="keywords" content="Linux,常见问题"><meta name="author" content="会跳的小蚂蚁"><meta name="copyright" content="会跳的小蚂蚁"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="linux常见问题2"><meta name="twitter:description" content="linux常见问题2文件由windows格式转为unix查看文本文件格式:set ff  # 末行模式   修改文件文件格式:set ff&#x3D;unix    更改为unix格式，如果改为windows,则设置 ff&#x3D;dos 报错：libpcre.so.0: cannot open shared object file[root@wang-41 etc]# &#x2F;data&#x2F;zabbix"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="og:type" content="article"><meta property="og:title" content="linux常见问题2"><meta property="og:url" content="http://wang.ikongjian.com/2020/07/25/linux%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%982/"><meta property="og:site_name" content="蚂蚁博客"><meta property="og:description" content="linux常见问题2文件由windows格式转为unix查看文本文件格式:set ff  # 末行模式   修改文件文件格式:set ff&#x3D;unix    更改为unix格式，如果改为windows,则设置 ff&#x3D;dos 报错：libpcre.so.0: cannot open shared object file[root@wang-41 etc]# &#x2F;data&#x2F;zabbix"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><meta property="article:published_time" content="2020-07-25T06:00:00.000Z"><meta property="article:modified_time" content="2020-09-30T08:28:28.423Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://wang.ikongjian.com/2020/07/25/linux%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%982/"><link rel="prev" title="nginx的详细用法" href="http://wang.ikongjian.com/2020/07/27/nginx%E7%9A%84%E8%AF%A6%E7%BB%86%E7%94%A8%E6%B3%95/"><link rel="next" title="docker的安装和使用" href="http://wang.ikongjian.com/2020/07/24/docker%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: true
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">91</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">48</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">40</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#linux常见问题2"><span class="toc-number">1.</span> <span class="toc-text">linux常见问题2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件由windows格式转为unix"><span class="toc-number">1.1.</span> <span class="toc-text">文件由windows格式转为unix</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#查看文本文件格式"><span class="toc-number">1.1.1.</span> <span class="toc-text">查看文本文件格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#修改文件文件格式"><span class="toc-number">1.1.2.</span> <span class="toc-text">修改文件文件格式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#报错：libpcre-so-0-cannot-open-shared-object-file"><span class="toc-number">1.2.</span> <span class="toc-text">报错：libpcre.so.0: cannot open shared object file</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决办法"><span class="toc-number">1.3.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决centos7-开机-etc-rc-local-不执行的问题"><span class="toc-number">2.</span> <span class="toc-text">解决centos7 开机&#x2F;etc&#x2F;rc.local 不执行的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建容器时报错"><span class="toc-number">3.</span> <span class="toc-text">创建容器时报错</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mac清除dns缓存"><span class="toc-number">3.1.</span> <span class="toc-text">mac清除dns缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dubbo服务连接zookeeper报错"><span class="toc-number">3.2.</span> <span class="toc-text">dubbo服务连接zookeeper报错</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法1"><span class="toc-number">3.2.1.</span> <span class="toc-text">解决办法1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法2"><span class="toc-number">3.2.2.</span> <span class="toc-text">解决办法2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#参考文档"><span class="toc-number">3.2.3.</span> <span class="toc-text">参考文档</span></a></li></ol></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">蚂蚁博客</a></span><span class="pull_right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fa fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/2020/07/01/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">linux常见问题2</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-07-25 14:00:00"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2020-07-25</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-09-30 16:28:28"><i class="fa fa-history" aria-hidden="true"></i> 更新于 2020-09-30</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/linux/">linux</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/linux/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/">常见问题</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="post-meta__icon fa fa-file-word-o" aria-hidden="true"></i><span>字数总计:</span><span class="word-count">924</span><span class="post-meta__separator">|</span><i class="post-meta__icon fa fa-clock-o" aria-hidden="true"></i><span>阅读时长: 4 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="linux常见问题2"><a href="#linux常见问题2" class="headerlink" title="linux常见问题2"></a>linux常见问题2</h2><h3 id="文件由windows格式转为unix"><a href="#文件由windows格式转为unix" class="headerlink" title="文件由windows格式转为unix"></a>文件由windows格式转为unix</h3><h4 id="查看文本文件格式"><a href="#查看文本文件格式" class="headerlink" title="查看文本文件格式"></a>查看文本文件格式</h4><p>:set ff  # 末行模式</p>
+<img src="http://wangzhangtao.com/img/body/2.linux%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98-2/image-20200811145544737.png" alt="字体格式示意图" style="zoom:100%;" align="left" />
+
+<h4 id="修改文件文件格式"><a href="#修改文件文件格式" class="headerlink" title="修改文件文件格式"></a>修改文件文件格式</h4><p>:set ff=unix   </p>
+<p>更改为unix格式，如果改为windows,则设置 ff=dos</p>
+<h3 id="报错：libpcre-so-0-cannot-open-shared-object-file"><a href="#报错：libpcre-so-0-cannot-open-shared-object-file" class="headerlink" title="报错：libpcre.so.0: cannot open shared object file"></a>报错：libpcre.so.0: cannot open shared object file</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@wang-41 etc]# &#x2F;data&#x2F;zabbix&#x2F;sbin&#x2F;zabbix_agentd </span><br><span class="line">&#x2F;data&#x2F;zabbix&#x2F;sbin&#x2F;zabbix_agentd: error while loading shared libraries: libpcre.so.0: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><p>缺少文件libpcre.so.0导致的，我们做一个软链接</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ln -s &#x2F;usr&#x2F;lib64&#x2F;libpcre.so.1 &#x2F;lib64&#x2F;libpcre.so.0</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="解决centos7-开机-etc-rc-local-不执行的问题"><a href="#解决centos7-开机-etc-rc-local-不执行的问题" class="headerlink" title="解决centos7 开机/etc/rc.local 不执行的问题"></a>解决centos7 开机/etc/rc.local 不执行的问题</h2><blockquote>
+<p>原文地址：<a href="https://www.jb51.net/article/108874.htm" target="_blank" rel="noopener">解决centos7 开机/etc/rc.local 不执行的问题</a></p>
+</blockquote>
+<p>最近发现<strong>centos7</strong> 的<strong>/etc/rc.local</strong>不会开机执行，于是认真看了下<strong>/etc/rc.local</strong>文件内容的就发现了问题的原因了</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;bash</span><br><span class="line"># THIS FILE IS ADDED FOR COMPATIBILITY PURPOSES</span><br><span class="line">#</span><br><span class="line"># It is highly advisable to create own systemd services or udev rules</span><br><span class="line"># to run scripts during boot instead of using this file.</span><br><span class="line">#</span><br><span class="line"># In constrast to previous versions due to parallel execution during boot</span><br><span class="line"># this script will NOT be run after all other services.</span><br><span class="line">#</span><br><span class="line"># Please note that you must run &#39;chmod +x &#x2F;etc&#x2F;rc.d&#x2F;rc.local&#39; to ensure</span><br><span class="line"># that this script will be executed during boot.</span><br></pre></td></tr></table></figure>
+
+<p> <strong>翻译：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#这个文件是为了兼容性的问题而添加的。</span><br><span class="line">#</span><br><span class="line">#强烈建议创建自己的systemd服务或udev规则来在开机时运行脚本而不是使用这个文件。</span><br><span class="line">#</span><br><span class="line">#与以前的版本引导时的并行执行相比较，这个脚本将不会在其他所有的服务后执行。</span><br><span class="line">#</span><br><span class="line">#请记住，你必须执行“chmod +x &#x2F;etc&#x2F;rc.d&#x2F;rc.local”来确保确保这个脚本在引导时执行。</span><br></pre></td></tr></table></figure>
+
+<p>于是我有确认了下<strong>/etc/rc.local</strong>的权限</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# ll &#x2F;etc&#x2F;rc.local</span><br><span class="line">lrwxrwxrwx. 1 root root 13 8月 12 06:09 &#x2F;etc&#x2F;rc.local -&gt; rc.d&#x2F;rc.local</span><br><span class="line">[root@localhost ~]# ll &#x2F;etc&#x2F;rc.d&#x2F;rc.local</span><br><span class="line">-rw-r--r--. 1 root root 477 6月 10 13:35 &#x2F;etc&#x2F;rc.d&#x2F;rc.local</span><br></pre></td></tr></table></figure>
+
+<p>/etc/rc.d/rc.local没有执行权限，于是按说明的内容执行</p>
+<p><strong>chmod +x /etc/rc.d/rc.local</strong></p>
+<p>重启后发现/etc/rc.local能够执行了。</p>
+<p>看样子是版本的变迁，/etc/rc.local /etc/rc.d/rc.local正在弃用的路上。</p>
+<h2 id="创建容器时报错"><a href="#创建容器时报错" class="headerlink" title="创建容器时报错"></a>创建容器时报错</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">IPv4 forwarding is disabled. Networking will not work.</span><br></pre></td></tr></table></figure>
+
+<p>是因为宿主机没有开启网络路由转发功能，所以解决办法：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">echo &quot;net.ipv4.ip_forward&#x3D;1&quot; &gt;&gt; &#x2F;usr&#x2F;lib&#x2F;sysctl.d&#x2F;00-system.conf</span><br><span class="line">systemctl restart network</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="mac清除dns缓存"><a href="#mac清除dns缓存" class="headerlink" title="mac清除dns缓存"></a>mac清除dns缓存</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dscacheutil -flushcache</span><br><span class="line">sudo killall -HUP mDNSResponder</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="dubbo服务连接zookeeper报错"><a href="#dubbo服务连接zookeeper报错" class="headerlink" title="dubbo服务连接zookeeper报错"></a>dubbo服务连接zookeeper报错</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error starting ApplicationContext. To display the conditions report re-run your application with &#39;debug&#39; enabled.</span><br><span class="line">2020-09-28 18:43:22.443 [TID: N&#x2F;A] [main] ERROR o.s.boot.SpringApplication -Application run failed</span><br><span class="line">java.lang.IllegalStateException: Failed to receive INITIALIZED event from zookeeper, pls. check if url zookeeper:&#x2F;&#x2F;zk-cs:2181&#x2F;org.apache.dubbo.metadata.report.MetadataReport?dubbo.config-center.root-path&#x3D;&#x2F; is correct</span><br><span class="line">        at org.apache.dubbo.configcenter.support.zookeeper.ZookeeperDynamicConfiguration.&lt;init&gt;(ZookeeperDynamicConfiguration.java:63)</span><br><span class="line">        at org.apache.dubbo.configcenter.support.zookeeper.ZookeeperDynamicConfigurationFactory.createDynamicConfiguration(ZookeeperDynamicConfigurationFactory.java:37)</span><br><span class="line">        at org.apache.dubbo.common.config.configcenter.AbstractDynamicConfigurationFactory.lambda$getDynamicConfiguration$0(AbstractDynamicConfigurationFactory.java:39)</span><br><span class="line">        at java.util.concurrent.ConcurrentHashMap.computeIfAbsent(ConcurrentHashMap.java:1660)</span><br></pre></td></tr></table></figure>
+
+<p>意思就是启动时，缓存将与服务器同步，在发现新节点时发布一系列NODE_ADDED事件。缓存完全同步后，将发布INITIALIZED事件。在此事件之后发布的所有事件都表示实际的服务器端变化。重新连接时，缓存将与服务器重新同步其内部状态，并在其内部状态完全刷新后再次触发此事件。</p>
+<h4 id="解决办法1"><a href="#解决办法1" class="headerlink" title="解决办法1"></a>解决办法1</h4><p>将“init.timeout”的时间设置长一些，比如设置超时时间为10s：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">dubbo.config-center.parameters[init.timeout]&#x3D;10000</span><br></pre></td></tr></table></figure>
+
+<h4 id="解决办法2"><a href="#解决办法2" class="headerlink" title="解决办法2"></a>解决办法2</h4><p>修改zookeeper的minSessionTimeout</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;data&#x2F;zookeeper&#x2F;conf&#x2F;zoo.cfg</span><br><span class="line">minSessionTimeout&#x3D;20000</span><br></pre></td></tr></table></figure>
+
+<h4 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h4><ul>
+<li><a href="https://blog.csdn.net/weixin_38308374/article/details/105984022" target="_blank" rel="noopener">https://blog.csdn.net/weixin_38308374/article/details/105984022</a></li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">会跳的小蚂蚁</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://wang.ikongjian.com/2020/07/25/linux%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%982/">http://wang.ikongjian.com/2020/07/25/linux%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%982/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://wang.ikongjian.com" target="_blank">蚂蚁博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/">常见问题</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button button--primary button--animated"> <i class="fa fa-qrcode"></i> donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="微信"/><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="支付宝"/><div class="post-qr-code__desc">支付宝</div></li></ul></div></a></div><div class="post-ad"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="xxxxxxxxxxxx" data-ad-client="ca-pub-xxxxxxxxxx" data-ad-slot="xxxxxxxxxx"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/07/27/nginx%E7%9A%84%E8%AF%A6%E7%BB%86%E7%94%A8%E6%B3%95/"><img class="prev_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">nginx的详细用法</div></div></a></div><div class="next-post pull_right"><a href="/2020/07/24/docker%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/"><img class="next_cover" src="/img/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">docker的安装和使用</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/08/16/linux常见问题1/" title="linux常见问题1"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-08-16</div><div class="relatedPosts_title">linux常见问题1</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/13/四、git使用/" title="四、git使用"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-13</div><div class="relatedPosts_title">四、git使用</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/16/常用软件-nexus私服/" title="常用软件-nexus私服"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-16</div><div class="relatedPosts_title">常用软件-nexus私服</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/17/常用软件-elkf-kafka集群/" title="常用软件-ELKF+kafka集群"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-17</div><div class="relatedPosts_title">常用软件-ELKF+kafka集群</div></div></a></div><div class="relatedPosts_item"><a href="/2020/07/16/常用软件-部署activemq/" title="常用软件-部署activemq"><img class="relatedPosts_cover" src="/img/gkihqEjXxJ5UZ1C.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-07-16</div><div class="relatedPosts_title">常用软件-部署activemq</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/30/二、shell经验收集/" title="二、shell经验收集"><img class="relatedPosts_cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/cover/default_bg.png"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-30</div><div class="relatedPosts_title">二、shell经验收集</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div class="vcomment" id="vcomment"></div><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var requestSetting = function (from,set) {
+  var from = from
+  var setting = set.split(',').filter(function(item){
+  return from.indexOf(item) > -1
+  });
+  setting = setting.length == 0 ? from :setting;
+  return setting
+}
+
+var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+var requiredFields = requestSetting(['nick','mail','link'],'nick,mail')
+
+window.valine = new Valine({
+  el:'#vcomment',
+  appId: '3trHicwpGcV9ectvS8IUTPyA-gzGzoHsz',
+  appKey: 'O89QU06amIo1zHhNLV9BMxU7',
+  notify: false,
+  verify: false,
+  placeholder: 'Please leave your footprints',
+  avatar: 'monsterid',
+  meta: guestInfo,
+  pageSize: '10',
+  lang: 'en',
+  recordIP: false,
+  serverURLs: '',
+  emojiCDN: '',
+  emojiMaps: "",
+  enableQQ: false,
+  requiredFields: requiredFields
+});</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By 会跳的小蚂蚁</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="icp"><a href="http://www.beian.gov.cn/portal/index.do" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>京ICP备20023989号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><i class="darkmode fa fa-moon-o" id="darkmode" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/search/local-search.js"></script></body></html>
